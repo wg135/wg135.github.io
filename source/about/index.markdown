@@ -7,4 +7,12 @@ sharing: true
 footer: true
 ---
 
-I am a Lover and I am a Hacker
+Hi, I am Bob1Bob2, an unofficial Pen Tester based in Austin, TX.
+
+I have been loving and studing vulnerability Discovery and Pen testing, on and off, for couple of years.
+
+##Contact me
+Find me at gaowei0525 at gmail dot com
+
+
+
