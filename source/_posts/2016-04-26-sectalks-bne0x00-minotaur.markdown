@@ -44,10 +44,24 @@ use wfuzz to find more locations
 
 found http://192.168.56.223/bull/
 
-Checked the page, it looks like use wordpress. good. maybe I can find out some old wordpress plugins.
+Check the page, it looks like use wordpress. good. maybe I can find out some old wordpress plugins.
 
 {% img  /images/blog/vulhub/bne03/Selection_004.png   [title manually exploit [alt text]] %}
 
+I use wpscan to find wordpress plugins vulnerabilities.
 
+`uby wpscan.rb --url http://192.168.56.223/bull/`
+
+get some xss vulnerabilities and an interestig arbutrart file upload vulnerability.
+
+{% img  /images/blog/vulhub/bne03/Selection_005.png   [title manually exploit [alt text]] %}
+
+next step, user enumeration.
+
+`ruby wpscan.rb --url http://192.168.56.223/bull/ --enumerate u`
+
+{% img  /images/blog/vulhub/bne03/Selection_006.png   [title manually exploit [alt text]] %}
+
+get a user name `bully`
 
 
