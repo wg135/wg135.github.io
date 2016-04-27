@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-04-27T15:55:42-05:00</updated>
+  <updated>2016-04-27T16:32:22-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -76,6 +76,12 @@
 <p><img src="http://wg135.github.io/images/blog/vulhub/bne03/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
 
 <p>get a user name <code>bully</code></p>
+
+<p>next step, password guessing:</p>
+
+<p><code>ruby wpscan.rb --url http://192.168.56.223/bull/ --wordlist SecLists/Passwords/passwords_john.txt threads 50</code></p>
+
+<p>no luck this time.</p>
 ]]></content>
   </entry>
   
