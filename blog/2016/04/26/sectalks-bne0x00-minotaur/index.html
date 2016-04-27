@@ -164,7 +164,15 @@ $(document).ready(
 
 <p><code>ruby wpscan.rb --url http://192.168.56.223/bull/ --wordlist SecLists/Passwords/passwords_john.txt threads 50</code></p>
 
-<p>no luck this time.</p>
+<p>no luck this time. Let&rsquo;s try harder..</p>
+
+<p>we use cewl this time to generate password file</p>
+
+<p><code>cewl -w password.txt http://192.168.56.223/bull/</code></p>
+
+<p>also john the ripper should be used to mutate the password file:</p>
+
+<p><code>john --wordlist=password.txt --rules --stdout &gt; out.txt</code></p>
 </div>
 
 
