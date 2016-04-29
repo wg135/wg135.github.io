@@ -10,7 +10,6 @@ categories:  [vulhub]
 
 
 From [Vulhub](https://www.vulnhub.com/entry/sectalks-bne0x03-simple,141/)
-
 Simple CTF is a boot2root that focuses on the basics of web based hacking. Once you load the VM, treat it as a machine you can see on the network, i.e. you don't have physical access to this machine. Therefore, tricks like editing the VM's BIOS or Grub configuration are not allowed. Only remote attacks are permitted. /root/flag.txt is your ultimate goal.
 
 <!--more-->

