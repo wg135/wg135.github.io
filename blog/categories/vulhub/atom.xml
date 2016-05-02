@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-05-02T14:54:31-05:00</updated>
+  <updated>2016-05-02T15:18:37-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -39,6 +39,14 @@
 <p><img src="/images/blog/vulhub/kevgir1/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
 
 <p>192.168.79.174 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.174 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/kevgir1/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like port 8080 and 8081 are very interesting&hellip;..</p>
 ]]></content>
   </entry>
   
