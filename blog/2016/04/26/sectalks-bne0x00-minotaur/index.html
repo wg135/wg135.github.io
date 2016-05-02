@@ -201,8 +201,31 @@ $(document).ready(
 
 <p><img src="/images/blog/vulhub/bne03/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
 
-<p>locate flag.txt:
-<code>locate flag.txt</code> and get the result <code>/var/www/html/flag.txt</code></p>
+<p>locate flag.txt and get the result <code>/tmp/flag.txt</code></p>
+
+<p>find a file shadow.bak in /tmp, I got some interesting things:</p>
+
+<p><img src="/images/blog/vulhub/bne03/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like there are more chances to me. Download this file and use john to crack more.</p>
+
+<p><code>john --fork=4 shadow.bak</code></p>
+
+<p>now I have two more accounts info</p>
+
+<p><img src="/images/blog/vulhub/bne03/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use python <code>python -c 'import pty; pty.spawn("/bin/bash")'</code></p>
+
+<p>Login as heffer:</p>
+
+<p><img src="/images/blog/vulhub/bne03/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Login as minotaur:</p>
+
+<p><img src="/images/blog/vulhub/bne03/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>DONE.</p>
 </div>
 
 
