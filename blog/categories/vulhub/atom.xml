@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-05-03T13:49:13-05:00</updated>
+  <updated>2016-05-03T13:53:08-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -67,6 +67,8 @@
 <p><code>nikto -h 192.168.79.174:8080</code></p>
 
 <p><img src="/images/blog/vulhub/kevgir1/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>We got the username and password for tomcat manager &hellip; good</p>
 ]]></content>
   </entry>
   
