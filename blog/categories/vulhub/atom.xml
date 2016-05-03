@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-05-02T18:06:42-05:00</updated>
+  <updated>2016-05-03T13:49:13-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -25,7 +25,7 @@
 <ul>
 <li>netdiscover</li>
 <li>Nmap</li>
-<li>Wfuzz</li>
+<li>hydra</li>
 </ul>
 
 
@@ -60,7 +60,13 @@
 
 <p><code>ssh -p 1322 admin@192.168.79.174</code></p>
 
-<p>DONE</p>
+<p>FTP attack DONE</p>
+
+<p>Now let&rsquo;s attack port 8080. Use nikto to scan it first.</p>
+
+<p><code>nikto -h 192.168.79.174:8080</code></p>
+
+<p><img src="/images/blog/vulhub/kevgir1/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
