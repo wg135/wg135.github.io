@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-05-04T16:24:09-05:00</updated>
+  <updated>2016-05-04T16:30:35-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -186,6 +186,12 @@ jar -cvf ../webshell.war *</p>
 <p>set up the netcat and preview the page. get the shell</p>
 
 <p><img src="/images/blog/vulhub/kevgir1/Selection_022.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now lets try another php webshell</p>
+
+<p><a href="https://github.com/wg135/webshell-1/blob/master/php/reverseshell-poc.txt">reverse shell from hacksys team</a></p>
+
+<p><img src="/images/blog/vulhub/kevgir1/Selection_023.png" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
