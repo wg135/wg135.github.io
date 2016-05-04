@@ -13,8 +13,11 @@ From [Vulhub](https://www.vulnhub.com/entry/sectalks-bne0x00-minotaur,139/)
 
 * netdiscover
 * Nmap
-* Burp Suite
-* Metasploit
+* Wfuzz
+* WPscan
+* msfvenom
+* John the Ripper
+
 
 <!--more-->
 
@@ -33,7 +36,7 @@ Then run nmap to detect opening ports and running services on the target machine
 
 {% img  /images/blog/vulhub/bne03/Selection_002.png   [title manually exploit [alt text]] %}
 
-port 22, 80 and 2020 is opening.
+port 22, 80 and 2020 are opening.
 
 use wfuzz to find more locations
 
@@ -44,7 +47,7 @@ use wfuzz to find more locations
 
 found http://192.168.56.223/bull/
 
-Check the page, it looks like use wordpress. good. maybe I can find out some old wordpress plugins.
+Check the page, looks like it uses wordpress. Good. maybe I can find out some outdated wordpress plugins.
 
 {% img  /images/blog/vulhub/bne03/Selection_004.png   [title manually exploit [alt text]] %}
 
@@ -108,8 +111,36 @@ get the meterpreter
 
 {% img  /images/blog/vulhub/bne03/Selection_009.png   [title manually exploit [alt text]] %}
 
-locate flag.txt:
-`locate flag.txt` and get the result `/var/www/html/flag.txt`
+locate flag.txt and get the result `/tmp/flag.txt`
+
+find a file shadow.bak in /tmp, I got some interesting things:
+
+{% img  /images/blog/vulhub/bne03/Selection_011.png   [title manually exploit [alt text]] %}
+
+Looks like there are more chances to me. Download this file and use john to crack more.
+
+`john --fork=4 shadow.bak`
+
+now I have two more accounts info
+
+{% img  /images/blog/vulhub/bne03/Selection_012.png   [title manually exploit [alt text]] %}
+
+use python `python -c 'import pty; pty.spawn("/bin/bash")'`
+
+Login as heffer:
+
+{% img  /images/blog/vulhub/bne03/Selection_013.png   [title manually exploit [alt text]] %}
+
+Login as minotaur:
+
+{% img  /images/blog/vulhub/bne03/Selection_014.png   [title manually exploit [alt text]] %}
+
+
+DONE.
+
+
+
+
 
 
 
