@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-05-04T16:43:26-05:00</updated>
+  <updated>2016-05-06T13:13:26-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,34 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Csharp: VulnJson]]></title>
+    <link href="http://wg135.github.io/blog/2016/05/05/csharp-vulnjson/"/>
+    <updated>2016-05-05T15:44:32-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/05/05/csharp-vulnjson</id>
+    <content type="html"><![CDATA[<p>From <a href="https://www.vulnhub.com/entry/csharp-vulnjson,134/">Vulhub</a></p>
+
+<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/vulnjson/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.175 is the target.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[vulhub:kevgir1]]></title>
