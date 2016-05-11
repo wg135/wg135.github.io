@@ -10,7 +10,21 @@
 <meta name="author" content="Bob1Bob2"> 
 
 <meta name="description" content="From Vulhub Tools: netdiscover
-Nmap Use netdiscover to detect target IP address netdiscover -i eth0 -r 192.168.79.0/24 192.168.79.175 is the target. &hellip;"> <meta name="keywords" content="">
+Nmap Sqlmap tips from Marudhamaran Gunasekaran 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+How do I test a log in protected &hellip;"> <meta name="keywords" content="">
 
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -110,6 +124,40 @@ $(document).ready(
 
 
 <!--more-->
+
+
+<p>Sqlmap tips</p>
+
+<p>from <a href="https://vimeo.com/96799028">Marudhamaran Gunasekaran</a></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>How do I test a log in protected website with sqlmap?
+</span><span class='line'>use the --cookie parameter / or capture the request, pass it on with the -r parameter / or use the --auth-type=ATYPE, --auth-cred=ACRED, and --auth-cert=ACERT parameters
+</span><span class='line'>How do I test a website with sqlmap that requires authentication?
+</span><span class='line'>use the --cookie parameter / or capture the request, pass it on with the -r parameter / or use the --auth-type=ATYPE, --auth-cred=ACRED, and --auth-cert=ACERT parameters
+</span><span class='line'>How do I test a website with sqlmap that uses JSON data?
+</span><span class='line'>automatically works with JSON
+</span><span class='line'>How do I test a website with sqlmap that uses XML data?
+</span><span class='line'>use the custom injection paramter pointer *
+</span><span class='line'>How do I test a website with sqlmap that uses SSL?
+</span><span class='line'>use the --force-ssl parameter
+</span><span class='line'>How do I tell sqlmap to try harder?
+</span><span class='line'>use the --level and --risk parameters
+</span><span class='line'>How do I automate a sql map scan?
+</span><span class='line'>use the --batch and --crawl 3</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Use netdiscover to detect target IP address</p>

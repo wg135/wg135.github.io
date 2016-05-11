@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-05-10T13:45:38-05:00</updated>
+  <updated>2016-05-11T12:23:10-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -30,6 +30,26 @@
 
 <!--more-->
 
+
+<p>Sqlmap tips</p>
+
+<p>from <a href="https://vimeo.com/96799028">Marudhamaran Gunasekaran</a></p>
+
+<pre><code>How do I test a log in protected website with sqlmap?
+use the --cookie parameter / or capture the request, pass it on with the -r parameter / or use the --auth-type=ATYPE, --auth-cred=ACRED, and --auth-cert=ACERT parameters
+How do I test a website with sqlmap that requires authentication?
+use the --cookie parameter / or capture the request, pass it on with the -r parameter / or use the --auth-type=ATYPE, --auth-cred=ACRED, and --auth-cert=ACERT parameters
+How do I test a website with sqlmap that uses JSON data?
+automatically works with JSON
+How do I test a website with sqlmap that uses XML data?
+use the custom injection paramter pointer *
+How do I test a website with sqlmap that uses SSL?
+use the --force-ssl parameter
+How do I tell sqlmap to try harder?
+use the --level and --risk parameters
+How do I automate a sql map scan?
+use the --batch and --crawl 3
+</code></pre>
 
 <p>Use netdiscover to detect target IP address</p>
 
