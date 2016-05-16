@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-05-16T13:50:49-05:00</updated>
+  <updated>2016-05-16T13:52:22-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -46,7 +46,7 @@
 
 <p><code>nmap -sV -v -O -A -T5 192.168.79.175 -p-</code></p>
 
-<p><img src="http://wg135.github.io/images/blog/vulhub/vulnjson/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+<p><img src="http://wg135.github.io/images/blog/vulhub/vulnjson/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
 
 <p>Use wfuzz to burte force hidden path of the server</p>
 
