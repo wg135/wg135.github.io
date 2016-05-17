@@ -179,7 +179,27 @@ $(document).ready(
 </span><span class='line'>use the --batch and --crawl 3</span></code></pre></td></tr></table></div></figure>
 
 
-<p>use</p>
+<p>go to the <a href="http://192.168.79.175,">http://192.168.79.175,</a> then search the users and use burp to record the traffic.</p>
+
+<p><img src="/images/blog/vulhub/vulnjson/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Then click the traffic content in the burp and right click it and copy to file, name it as test.txt.</p>
+
+<p><img src="/images/blog/vulhub/vulnjson/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Then in the terminal, we try:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sqlmap -r test.txt  --level 5 --risk 3 --threads 10 -p "username" --dum</span></code></pre></td></tr></table></div></figure>
+
+
+<p>since there is a parameter username in the post request, so we use that as a parameter for sqlmap</p>
+
+<p><img src="/images/blog/vulhub/vulnjson/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Now the sqlmap dump all items I created.</p>
+
+<p>DONE</p>
 </div>
 
 
