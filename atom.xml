@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-05-19T14:58:44-05:00</updated>
+  <updated>2016-05-19T15:59:38-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -25,6 +25,7 @@
 <ul>
 <li>netdiscover</li>
 <li>Nmap</li>
+<li>Metasploit</li>
 </ul>
 
 
@@ -45,7 +46,9 @@
 
 <p><img src="http://wg135.github.io/images/blog/vulhub/sickos/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
 
-<p>Looks like port 22 and port 3218 are openning.</p>
+<p>Looks like port 22 and port 3218 are openning. the port 3218 is running Squid. open msfconsole, search squid. I found that:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/sickos/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
