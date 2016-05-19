@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-05-17T13:37:43-05:00</updated>
+  <updated>2016-05-19T14:58:44-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -89,7 +89,7 @@ use the --batch and --crawl 3
 
 <p>Then in the terminal, we try:</p>
 
-<pre><code>sqlmap -r test.txt  --level 5 --risk 3 --threads 10 -p "username" --dum
+<pre><code>sqlmap -r test.txt  --level 5 --risk 3 --threads 10 -p "username" --dump
 </code></pre>
 
 <p>since there is a parameter username in the post request, so we use that as a parameter for sqlmap</p>
