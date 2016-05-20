@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: squid | Bob1Bob2]]></title>
+  <link href="http://wg135.github.io/blog/categories/squid/atom.xml" rel="self"/>
+  <link href="http://wg135.github.io/"/>
+  <updated>2016-05-20T12:51:08-05:00</updated>
+  <id>http://wg135.github.io/</id>
+  <author>
+    <name><![CDATA[Bob1Bob2]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[sickos:1.1]]></title>
+    <link href="http://wg135.github.io/blog/2016/05/18/sickos-1-dot-1/"/>
+    <updated>2016-05-18T12:50:37-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/05/18/sickos-1-dot-1</id>
+    <content type="html"><![CDATA[<p>From <a href="https://www.vulnhub.com/entry/csharp-vulnjson,134/">Vulhub</a></p>
+
+<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Metasploit</li>
+<li>FoxyProxy</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/sickos/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.178 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.178 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/sickos/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like port 22 and port 3218 are openning. the port 3218 is running Squid. open msfconsole, search squid. I found that:</p>
+
+<p><img src="/images/blog/vulhub/sickos/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Then use this module to scan the squid service:</p>
+
+<p><img src="/images/blog/vulhub/sickos/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like port 80 is opened:</p>
+
+<p><img src="/images/blog/vulhub/sickos/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Use FoxyProxy add-on to configure proxy:</p>
+
+<p><img src="/images/blog/vulhub/sickos/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+</feed>
