@@ -71,9 +71,14 @@ try `/linux/local/37292.c`, copy it to /var/www/html/, use wget to download to t
 failed, now try harder.
 
 
-In the searchsploit result, there is 39166.c. Lets try this one.
+In the searchsploit result, there is a 39166.c. Lets try this one.
 
 {% img  /images/blog/vulhub/kevgir1/Selection_014.png   [title manually exploit [alt text]] %}
+
+GET the ROOT!!
+
+
+
 
 
 Now let's attack port 8080. Use nikto to scan it first.
@@ -201,3 +206,6 @@ now lets try another php webshell
 [reverse shell from hacksys team](https://github.com/wg135/webshell-1/blob/master/php/reverseshell-poc.txt)
 
 {% img  /images/blog/vulhub/kevgir1/Selection_023.png   [title manually exploit [alt text]] %}
+
+
+{% img  /images/blog/vulhub/kevgir1/gameover.jpg   [title manually exploit [alt text]] %}

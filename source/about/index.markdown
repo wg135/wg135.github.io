@@ -9,7 +9,7 @@ footer: true
 
 Hi, I am Bob1Bob2, an unofficial Pen Tester based in Austin, TX.
 
-I have been loving and studing vulnerability Discovery and Pen testing, on and off, for couple of years.
+I have been loving and studying vulnerability Discovery and Pen testing, on and off, for couple of years.
 
 ##Contact me
 Find me at bo1bob2bob3bob4 at gmail dot com

