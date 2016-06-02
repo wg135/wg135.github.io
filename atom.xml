@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-02T14:46:50-05:00</updated>
+  <updated>2016-06-02T14:48:53-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[vulhub-sickos1.2]]></title>
+    <title type="html"><![CDATA[sickos1.2]]></title>
     <link href="http://wg135.github.io/blog/2016/05/31/vulhub-sickos1-dot-2/"/>
     <updated>2016-05-31T13:08:16-05:00</updated>
     <id>http://wg135.github.io/blog/2016/05/31/vulhub-sickos1-dot-2</id>
@@ -27,6 +27,7 @@
 <li>Nmap</li>
 <li>Nikto</li>
 <li>Wfuzz</li>
+<li>Curl</li>
 </ul>
 
 
@@ -117,7 +118,7 @@
 
 <p>get the shell.</p>
 
-<p>During enumeration step, I follow (g0tmi1k)[]</p>
+<p>During enumeration step, I follow <a href="https://blog.g0tmi1k.com/2011/08/basic-linux-privilege-escalation/">g0tmi1k</a></p>
 
 <p><code>ls -l /etc/cron.daily</code></p>
 
