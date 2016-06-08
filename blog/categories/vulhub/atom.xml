@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-08T14:57:33-05:00</updated>
+  <updated>2016-06-08T15:00:41-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Vulhub kioptrix2]]></title>
+    <title type="html"><![CDATA[vulhub-Kioptrix Level 2]]></title>
     <link href="http://wg135.github.io/blog/2016/06/07/vulhub-kioptrix2/"/>
     <updated>2016-06-07T15:56:48-05:00</updated>
     <id>http://wg135.github.io/blog/2016/06/07/vulhub-kioptrix2</id>
@@ -207,7 +207,7 @@ Nmap done: 1 IP address (1 host up) scanned in 37.28 seconds
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[vulhub-Kioptrix level 1]]></title>
+    <title type="html"><![CDATA[Vulhub-Kioptrix level 1]]></title>
     <link href="http://wg135.github.io/blog/2016/06/06/vulhub-kioptrix-level-1/"/>
     <updated>2016-06-06T09:21:18-05:00</updated>
     <id>http://wg135.github.io/blog/2016/06/06/vulhub-kioptrix-level-1</id>
