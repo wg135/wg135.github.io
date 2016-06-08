@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-08T14:55:56-05:00</updated>
+  <updated>2016-06-08T14:57:33-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -14,25 +14,17 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Vulhub Kioptrix2]]></title>
+    <title type="html"><![CDATA[Vulhub kioptrix2]]></title>
     <link href="http://wg135.github.io/blog/2016/06/07/vulhub-kioptrix2/"/>
-    <updated>2016-06-07T00:00:00-05:00</updated>
+    <updated>2016-06-07T15:56:48-05:00</updated>
     <id>http://wg135.github.io/blog/2016/06/07/vulhub-kioptrix2</id>
-    <content type="html"><![CDATA[<hr />
-
-<p>layout: post
-title: &ldquo;Vulhub kioptrix2&rdquo;
-date: 2016-06-07 15:56:48 -0500
-comments: true</p>
-
-<h2>categories: [vulhub, smb, openssl]</h2>
-
-<h3>Tools:</h3>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
 
 <ul>
 <li>netdiscover</li>
 <li>Nmap</li>
 <li>zap</li>
+<li>netcat</li>
 </ul>
 
 
