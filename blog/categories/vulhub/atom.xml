@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-08T15:00:41-05:00</updated>
+  <updated>2016-06-09T11:17:02-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -203,6 +203,8 @@ Nmap done: 1 IP address (1 host up) scanned in 37.28 seconds
 <p>Upload it to the target, compile and run it. ROOT:</p>
 
 <p><img src="/images/blog/vulhub/kioptrix2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>DONE</p>
 ]]></content>
   </entry>
   
