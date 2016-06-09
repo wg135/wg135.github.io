@@ -32,7 +32,7 @@ Then run nmap to detect opening ports and running services on the target machine
 
 {% img  /images/blog/vulhub/sickos/Selection_002.png   [title manually exploit [alt text]] %}
 
-Looks like port 22 and port 3218 are openning. the port 3218 is running Squid. open msfconsole, search squid. I found that:
+Looks like port 22 and port 3218 are openning. Port 3218 is running Squid. open msfconsole, search squid. I found that:
 
 {% img  /images/blog/vulhub/sickos/Selection_003.png   [title manually exploit [alt text]] %}
 
