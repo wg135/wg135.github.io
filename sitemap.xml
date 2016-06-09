@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://wg135.github.io/blog/2016/06/09/vulhub-kiotrix3/</loc>
+<lastmod>2016-06-09T11:42:38-05:00</lastmod>
+</url>
+<url>
 <loc>http://wg135.github.io/blog/2016/06/07/vulhub-kioptrix2/</loc>
 <lastmod>2016-06-07T15:56:48-05:00</lastmod>
 </url>

