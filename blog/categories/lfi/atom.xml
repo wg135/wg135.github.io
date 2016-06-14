@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: php | Bob1Bob2]]></title>
-  <link href="http://wg135.github.io/blog/categories/php/atom.xml" rel="self"/>
+  <title><![CDATA[Category: lfi | Bob1Bob2]]></title>
+  <link href="http://wg135.github.io/blog/categories/lfi/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
   <updated>2016-06-14T16:04:35-05:00</updated>
   <id>http://wg135.github.io/</id>

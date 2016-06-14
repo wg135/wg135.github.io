@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-14T16:03:29-05:00</updated>
+  <updated>2016-06-14T16:04:35-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -24,9 +24,8 @@
 <li>netdiscover</li>
 <li>Nmap</li>
 <li>Nikto</li>
-<li>Metasploit</li>
 <li>Wfuzz</li>
-<li>Hashcat</li>
+<li>Netcat</li>
 </ul>
 
 
