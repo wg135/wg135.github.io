@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-15T16:29:08-05:00</updated>
+  <updated>2016-06-15T16:30:39-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -142,7 +142,7 @@ Nmap done: 1 IP address (1 host up) scanned in 42.54 seconds
 
 <p>Services ssh, http and smb are running.</p>
 
-<p>check http service:</p>
+<h3>check http service:</h3>
 
 <p>use wfuzz to scan:</p>
 
