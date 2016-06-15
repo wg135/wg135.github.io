@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-14T16:05:48-05:00</updated>
+  <updated>2016-06-15T16:19:58-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,229 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Vulhub Kioptrix Level 4]]></title>
+    <link href="http://wg135.github.io/blog/2016/06/15/vulhub-kioptrix-level-4/"/>
+    <updated>2016-06-15T16:10:59-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/06/15/vulhub-kioptrix-level-4</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Nikto</li>
+<li>Metasploit</li>
+<li>Wfuzz</li>
+<li>Hashcat</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix4/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.190 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.190 -p-</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># nmap -sV -v -O -A -T5 192.168.79.190 -p-
+</span><span class='line'>
+</span><span class='line'>Starting Nmap 7.12 ( https://nmap.org ) at 2016-06-15 16:14 CDT
+</span><span class='line'>NSE: Loaded 138 scripts for scanning.
+</span><span class='line'>NSE: Script Pre-scanning.
+</span><span class='line'>Initiating NSE at 16:14
+</span><span class='line'>Completed NSE at 16:14, 0.00s elapsed
+</span><span class='line'>Initiating NSE at 16:14
+</span><span class='line'>Completed NSE at 16:14, 0.00s elapsed
+</span><span class='line'>Initiating ARP Ping Scan at 16:14
+</span><span class='line'>Scanning 192.168.79.190 [1 port]
+</span><span class='line'>Completed ARP Ping Scan at 16:14, 0.00s elapsed (1 total hosts)
+</span><span class='line'>Initiating Parallel DNS resolution of 1 host. at 16:14
+</span><span class='line'>Completed Parallel DNS resolution of 1 host. at 16:14, 1.99s elapsed
+</span><span class='line'>Initiating SYN Stealth Scan at 16:14
+</span><span class='line'>Scanning 192.168.79.190 [65535 ports]
+</span><span class='line'>Discovered open port 445/tcp on 192.168.79.190
+</span><span class='line'>Discovered open port 139/tcp on 192.168.79.190
+</span><span class='line'>Discovered open port 80/tcp on 192.168.79.190
+</span><span class='line'>Discovered open port 22/tcp on 192.168.79.190
+</span><span class='line'>Completed SYN Stealth Scan at 16:14, 11.91s elapsed (65535 total ports)
+</span><span class='line'>Initiating Service scan at 16:14
+</span><span class='line'>Scanning 4 services on 192.168.79.190
+</span><span class='line'>Completed Service scan at 16:14, 11.02s elapsed (4 services on 1 host)
+</span><span class='line'>Initiating OS detection (try #1) against 192.168.79.190
+</span><span class='line'>NSE: Script scanning 192.168.79.190.
+</span><span class='line'>Initiating NSE at 16:14
+</span><span class='line'>Completed NSE at 16:15, 15.56s elapsed
+</span><span class='line'>Initiating NSE at 16:15
+</span><span class='line'>Completed NSE at 16:15, 0.01s elapsed
+</span><span class='line'>Nmap scan report for 192.168.79.190
+</span><span class='line'>Host is up (0.00033s latency).
+</span><span class='line'>Not shown: 39528 closed ports, 26003 filtered ports
+</span><span class='line'>PORT    STATE SERVICE     VERSION
+</span><span class='line'>22/tcp  open  ssh         OpenSSH 4.7p1 Debian 8ubuntu1.2 (protocol 2.0)
+</span><span class='line'>| ssh-hostkey: 
+</span><span class='line'>|   1024 9b:ad:4f:f2:1e:c5:f2:39:14:b9:d3:a0:0b:e8:41:71 (DSA)
+</span><span class='line'>|_  2048 85:40:c6:d5:41:26:05:34:ad:f8:6e:f2:a7:6b:4f:0e (RSA)
+</span><span class='line'>80/tcp  open  http        Apache httpd 2.2.8 ((Ubuntu) PHP/5.2.4-2ubuntu5.6 with Suhosin-Patch)
+</span><span class='line'>| http-methods: 
+</span><span class='line'>|_  Supported Methods: GET HEAD POST OPTIONS
+</span><span class='line'>|_http-server-header: Apache/2.2.8 (Ubuntu) PHP/5.2.4-2ubuntu5.6 with Suhosin-Patch
+</span><span class='line'>|_http-title: Site doesn't have a title (text/html).
+</span><span class='line'>139/tcp open  netbios-ssn Samba smbd 3.X (workgroup: WORKGROUP)
+</span><span class='line'>445/tcp open  netbios-ssn Samba smbd 3.X (workgroup: WORKGROUP)
+</span><span class='line'>MAC Address: 00:0C:29:EA:4D:22 (VMware)
+</span><span class='line'>Device type: general purpose
+</span><span class='line'>Running: Linux 2.6.X
+</span><span class='line'>OS CPE: cpe:/o:linux:linux_kernel:2.6
+</span><span class='line'>OS details: Linux 2.6.9 - 2.6.33
+</span><span class='line'>Uptime guess: 0.001 days (since Wed Jun 15 16:13:14 2016)
+</span><span class='line'>Network Distance: 1 hop
+</span><span class='line'>TCP Sequence Prediction: Difficulty=203 (Good luck!)
+</span><span class='line'>IP ID Sequence Generation: All zeros
+</span><span class='line'>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+</span><span class='line'>
+</span><span class='line'>Host script results:
+</span><span class='line'>| nbstat: NetBIOS name: KIOPTRIX4, NetBIOS user: &lt;unknown&gt;, NetBIOS MAC: &lt;unknown&gt; (unknown)
+</span><span class='line'>| Names:
+</span><span class='line'>|   KIOPTRIX4&lt;00&gt;        Flags: &lt;unique&gt;&lt;active&gt;
+</span><span class='line'>|   KIOPTRIX4&lt;03&gt;        Flags: &lt;unique&gt;&lt;active&gt;
+</span><span class='line'>|   KIOPTRIX4&lt;20&gt;        Flags: &lt;unique&gt;&lt;active&gt;
+</span><span class='line'>|   \x01\x02__MSBROWSE__\x02&lt;01&gt;  Flags: &lt;group&gt;&lt;active&gt;
+</span><span class='line'>|   WORKGROUP&lt;1d&gt;        Flags: &lt;unique&gt;&lt;active&gt;
+</span><span class='line'>|   WORKGROUP&lt;1e&gt;        Flags: &lt;group&gt;&lt;active&gt;
+</span><span class='line'>|_  WORKGROUP&lt;00&gt;        Flags: &lt;group&gt;&lt;active&gt;
+</span><span class='line'>| smb-os-discovery: 
+</span><span class='line'>|   OS: Unix (Samba 3.0.28a)
+</span><span class='line'>|   Computer name: Kioptrix4
+</span><span class='line'>|   NetBIOS computer name: 
+</span><span class='line'>|   Domain name: localdomain
+</span><span class='line'>|   FQDN: Kioptrix4.localdomain
+</span><span class='line'>|_  System time: 2016-06-15T17:15:00-04:00
+</span><span class='line'>| smb-security-mode: 
+</span><span class='line'>|   account_used: guest
+</span><span class='line'>|   authentication_level: user
+</span><span class='line'>|   challenge_response: supported
+</span><span class='line'>|_  message_signing: disabled (dangerous, but default)
+</span><span class='line'>|_smbv2-enabled: Server doesn't support SMBv2 protocol
+</span><span class='line'>
+</span><span class='line'>TRACEROUTE
+</span><span class='line'>HOP RTT     ADDRESS
+</span><span class='line'>1   0.33 ms 192.168.79.190
+</span><span class='line'>
+</span><span class='line'>NSE: Script Post-scanning.
+</span><span class='line'>Initiating NSE at 16:15
+</span><span class='line'>Completed NSE at 16:15, 0.00s elapsed
+</span><span class='line'>Initiating NSE at 16:15
+</span><span class='line'>Completed NSE at 16:15, 0.00s elapsed
+</span><span class='line'>Read data files from: /usr/bin/../share/nmap
+</span><span class='line'>OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+</span><span class='line'>Nmap done: 1 IP address (1 host up) scanned in 42.54 seconds
+</span><span class='line'>           Raw packets sent: 91558 (4.029MB) | Rcvd: 39548 (1.583MB)
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[pentesterlab-PHP-include]]></title>
@@ -2810,85 +3033,6 @@ In Debian Linux, the tomcat configuration file tomcat-users.xml has default loca
 <p>exploit:</p>
 
 <p><code>http://192.168.79.162/xml/example2.php?name=' or 1=1]%00</code></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Pentesterlab--Web for Pentester-LDAP]]></title>
-    <link href="http://wg135.github.io/blog/2016/03/22/pentesterlab-web-for-pentester-ldap/"/>
-    <updated>2016-03-22T14:56:35-05:00</updated>
-    <id>http://wg135.github.io/blog/2016/03/22/pentesterlab-web-for-pentester-ldap</id>
-    <content type="html"><![CDATA[<p>Web for Pentester: This exercise is a set of the most common web vulnerabilities</p>
-
-<p>Difficluty: 1/5</p>
-
-<!--more-->
-
-
-<p>What is LDAP injection?</p>
-
-<p>from OWASP:</p>
-
-<p><code>LDAP Injection is an attack used to exploit web based applications that construct LDAP statements based on user input. When an application fails to properly sanitize user input, it’s possible to modify LDAP statements using a local proxy. This could result in the execution of arbitrary commands such as granting permissions to unauthorized queries, and content modification inside the LDAP tree. The same advanced exploitation techniques available in SQL Injection can be similarly applied in LDAP Injection.</code></p>
-
-<p>more information:
-<a href="https://www.owasp.org/index.php/LDAP_injection">LDAP injection</a></p>
-
-<h3>Example 1</h3>
-
-<p>from pentesterlab:</p>
-
-<p><code>In this first example, you connect to a LDAP server, using your username and password. In this instance, The LDAP server does not authenticate you, since your credentials are invalid. However, some LDAP servers authorise NULL Bind: if null values are sent, the LDAP server will proceed to bind the connection, and the PHP code will think that the credentials are correct. To get the bind with 2 null values, you will need to completely remove this parameter from the query. If you keep something like username=&amp;password= in the URL, these values will not work, since they won't be null; instead, they will be empty.</code></p>
-
-<p>code review:</p>
-
-<figure class='code'><figcaption><span>example1.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nv">$ld</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>   <span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;username&quot;</span><span class="p">]))</span> <span class="p">{</span>
-</span><span class='line'>     <span class="nv">$user</span> <span class="o">=</span> <span class="s2">&quot;uid=&quot;</span><span class="o">.</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;username&quot;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;ou=people,dc=pentesterlab,dc=com&quot;</span><span class="p">;</span>
-</span><span class='line'>   <span class="p">}</span>
-</span><span class='line'>   <span class="nv">$lb</span> <span class="o">=</span> <span class="o">@</span><span class="nb">ldap_bind</span><span class="p">(</span><span class="nv">$ld</span><span class="p">,</span> <span class="nv">$user</span><span class="p">,</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">]);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The developer uses function <code>ldap_bind</code> to bind parameters. I can bypass the authentication by setting null values to the parameters.</p>
-
-<p>exploit:</p>
-
-<p><code>http://192.168.79.162/ldap/example1.php</code></p>
-
-<h3>Example 2</h3>
-
-<p>code review:</p>
-
-<figure class='code'><figcaption><span>example2.php</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'>  <span class="nv">$pass</span> <span class="o">=</span> <span class="s2">&quot;{MD5}&quot;</span><span class="o">.</span><span class="nb">base64_encode</span><span class="p">(</span><span class="nb">pack</span><span class="p">(</span><span class="s2">&quot;H*&quot;</span><span class="p">,</span><span class="nb">md5</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">])));</span>
-</span><span class='line'>  <span class="nv">$filter</span> <span class="o">=</span> <span class="s2">&quot;(&amp;(cn=&quot;</span><span class="o">.</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;)(userPassword=&quot;</span><span class="o">.</span><span class="nv">$pass</span><span class="o">.</span><span class="s2">&quot;))&quot;</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Our goal here will be to inject inside <code>[INPUT1]</code> (the username parameter). We will need to inject:</p>
-
-<ol>
-<li>The end of the current filter using <code>hacker)</code>.</li>
-<li>An always-true condition <code>((cn=*) for example)</code></li>
-<li>A ) to keep a valid syntax and close the first <code>)</code></li>
-<li><p>A NULL BYTE <code>(%00)</code> to get rid of the end of the filter</p>
-
-<p>exploit:</p>
-
-<p><code>http://192.168.79.162/ldap/example2.php?name=hacker)(cn=*))%00&amp;password=rtrtrtr</code></p>
-
-<p>nmap search LDAP:</p>
-
-<p><code>nmap -p 389 --script ldap-search 192.168.79.162</code></p></li>
-</ol>
-
 ]]></content>
   </entry>
   

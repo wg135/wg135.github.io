@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://wg135.github.io/blog/2016/06/15/vulhub-kioptrix-level-4/</loc>
+<lastmod>2016-06-15T16:10:59-05:00</lastmod>
+</url>
+<url>
 <loc>http://wg135.github.io/blog/2016/06/14/pentesterlab-php-include/</loc>
 <lastmod>2016-06-14T12:52:00-05:00</lastmod>
 </url>
@@ -218,6 +222,9 @@
 </url>
 <url>
 <loc>http://wg135.github.io/blog/categories/suid/</loc>
+</url>
+<url>
+<loc>http://wg135.github.io/blog/categories/kioptrix/</loc>
 </url>
 <url>
 <loc>http://wg135.github.io/blog/categories/php/</loc>
