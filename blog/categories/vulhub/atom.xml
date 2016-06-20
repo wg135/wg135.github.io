@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-15T16:30:39-05:00</updated>
+  <updated>2016-06-20T14:05:07-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -23,10 +23,11 @@
 <ul>
 <li>netdiscover</li>
 <li>Nmap</li>
-<li>Nikto</li>
-<li>Metasploit</li>
-<li>Wfuzz</li>
-<li>Hashcat</li>
+<li>wfuzz</li>
+<li>nikto</li>
+<li>zap</li>
+<li>Burpsuite</li>
+<li>Sqlmap</li>
 </ul>
 
 
@@ -142,7 +143,7 @@ Nmap done: 1 IP address (1 host up) scanned in 42.54 seconds
 
 <p>Services ssh, http and smb are running.</p>
 
-<h3>check http service:</h3>
+<h3>check HTTP service:</h3>
 
 <p>use wfuzz to scan:</p>
 
@@ -153,6 +154,68 @@ Nmap done: 1 IP address (1 host up) scanned in 42.54 seconds
 <p>use nikto to scan:</p>
 
 <p><img src="/images/blog/vulhub/kioptrix4/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<h3>check SMB service:</h3>
+
+<p>use enum4linux to enumerate SMB:</p>
+
+<p><code>enum4linux -a 192.168.79.190</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>I searched exploitdb and metasploit and tried serveral exploits to SMB, failed.</p>
+
+<p>Now I turn to http service.</p>
+
+<p>use zap to scan:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like there is a SQL injection in parameter mypassword.</p>
+
+<p>use Burp to check:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>save the POST request to a file called test.txt</p>
+
+<p>run sqlmap to dump the credential:</p>
+
+<p><code>sqlmap -r test.txt -p mypassword --dump</code></p>
+
+<p>get:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now try to login to web and see if I can upload webshell:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Nothing excited.</p>
+
+<p>Okay, try to login via SSH:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>It is an limited shell:</p>
+
+<p>After google it, I found it may be lshell</p>
+
+<p><a href="https://github.com/ghantoos/lshell">lshell</a></p>
+
+<p>lshell is a shell coded in Python, that lets you restrict a user&rsquo;s environment to limited sets of commands, choose to enable/disable any command over SSH (e.g. SCP, SFTP, rsync, etc.), log user&rsquo;s commands, implement timing restriction, and more.</p>
+
+<p>looks like it support command echo, try to get bash:</p>
+
+<p><code>echo os.system("/bin/bash")</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Got the shell now!</p>
+
+<p>start to get root&hellip;</p>
 ]]></content>
   </entry>
   
