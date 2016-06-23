@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-22T16:42:58-05:00</updated>
+  <updated>2016-06-23T12:58:01-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -483,6 +483,12 @@
 <p>get meterpreter:</p>
 
 <p><img src="http://wg135.github.io/images/blog/misc/metasploitable2/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<h3>SSH exploit:</h3>
+
+<p>Getting access to a system with a writeable filesystem</p>
+
+<p><a href="https://github.com/wg135/script/blob/master/add_ssh_key.py">add_ssh_key.py</a></p>
 ]]></content>
   </entry>
   
