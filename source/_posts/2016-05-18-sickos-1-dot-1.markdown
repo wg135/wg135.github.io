@@ -3,7 +3,7 @@ layout: post
 title: "sickos:1.1"
 date: 2016-05-18 12:50:37 -0500
 comments: true
-categories: [vulhub, squid]
+categories: [vulhub, squid, shellshock]
 ---
 
 

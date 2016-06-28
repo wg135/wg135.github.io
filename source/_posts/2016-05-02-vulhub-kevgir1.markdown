@@ -3,7 +3,7 @@ layout: post
 title: "vulhub:kevgir1"
 date: 2016-05-02 14:42:52 -0500
 comments: true
-categories: [vulhub]
+categories: [vulhub,Joomla]
 ---
 
 

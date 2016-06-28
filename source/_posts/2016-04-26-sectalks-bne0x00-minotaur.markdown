@@ -3,7 +3,7 @@ layout: post
 title: "SecTalks: BNE0x00 - Minotaur"
 date: 2016-04-26 14:27:14 -0400
 comments: true
-categories: [vulhub]
+categories: [vulhub, wordpress]
 ---
 
 
