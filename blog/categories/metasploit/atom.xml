@@ -4,7 +4,7 @@
   <title><![CDATA[Category: metasploit | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/metasploit/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-07-05T15:40:59-05:00</updated>
+  <updated>2016-07-05T15:43:18-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -329,7 +329,7 @@ msf auxiliary(telnet_version) &gt; run
 
 <p>In the banner, shows username/password</p>
 
-<p><img src="/images/blog/misc/metasploitable2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+<p><img src="/images/blog/misc/metasploitable2/Selection_025.png" title="[title manually exploit [alt text]]" ></p>
 
 <p>or you can just <code>telnet 192.168.79.179</code> to grab the banner.</p>
 
