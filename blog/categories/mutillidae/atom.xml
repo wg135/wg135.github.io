@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: mutillidae | Bob1Bob2]]></title>
+  <link href="http://wg135.github.io/blog/categories/mutillidae/atom.xml" rel="self"/>
+  <link href="http://wg135.github.io/"/>
+  <updated>2016-07-06T16:07:22-05:00</updated>
+  <id>http://wg135.github.io/</id>
+  <author>
+    <name><![CDATA[Bob1Bob2]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[mutillidae]]></title>
+    <link href="http://wg135.github.io/blog/2016/07/06/mutillidae/"/>
+    <updated>2016-07-06T16:06:04-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/07/06/mutillidae</id>
+    <content type="html"><![CDATA[<ul>
+<li>Metasploit</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>
