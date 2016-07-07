@@ -891,6 +891,24 @@ $(document).ready(
 
 <p><img src="/images/blog/misc/metasploitable2/Selection_038.png" title="[title manually exploit [alt text]]" ></p>
 
+<h3>X11 (Port 6000)</h3>
+
+<p>search x11, find a scanner <code>auxiliary/scanner/x11/open_x11</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>msf &gt; use auxiliary/scanner/x11/open_x11
+</span><span class='line'>msf auxiliary(open_x11) &gt; set rhosts 192.168.79.179
+</span><span class='line'>msf auxiliary(open_x11) &gt; run</span></code></pre></td></tr></table></div></figure>
+
+
+<p>shows <code>[*] 192.168.79.179:6000   - 192.168.79.179 Access Denied</code></p>
+
+<p>now, try to login use telnet username/password to X11</p>
+
+<p><code>ssh -X -l msfadmin 192.168.79.179</code></p>
+
 <h3>Exploit Apache Tomcat (port 8180)</h3>
 
 <p>use Nikto to scan</p>
