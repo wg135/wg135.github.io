@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-07-11T13:33:49-05:00</updated>
+  <updated>2016-07-11T13:34:17-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -28,7 +28,7 @@
 </ul>
 
 
-<p> Vulnerability:</p>
+<p> ###Vulnerability:</p>
 
 <ul>
 <li><a href="https://www.exploit-db.com/exploits/21665/">phptax 0.8 - Remote Code Execution Vulnerability</a></li>
