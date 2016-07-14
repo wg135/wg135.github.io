@@ -3,7 +3,7 @@ layout: post
 title: "vulhub-Kioptrix Level 2"
 date: 2016-06-07 15:56:48 -0500
 comments: true
-categories: [vulhub, sql injection]
+categories: [vulhub, sql injection, kioptrix]
 ---
 
 ###Tools:

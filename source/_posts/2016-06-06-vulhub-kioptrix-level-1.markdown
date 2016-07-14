@@ -3,7 +3,7 @@ layout: post
 title: "Vulhub-Kioptrix level 1"
 date: 2016-06-06 09:21:18 -0500
 comments: true
-categories: [vulhub, smb, openssl]
+categories: [vulhub, smb, openssl, kioptrix]
 ---
 
 From [Vulhub](https://www.vulnhub.com/entry/kioptrix-level-1-1,22/)

