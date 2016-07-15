@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://wg135.github.io/blog/2016/07/15/vulhub-sokar/</loc>
+<lastmod>2016-07-15T10:27:33-05:00</lastmod>
+</url>
+<url>
 <loc>http://wg135.github.io/blog/2016/07/07/kioptrix2014-number-5/</loc>
 <lastmod>2016-07-07T14:27:35-05:00</lastmod>
 </url>
@@ -241,9 +245,15 @@
 <loc>http://wg135.github.io/blog/categories/lfi/</loc>
 </url>
 <url>
+<loc>http://wg135.github.io/blog/categories/sokar/</loc>
+</url>
+<url>
 <loc>http://wg135.github.io/posts/2/</loc>
 </url>
 <url>
 <loc>http://wg135.github.io/posts/3/</loc>
+</url>
+<url>
+<loc>http://wg135.github.io/posts/4/</loc>
 </url>
 </urlset>
