@@ -4,7 +4,7 @@
   <title><![CDATA[Category: chrootkit | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/chrootkit/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-07-19T15:50:20-05:00</updated>
+  <updated>2016-07-19T16:19:26-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -219,7 +219,7 @@
 
 <p><img src="/images/blog/vulhub/fuku/Capture23.JPG" title="[title manually exploit [alt text]]" ></p>
 
-<p>The first part should be hash and the second part should be salt. I used joomla password crack tool <a href="https://github.com/wg135/script/blob/master/joomla.pl">joomlacrack</a></p>
+<p>The first part should be hash and the second part should be salt. I used joomla password crack tool <a href="https://github.com/wg135/script/blob/master/joomla.pl">joomlacrack.pl</a>. Here is also my python version <a href="https://github.com/wg135/script/blob/master/crackjoomla.py">crackjoomla.py</a></p>
 
 <p>crack admin&rsquo;s password now</p>
 
