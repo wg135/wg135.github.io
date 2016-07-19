@@ -121,6 +121,7 @@ $(document).ready(
 <ul>
 <li><a href="https://www.exploit-db.com/exploits/6234/">Joomla 1.5.x - (Token) Remote Admin Change Password</a></li>
 <li><a href="https://www.exploit-db.com/exploits/38775/">Chkrootkit - Local Privilege Escalation</a></li>
+<li><a href="https://www.exploit-db.com/exploits/33673/">Joomla HD FLV Player SQL Injection Vulnerability</a></li>
 </ul>
 
 
@@ -318,6 +319,12 @@ $(document).ready(
 <p><img src="/images/blog/vulhub/fuku/Capture24.JPG" title="[title manually exploit [alt text]]" ></p>
 
 <p>Then login as admin, upload php reverse shell, same as I worked in the first part of this post.</p>
+
+<p>Aslo, since the hash format is like hash:salt. I found the <a href="https://hashcat.net/wiki/doku.php?id=example_hashes">hashcat example hashes</a>, the MD5 format should be <code>md5($pass.$salt)</code>, so that in hashcat for option <code>-m</code> the value should be 10 (hashcat &ndash;help, check the * Hash types)</p>
+
+<p>use hashcat crack:</p>
+
+<p><code>hashcat -m 10 -a 0 -o joompass.txt --remove 61.hash /usr/share/wordlists/rockyou.txt</code></p>
 
 <p>DONE</p>
 </div>
