@@ -3,7 +3,7 @@ layout: post
 title: "sickos1.2"
 date: 2016-05-31 13:08:16 -0500
 comments: true
-categories: [vulhub]
+categories: [vulhub,chrootkit,joomla!]
 ---
 
 From [Vulhub](From [Vulhub](https://www.vulnhub.com/entry/csharp-vulnjson,134/)

