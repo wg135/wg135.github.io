@@ -14,7 +14,7 @@ categories: [vulhub]
 * Nikto
 * sqlmap
 * hash-identifier 
-* 
+
 
 ###Vulnerability:
 * [OpenDocMan 1.2.7 - Multiple Vulnerabilities](https://www.exploit-db.com/exploits/32075/)
@@ -163,7 +163,7 @@ gcc 37292.c -o 37292
 ./37292
 ```
 
-{% img  /images/blog/vulhub/vulos2/Selection_018.png   [title manually exploit [alt text]] %}
+{% img  /images/blog/vulhub/vulos2/Selection_019.png   [title manually exploit [alt text]] %}
 
 DONE
 

