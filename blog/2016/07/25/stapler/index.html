@@ -1,0 +1,582 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script data-cfasync="false" type="text/javascript" src="//use.typekit.net/axj3cfp.js"></script>
+	<script data-cfasync="false" type="text/javascript">try{Typekit.load();}catch(e){}</script>
+	<meta charset="utf-8">
+	<title>stapler  | Bob1Bob2</title>
+
+<meta name="author" content="Bob1Bob2"> 
+
+<meta name="description" content="Tools: netdiscover
+Nmap
+Wfuzz
+Nikto Vulnerability: Use netdiscover to detect target IP address netdiscover -i eth0 -r 192.168.41.0/24 192.168.41.152 &hellip;"> <meta name="keywords" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Bob1Bob2" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="/javascripts/jquery.fancybox.pack.js"></script>
+
+<script language="Javascript" type="text/javascript">
+$(document).ready(
+  function() {
+    (function($) {
+      $(".fancybox[data-content-id]").each(function() {
+        this.href = $(this).data('content-id');
+      });
+      $(".fancybox").fancybox({
+        beforeLoad: function() {
+          var el, 
+              id = $(this.element).data('title-id');
+
+          if (id) {
+            el = $('#' + id);
+
+            if (el.length) {
+              this.title = el.html();
+            }
+          }
+          if ($(this).data('content')) {
+            this.content = $(this).data('content');
+          }
+        },
+        helpers: {
+          title: {
+            type: 'inside'
+          }
+        }
+      });
+    })(jQuery);
+  }
+);
+</script>
+
+	
+</head>
+
+
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Bob1Bob2</a></h1>
+<h4>Pen Test Notes</h4>
+<nav id="main-nav"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="https://www.google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:wg135.github.io">
+			</form>
+		</div>
+	</div>
+</nav>
+
+
+</header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Stapler</h2>
+	<div class="entry-content"><h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+</ul>
+
+
+<h3>Vulnerability:</h3>
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.152 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.152 -p-</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+<span class='line-number'>188</span>
+<span class='line-number'>189</span>
+<span class='line-number'>190</span>
+<span class='line-number'>191</span>
+<span class='line-number'>192</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Starting Nmap 7.12 ( https://nmap.org ) at 2016-07-25 11:01 CDT
+</span><span class='line'>NSE: Loaded 138 scripts for scanning.
+</span><span class='line'>NSE: Script Pre-scanning.
+</span><span class='line'>Initiating NSE at 11:01
+</span><span class='line'>Completed NSE at 11:01, 0.00s elapsed
+</span><span class='line'>Initiating NSE at 11:01
+</span><span class='line'>Completed NSE at 11:01, 0.00s elapsed
+</span><span class='line'>Initiating ARP Ping Scan at 11:01
+</span><span class='line'>Scanning 192.168.41.152 [1 port]
+</span><span class='line'>Completed ARP Ping Scan at 11:01, 0.01s elapsed (1 total hosts)
+</span><span class='line'>Initiating Parallel DNS resolution of 1 host. at 11:01
+</span><span class='line'>Completed Parallel DNS resolution of 1 host. at 11:01, 13.00s elapsed
+</span><span class='line'>Initiating SYN Stealth Scan at 11:01
+</span><span class='line'>Scanning 192.168.41.152 [65535 ports]
+</span><span class='line'>Discovered open port 3306/tcp on 192.168.41.152
+</span><span class='line'>Discovered open port 80/tcp on 192.168.41.152
+</span><span class='line'>Discovered open port 21/tcp on 192.168.41.152
+</span><span class='line'>Discovered open port 22/tcp on 192.168.41.152
+</span><span class='line'>Discovered open port 139/tcp on 192.168.41.152
+</span><span class='line'>Discovered open port 53/tcp on 192.168.41.152
+</span><span class='line'>Discovered open port 12380/tcp on 192.168.41.152
+</span><span class='line'>SYN Stealth Scan Timing: About 47.37% done; ETC: 11:02 (0:00:34 remaining)
+</span><span class='line'>Discovered open port 666/tcp on 192.168.41.152
+</span><span class='line'>Completed SYN Stealth Scan at 11:02, 53.87s elapsed (65535 total ports)
+</span><span class='line'>Initiating Service scan at 11:02
+</span><span class='line'>Scanning 8 services on 192.168.41.152
+</span><span class='line'>Completed Service scan at 11:02, 18.57s elapsed (8 services on 1 host)
+</span><span class='line'>Initiating OS detection (try #1) against 192.168.41.152
+</span><span class='line'>NSE: Script scanning 192.168.41.152.
+</span><span class='line'>Initiating NSE at 11:02
+</span><span class='line'>NSE: [ftp-bounce] Couldn't resolve scanme.nmap.org, scanning 10.0.0.1 instead.
+</span><span class='line'>Completed NSE at 11:04, 127.93s elapsed
+</span><span class='line'>Initiating NSE at 11:04
+</span><span class='line'>Completed NSE at 11:04, 1.06s elapsed
+</span><span class='line'>Nmap scan report for 192.168.41.152
+</span><span class='line'>Host is up (0.00066s latency).
+</span><span class='line'>Not shown: 65523 filtered ports
+</span><span class='line'>PORT      STATE  SERVICE     VERSION
+</span><span class='line'>20/tcp    closed ftp-data
+</span><span class='line'>21/tcp    open   ftp         vsftpd 2.0.8 or later
+</span><span class='line'>| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+</span><span class='line'>|_Can't get directory listing: Can't parse PASV response: "Permission denied."
+</span><span class='line'>22/tcp    open   ssh         OpenSSH 7.2p2 Ubuntu 4 (Ubuntu Linux; protocol 2.0)
+</span><span class='line'>| ssh-hostkey: 
+</span><span class='line'>|   2048 81:21:ce:a1:1a:05:b1:69:4f:4d:ed:80:28:e8:99:05 (RSA)
+</span><span class='line'>|_  256 5b:a5:bb:67:91:1a:51:c2:d3:21:da:c0:ca:f0:db:9e (ECDSA)
+</span><span class='line'>53/tcp    open   domain      dnsmasq 2.75
+</span><span class='line'>| dns-nsid: 
+</span><span class='line'>|_  bind.version: dnsmasq-2.75
+</span><span class='line'>80/tcp    open   http
+</span><span class='line'>| http-methods: 
+</span><span class='line'>|_  Supported Methods: GET HEAD POST OPTIONS
+</span><span class='line'>|_http-title: 404 Not Found
+</span><span class='line'>123/tcp   closed ntp
+</span><span class='line'>137/tcp   closed netbios-ns
+</span><span class='line'>138/tcp   closed netbios-dgm
+</span><span class='line'>139/tcp   open   netbios-ssn Samba smbd 3.X (workgroup: RED)
+</span><span class='line'>666/tcp   open   doom?
+</span><span class='line'>3306/tcp  open   mysql       MySQL 5.7.12-0ubuntu1
+</span><span class='line'>|_mysql-info: ERROR: Script execution failed (use -d to debug)
+</span><span class='line'>12380/tcp open   http        Apache httpd 2.4.18 ((Ubuntu))
+</span><span class='line'>| http-methods: 
+</span><span class='line'>|_  Supported Methods: GET HEAD POST OPTIONS
+</span><span class='line'>|_http-server-header: Apache/2.4.18 (Ubuntu)
+</span><span class='line'>|_http-title: Tim, we need to-do better next year for Initech
+</span><span class='line'>2 services unrecognized despite returning data. If you know the service/version, please submit the following fingerprints at https://nmap.org/cgi-bin/submit.cgi?new-service :
+</span><span class='line'>==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============
+</span><span class='line'>SF-Port80-TCP:V=7.12%I=7%D=7/25%Time=5796380B%P=i586-pc-linux-gnu%r(GetReq
+</span><span class='line'>SF:uest,27F,"HTTP/1\.0\x20404\x20Not\x20Found\r\nConnection:\x20close\r\nC
+</span><span class='line'>SF:ontent-Type:\x20text/html;\x20charset=UTF-8\r\nContent-Length:\x20533\r
+</span><span class='line'>SF:\n\r\n&lt;!doctype\x20html&gt;&lt;html&gt;&lt;head&gt;&lt;title&gt;404\x20Not\x20Found&lt;/title&gt;&lt;
+</span><span class='line'>SF:style&gt;\nbody\x20{\x20background-color:\x20#fcfcfc;\x20color:\x20#333333
+</span><span class='line'>SF:;\x20margin:\x200;\x20padding:0;\x20}\nh1\x20{\x20font-size:\x201\.5em;
+</span><span class='line'>SF:\x20font-weight:\x20normal;\x20background-color:\x20#9999cc;\x20min-hei
+</span><span class='line'>SF:ght:2em;\x20line-height:2em;\x20border-bottom:\x201px\x20inset\x20black
+</span><span class='line'>SF:;\x20margin:\x200;\x20}\nh1,\x20p\x20{\x20padding-left:\x2010px;\x20}\n
+</span><span class='line'>SF:code\.url\x20{\x20background-color:\x20#eeeeee;\x20font-family:monospac
+</span><span class='line'>SF:e;\x20padding:0\x202px;}\n&lt;/style&gt;\n&lt;/head&gt;&lt;body&gt;&lt;h1&gt;Not\x20Found&lt;/h1&gt;&lt;
+</span><span class='line'>SF:p&gt;The\x20requested\x20resource\x20&lt;code\x20class=\"url\"&gt;/&lt;/code&gt;\x20wa
+</span><span class='line'>SF:s\x20not\x20found\x20on\x20this\x20server\.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;")%r(HTTPO
+</span><span class='line'>SF:ptions,27F,"HTTP/1\.0\x20404\x20Not\x20Found\r\nConnection:\x20close\r\
+</span><span class='line'>SF:nContent-Type:\x20text/html;\x20charset=UTF-8\r\nContent-Length:\x20533
+</span><span class='line'>SF:\r\n\r\n&lt;!doctype\x20html&gt;&lt;html&gt;&lt;head&gt;&lt;title&gt;404\x20Not\x20Found&lt;/title
+</span><span class='line'>SF:&gt;&lt;style&gt;\nbody\x20{\x20background-color:\x20#fcfcfc;\x20color:\x20#3333
+</span><span class='line'>SF:33;\x20margin:\x200;\x20padding:0;\x20}\nh1\x20{\x20font-size:\x201\.5e
+</span><span class='line'>SF:m;\x20font-weight:\x20normal;\x20background-color:\x20#9999cc;\x20min-h
+</span><span class='line'>SF:eight:2em;\x20line-height:2em;\x20border-bottom:\x201px\x20inset\x20bla
+</span><span class='line'>SF:ck;\x20margin:\x200;\x20}\nh1,\x20p\x20{\x20padding-left:\x2010px;\x20}
+</span><span class='line'>SF:\ncode\.url\x20{\x20background-color:\x20#eeeeee;\x20font-family:monosp
+</span><span class='line'>SF:ace;\x20padding:0\x202px;}\n&lt;/style&gt;\n&lt;/head&gt;&lt;body&gt;&lt;h1&gt;Not\x20Found&lt;/h1
+</span><span class='line'>SF:&gt;&lt;p&gt;The\x20requested\x20resource\x20&lt;code\x20class=\"url\"&gt;/&lt;/code&gt;\x20
+</span><span class='line'>SF:was\x20not\x20found\x20on\x20this\x20server\.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;")%r(Fou
+</span><span class='line'>SF:rOhFourRequest,2A2,"HTTP/1\.0\x20404\x20Not\x20Found\r\nConnection:\x20
+</span><span class='line'>SF:close\r\nContent-Type:\x20text/html;\x20charset=UTF-8\r\nContent-Length
+</span><span class='line'>SF::\x20568\r\n\r\n&lt;!doctype\x20html&gt;&lt;html&gt;&lt;head&gt;&lt;title&gt;404\x20Not\x20Foun
+</span><span class='line'>SF:d&lt;/title&gt;&lt;style&gt;\nbody\x20{\x20background-color:\x20#fcfcfc;\x20color:\
+</span><span class='line'>SF:x20#333333;\x20margin:\x200;\x20padding:0;\x20}\nh1\x20{\x20font-size:\
+</span><span class='line'>SF:x201\.5em;\x20font-weight:\x20normal;\x20background-color:\x20#9999cc;\
+</span><span class='line'>SF:x20min-height:2em;\x20line-height:2em;\x20border-bottom:\x201px\x20inse
+</span><span class='line'>SF:t\x20black;\x20margin:\x200;\x20}\nh1,\x20p\x20{\x20padding-left:\x2010
+</span><span class='line'>SF:px;\x20}\ncode\.url\x20{\x20background-color:\x20#eeeeee;\x20font-famil
+</span><span class='line'>SF:y:monospace;\x20padding:0\x202px;}\n&lt;/style&gt;\n&lt;/head&gt;&lt;body&gt;&lt;h1&gt;Not\x20F
+</span><span class='line'>SF:ound&lt;/h1&gt;&lt;p&gt;The\x20requested\x20resource\x20&lt;code\x20class=\"url\"&gt;/nic
+</span><span class='line'>SF:e%20ports%2C/Tri%6Eity\.txt%2ebak&lt;/code&gt;\x20was\x20not\x20found\x20on\x
+</span><span class='line'>SF:20this\x20server\.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;");
+</span><span class='line'>==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============
+</span><span class='line'>SF-Port666-TCP:V=7.12%I=7%D=7/25%Time=57963805%P=i586-pc-linux-gnu%r(NULL,
+</span><span class='line'>SF:2D58,"PK\x03\x04\x14\0\x02\0\x08\0d\x80\xc3Hp\xdf\x15\x81\xaa,\0\0\x152
+</span><span class='line'>SF:\0\0\x0c\0\x1c\0message2\.jpgUT\t\0\x03\+\x9cQWJ\x9cQWux\x0b\0\x01\x04\
+</span><span class='line'>SF:xf5\x01\0\0\x04\x14\0\0\0\xadz\x0bT\x13\xe7\xbe\xefP\x94\x88\x88A@\xa2\
+</span><span class='line'>SF:x20\x19\xabUT\xc4T\x11\xa9\x102&gt;\x8a\xd4RDK\x15\x85Jj\xa9\"DL\[E\xa2\x0
+</span><span class='line'>SF:c\x19\x140&lt;\xc4\xb4\xb5\xca\xaen\x89\x8a\x8aV\x11\x91W\xc5H\x20\x0f\xb2
+</span><span class='line'>SF:\xf7\xb6\x88\n\x82@%\x99d\xb7\xc8#;3\[\r_\xcddr\x87\xbd\xcf9\xf7\xaeu\x
+</span><span class='line'>SF:eeY\xeb\xdc\xb3oX\xacY\xf92\xf3e\xfe\xdf\xff\xff\xff=2\x9f\xf3\x99\xd3\
+</span><span class='line'>SF:x08y}\xb8a\xe3\x06\xc8\xc5\x05\x82&gt;`\xfe\x20\xa7\x05:\xb4y\xaf\xf8\xa0\
+</span><span class='line'>SF:xf8\xc0\^\xf1\x97sC\x97\xbd\x0b\xbd\xb7nc\xdc\xa4I\xd0\xc4\+j\xce\[\x87
+</span><span class='line'>SF:\xa0\xe5\x1b\xf7\xcc=,\xce\x9a\xbb\xeb\xeb\xdds\xbf\xde\xbd\xeb\x8b\xf4
+</span><span class='line'>SF:\xfdis\x0f\xeeM\?\xb0\xf4\x1f\xa3\xcceY\xfb\xbe\x98\x9b\xb6\xfb\xe0\xdc
+</span><span class='line'>SF:\]sS\xc5bQ\xfa\xee\xb7\xe7\xbc\x05AoA\x93\xfe9\xd3\x82\x7f\xcc\xe4\xd5\
+</span><span class='line'>SF:x1dx\xa2O\x0e\xdd\x994\x9c\xe7\xfe\x871\xb0N\xea\x1c\x80\xd63w\xf1\xaf\
+</span><span class='line'>SF:xbd&&q\xf9\x97'i\x85fL\x81\xe2\\\xf6\xb9\xba\xcc\x80\xde\x9a\xe1\xe2:\x
+</span><span class='line'>SF:c3\xc5\xa9\x85`\x08r\x99\xfc\xcf\x13\xa0\x7f{\xb9\xbc\xe5:i\xb2\x1bk\x8
+</span><span class='line'>SF:a\xfbT\x0f\xe6\x84\x06/\xe8-\x17W\xd7\xb7&\xb9N\x9e&lt;\xb1\\\.\xb9\xcc\xe
+</span><span class='line'>SF:7\xd0\xa4\x19\x93\xbd\xdf\^\xbe\xd6\xcdg\xcb\.\xd6\xbc\xaf\|W\x1c\xfd\x
+</span><span class='line'>SF:f6\xe2\x94\xf9\xebj\xdbf~\xfc\x98x'\xf4\xf3\xaf\x8f\xb9O\xf5\xe3\xcc\x9
+</span><span class='line'>SF:a\xed\xbf`a\xd0\xa2\xc5KV\x86\xad\n\x7fou\xc4\xfa\xf7\xa37\xc4\|\xb0\xf
+</span><span class='line'>SF:1\xc3\x84O\xb6nK\xdc\xbe#\)\xf5\x8b\xdd{\xd2\xf6\xa6g\x1c8\x98u\(\[r\xf
+</span><span class='line'>SF:8H~A\xe1qYQq\xc9w\xa7\xbe\?}\xa6\xfc\x0f\?\x9c\xbdTy\xf9\xca\xd5\xaak\x
+</span><span class='line'>SF:d7\x7f\xbcSW\xdf\xd0\xd8\xf4\xd3\xddf\xb5F\xabk\xd7\xff\xe9\xcf\x7fy\xd
+</span><span class='line'>SF:2\xd5\xfd\xb4\xa7\xf7Y_\?n2\xff\xf5\xd7\xdf\x86\^\x0c\x8f\x90\x7f\x7f\x
+</span><span class='line'>SF:f9\xea\xb5m\x1c\xfc\xfef\"\.\x17\xc8\xf5\?B\xff\xbf\xc6\xc5,\x82\xcb\[\
+</span><span class='line'>SF:x93&\xb9NbM\xc4\xe5\xf2V\xf6\xc4\t3&M~{\xb9\x9b\xf7\xda-\xac\]_\xf9\xcc
+</span><span class='line'>SF:\[qt\x8a\xef\xbao/\xd6\xb6\xb9\xcf\x0f\xfd\x98\x98\xf9\xf9\xd7\x8f\xa7\
+</span><span class='line'>SF:xfa\xbd\xb3\x12_@N\x84\xf6\x8f\xc8\xfe{\x81\x1d\xfb\x1fE\xf6\x1f\x81\xf
+</span><span class='line'>SF:d\xef\xb8\xfa\xa1i\xae\.L\xf2\\g@\x08D\xbb\xbfp\xb5\xd4\xf4Ym\x0bI\x96\
+</span><span class='line'>SF:x1e\xcb\x879-a\)T\x02\xc8\$\x14k\x08\xae\xfcZ\x90\xe6E\xcb&lt;C\xcap\x8f\x
+</span><span class='line'>SF:d0\x8f\x9fu\x01\x8dvT\xf0'\x9b\xe4ST%\x9f5\x95\xab\rSWb\xecN\xfb&\xf4\x
+</span><span class='line'>SF:ed\xe3v\x13O\xb73A#\xf0,\xd5\xc2\^\xe8\xfc\xc0\xa7\xaf\xab4\xcfC\xcd\x8
+</span><span class='line'>SF:8\x8e}\xac\x15\xf6~\xc4R\x8e`wT\x96\xa8KT\x1cam\xdb\x99f\xfb\n\xbc\xbcL
+</span><span class='line'>SF:}AJ\xe5H\x912\x88\(O\0k\xc9\xa9\x1a\x93\xb8\x84\x8fdN\xbf\x17\xf5\xf0\.
+</span><span class='line'>SF:npy\.9\x04\xcf\x14\x1d\x89Rr9\xe4\xd2\xae\x91#\xfbOg\xed\xf6\x15\x04\xf
+</span><span class='line'>SF:6~\xf1\]V\xdcBGu\xeb\xaa=\x8e\xef\xa4HU\x1e\x8f\x9f\x9bI\xf4\xb6GTQ\xf3
+</span><span class='line'>SF:\xe9\xe5\x8e\x0b\x14L\xb2\xda\x92\x12\xf3\x95\xa2\x1c\xb3\x13\*P\x11\?\
+</span><span class='line'>SF:xfb\xf3\xda\xcaDfv\x89`\xa9\xe4k\xc4S\x0e\xd6P0");
+</span><span class='line'>MAC Address: 00:0C:29:11:36:D7 (VMware)
+</span><span class='line'>Device type: general purpose
+</span><span class='line'>Running: Linux 3.X|4.X
+</span><span class='line'>OS CPE: cpe:/o:linux:linux_kernel:3 cpe:/o:linux:linux_kernel:4
+</span><span class='line'>OS details: Linux 3.2 - 4.4
+</span><span class='line'>Uptime guess: 0.005 days (since Mon Jul 25 10:57:52 2016)
+</span><span class='line'>Network Distance: 1 hop
+</span><span class='line'>TCP Sequence Prediction: Difficulty=259 (Good luck!)
+</span><span class='line'>IP ID Sequence Generation: All zeros
+</span><span class='line'>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+</span><span class='line'>
+</span><span class='line'>Host script results:
+</span><span class='line'>| nbstat: NetBIOS name: RED, NetBIOS user: &lt;unknown&gt;, NetBIOS MAC: &lt;unknown&gt; (unknown)
+</span><span class='line'>| Names:
+</span><span class='line'>|   RED&lt;00&gt;              Flags: &lt;unique&gt;&lt;active&gt;
+</span><span class='line'>|   RED&lt;03&gt;              Flags: &lt;unique&gt;&lt;active&gt;
+</span><span class='line'>|   RED&lt;20&gt;              Flags: &lt;unique&gt;&lt;active&gt;
+</span><span class='line'>|   \x01\x02__MSBROWSE__\x02&lt;01&gt;  Flags: &lt;group&gt;&lt;active&gt;
+</span><span class='line'>|   WORKGROUP&lt;00&gt;        Flags: &lt;group&gt;&lt;active&gt;
+</span><span class='line'>|   WORKGROUP&lt;1d&gt;        Flags: &lt;unique&gt;&lt;active&gt;
+</span><span class='line'>|_  WORKGROUP&lt;1e&gt;        Flags: &lt;group&gt;&lt;active&gt;
+</span><span class='line'>| smb-os-discovery: 
+</span><span class='line'>|   OS: Windows 6.1 (Samba 4.3.9-Ubuntu)
+</span><span class='line'>|   Computer name: red
+</span><span class='line'>|   NetBIOS computer name: RED
+</span><span class='line'>|   Domain name: 
+</span><span class='line'>|   FQDN: red
+</span><span class='line'>|_  System time: 2016-07-25T17:02:34+01:00
+</span><span class='line'>| smb-security-mode: 
+</span><span class='line'>|   account_used: guest
+</span><span class='line'>|   authentication_level: user
+</span><span class='line'>|   challenge_response: supported
+</span><span class='line'>|_  message_signing: disabled (dangerous, but default)
+</span><span class='line'>|_smbv2-enabled: Server supports SMBv2 protocol
+</span><span class='line'>
+</span><span class='line'>TRACEROUTE
+</span><span class='line'>HOP RTT     ADDRESS
+</span><span class='line'>1   0.66 ms 192.168.41.152
+</span><span class='line'>
+</span><span class='line'>NSE: Script Post-scanning.
+</span><span class='line'>Initiating NSE at 11:04
+</span><span class='line'>Completed NSE at 11:04, 0.00s elapsed
+</span><span class='line'>Initiating NSE at 11:04
+</span><span class='line'>Completed NSE at 11:04, 0.00s elapsed
+</span><span class='line'>Read data files from: /usr/bin/../share/nmap
+</span><span class='line'>OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+</span><span class='line'>Nmap done: 1 IP address (1 host up) scanned in 217.50 seconds
+</span><span class='line'>           Raw packets sent: 131125 (5.771MB) | Rcvd: 64 (3.108KB)</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-07-25T10:57:44-05:00" pubdate data-updated="true">2016-07-25 10:57:44 -0500</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/vulhub/'>vulhub</a>
+
+</div>
+
+
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+<!---	<a class="addthis_counter addthis_pill_style"></a> --->
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2016
+
+    Bob1Bob2
+
+<br>
+Powered by Octopress.
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>
