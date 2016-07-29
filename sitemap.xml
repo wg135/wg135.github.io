@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://wg135.github.io/blog/2016/07/28/milnet1/</loc>
+<lastmod>2016-07-28T14:47:38-05:00</lastmod>
+</url>
+<url>
 <loc>http://wg135.github.io/blog/2016/07/27/sidney-0-dot-2/</loc>
 <lastmod>2016-07-27T10:23:04-05:00</lastmod>
 </url>
@@ -281,6 +285,9 @@
 </url>
 <url>
 <loc>http://wg135.github.io/blog/categories/phpfm/</loc>
+</url>
+<url>
+<loc>http://wg135.github.io/blog/categories/rfi/</loc>
 </url>
 <url>
 <loc>http://wg135.github.io/posts/2/</loc>
