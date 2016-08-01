@@ -4,7 +4,7 @@
   <title><![CDATA[Category: drupal | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/drupal/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-08-01T12:30:03-05:00</updated>
+  <updated>2016-08-01T15:20:40-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -25,8 +25,8 @@
 <li>Nmap</li>
 <li>Wfuzz</li>
 <li>Nikto</li>
-<li>Metasploit
-*</li>
+<li>Metasploit</li>
+<li>droopescan</li>
 </ul>
 
 
@@ -77,6 +77,8 @@
 
 <p>Find the target use <code>Drupal</code></p>
 
+<h3>Use Metasploit</h3>
+
 <p>in msfconsole, search drupal, find an interesting exploit <code>exploit/multi/http/drupal_drupageddon</code></p>
 
 <pre><code>msf &gt; use exploit/multi/http/drupal_drupageddon
@@ -105,6 +107,46 @@ msf exploit(drupal_drupageddon) &gt; exploit
 <p>upload the exploit, compile and run it, get the root:</p>
 
 <p><img src="/images/blog/vulhub/drooy2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<h3>Another way</h3>
+
+<p>use droopescan to scan</p>
+
+<p><code>droopescan scan drupal -u http://192.168.41.155/ -t 8</code></p>
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now I know the version is 7.30</p>
+
+<p><code>searchsploit drupal</code></p>
+
+<p>find the 34992.txt exploit works.</p>
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>./34992.py -t http://192.168.41.155 -u test -p test</code></p>
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>this exploit creates an admin account test/test, then in <code>Modules</code>, make sure the <code>PHP filter</code> is selected.</p>
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Also in <code>People</code> -> <code>Permissions</code>, check <code>Use the PHP code text format</code></p>
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>In  <code>configuration</code> -> <code>Content authoring</code> -> <code>Text formats</code>,  need to check administrator box.</p>
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Then create a new content (copy and paste reverse shell php code) and use PhP Code in the format, save it, then netcat will get the shell.</p>
+
+<p><img src="/images/blog/vulhub/drooy2/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Then use same method in the first part of this post to get the root.</p>
+
+<p>DONE</p>
 ]]></content>
   </entry>
   
