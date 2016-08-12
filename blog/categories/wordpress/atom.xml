@@ -4,7 +4,7 @@
   <title><![CDATA[Category: wordpress | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/wordpress/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-08-03T14:39:54-05:00</updated>
+  <updated>2016-08-12T13:04:45-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -61,7 +61,7 @@
 
 <p>use wfuzz to scan:</p>
 
-<pre><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.157/Hackademic_RTB1//FUZZ 2&gt;/dev/null
+<pre><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.157/Hackademic_RTB1/FUZZ 2&gt;/dev/null
 </code></pre>
 
 <p><img src="/images/blog/vulhub/rtb1/Selection_004.png" title="[title manually exploit [alt text]]" ></p>

