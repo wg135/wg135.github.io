@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://wg135.github.io/blog/2016/08/12/lord-the-root/</loc>
+<lastmod>2016-08-12T13:50:04-05:00</lastmod>
+</url>
+<url>
 <loc>http://wg135.github.io/blog/2016/08/10/hackademic-rtb2/</loc>
 <lastmod>2016-08-10T15:38:10-05:00</lastmod>
 </url>
@@ -315,5 +319,8 @@
 </url>
 <url>
 <loc>http://wg135.github.io/posts/4/</loc>
+</url>
+<url>
+<loc>http://wg135.github.io/posts/5/</loc>
 </url>
 </urlset>
