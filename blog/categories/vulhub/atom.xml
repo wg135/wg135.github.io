@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-08-16T16:51:34-05:00</updated>
+  <updated>2016-08-16T16:53:10-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -193,9 +193,9 @@ gcc 39166.c -o local
 
 <p>follow the instruction <code>https://www.exploit-db.com/exploits/1518/</code></p>
 
-<p>use the c code:</p>
+<p>use the c code:(1518.c)</p>
 
-<pre><code class="c 1518.c">
+<pre><code class="c">
 #include &lt;stdio.h&gt;
 #include &lt;stdlib.h&gt;
 

