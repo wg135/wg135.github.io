@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://wg135.github.io/blog/2016/08/18/the-wall/</loc>
+<lastmod>2016-08-18T14:23:31-05:00</lastmod>
+</url>
+<url>
 <loc>http://wg135.github.io/blog/2016/08/12/lord-the-root/</loc>
 <lastmod>2016-08-12T13:50:04-05:00</lastmod>
 </url>
@@ -313,6 +317,9 @@
 </url>
 <url>
 <loc>http://wg135.github.io/blog/categories/port-knocking/</loc>
+</url>
+<url>
+<loc>http://wg135.github.io/blog/categories/sftp/</loc>
 </url>
 <url>
 <loc>http://wg135.github.io/posts/2/</loc>
