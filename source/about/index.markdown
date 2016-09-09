@@ -6,6 +6,7 @@ comments: true
 sharing: true
 footer: true
 ---
+谢公与人围棋，俄而谢玄淮上信至，看书竟，默然无言，徐向局。客问淮上利害，答曰：“ 小儿辈大破贼。” --《世说新语》
 
 Hi, I am Bob1Bob2, an unofficial Pen Tester based in Austin, TX.
 
