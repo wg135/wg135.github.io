@@ -150,7 +150,7 @@ download them to the target:
 
 get the F***ing root:
 
-`{% img  /images/blog/vulhub/kioptrix5/Selection_017.png   [title manually exploit [alt text]] %}`
+{% img  /images/blog/vulhub/kioptrix5/Selection_017.png   [title manually exploit [alt text]] %}
 
 
 

