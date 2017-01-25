@@ -6,7 +6,7 @@ comments: true
 categories: oscp
 ---
 
-
+Haven't update my notes for about 90-120 days. I spent last 3 month in OSCP lab and finally got my first milestone on my way to slag dragon.
 
 
 <!--more-->
@@ -36,7 +36,7 @@ Got first root at 9:00AM. At 9:30AM got another one. So in first 90 mins, I got 
 
 The time I got 3 roots and 1 shell. I guess I got 65 points in the exam and there are 10 lab report points may be added.
 
-After oneday got the result:
+After one day got the result:
 
 ##pass!
 
