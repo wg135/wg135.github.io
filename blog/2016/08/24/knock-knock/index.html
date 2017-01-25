@@ -1,0 +1,281 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script data-cfasync="false" type="text/javascript" src="//use.typekit.net/axj3cfp.js"></script>
+	<script data-cfasync="false" type="text/javascript">try{Typekit.load();}catch(e){}</script>
+	<meta charset="utf-8">
+	<title>Knock-knock  | Bob1Bob2</title>
+
+<meta name="author" content="Bob1Bob2"> 
+
+<meta name="description" content="Tools: netdiscover
+Nmap
+Wfuzz
+Nikto
+Strings Vulnerabilities: Use netdiscover to detect target IP address netdiscover -i eth0 -r 192.168.41.0/24 192. &hellip;"> <meta name="keywords" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Bob1Bob2" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="/javascripts/jquery.fancybox.pack.js"></script>
+
+<script language="Javascript" type="text/javascript">
+$(document).ready(
+  function() {
+    (function($) {
+      $(".fancybox[data-content-id]").each(function() {
+        this.href = $(this).data('content-id');
+      });
+      $(".fancybox").fancybox({
+        beforeLoad: function() {
+          var el, 
+              id = $(this.element).data('title-id');
+
+          if (id) {
+            el = $('#' + id);
+
+            if (el.length) {
+              this.title = el.html();
+            }
+          }
+          if ($(this).data('content')) {
+            this.content = $(this).data('content');
+          }
+        },
+        helpers: {
+          title: {
+            type: 'inside'
+          }
+        }
+      });
+    })(jQuery);
+  }
+);
+</script>
+
+	
+</head>
+
+
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Bob1Bob2</a></h1>
+<h4>Pen Test Notes</h4>
+<nav id="main-nav"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="https://www.google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:wg135.github.io">
+			</form>
+		</div>
+	</div>
+</nav>
+
+
+</header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Knock-knock</h2>
+	<div class="entry-content"><h2>Tools:</h2>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>Strings</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code>
+<img src="/images/blog/vulhub/knock/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.166 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.166 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>only port 1337 is opening. Based on the nmap&rsquo;s output. I think this is port knocking.</p>
+
+<p>use netcat to check:</p>
+
+<p><code>nc -nv 192.168.41.166 1337</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the list, looks like port number. I try to knock them, but failed. Then I realized that i should try all permutations, then I wrote script <a href="https://github.com/wg135/script/blob/master/port_knock_all.py">port_knock_all.py</a>. Run that, then rerun nmap</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use nikto</p>
+
+<p><code>nikto -h 192.168.41.166</code></p>
+
+<p>use wfuzz</p>
+
+<p><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.166/FUZZ 2&gt;/dev/null</code></p>
+
+<p>Nothing cool shows.</p>
+
+<p>check the page</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>nothing useful. Since it is only one image, I will download it and check the string in it</p>
+
+<p><code>strings knockknock.jpg</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like we got <code>abfnW/sax2Cw9Ow</code></p>
+
+<p>try to use this login ssh, failed&hellip;.</p>
+
+<p>Figure out it is <a href="https://en.wikipedia.org/wiki/Caesar_cipher">Caesar cipher</a> and use <a href="http://www.xarg.org/tools/caesar-cipher/">Caesar cipher decryption tool</a></p>
+
+<p>get <code>jason/jB9jP2knf</code></p>
+
+<p>got shell:</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now find starting at root (/), SGID or SUID, not Symbolic links, only 3 folders deep, list with more detail and hide any errors (e.g. permission denied)
+<code>find / -perm -g=s -o -perm -6000 ! -type l -maxdepth 3 -exec ls -ld {} \; 2&gt;/dev/null</code></p>
+
+<p>got a file <code>/home/jason/tfc</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>run the file</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like it need a input file and output file.</p>
+
+<p>tfc will encrypt input and also decrpt input if its encryped. Now generate a large input file.</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>python -c "print 'A'*5000" &gt;in.tfc</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get segmentation fault error.</p>
+
+<p>First, I use <a href="https://github.com/wg135/checksec">checksec.sh</a> to check if there is any protection</p>
+
+<p><code>./checksec.sh  --file tfc</code>
+<img src="/images/blog/vulhub/pipe/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>No protection.</p>
+
+<p>Since gdb is not available on the target, I download tfc to my kali</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>the address is 0x0675c916  not 0x41414141. so it should be encryption of 0x41414141. I was able to figure out how many bytes to pass in to overwrite the return address (4124 bytes).</p>
+
+<p>(To be continue&hellip;)</p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-08-24T15:37:28-05:00" pubdate data-updated="true">2016-08-24 15:37:28 -0500</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/vulhub/'>vulhub</a>
+
+</div>
+
+
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+<!---	<a class="addthis_counter addthis_pill_style"></a> --->
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2017
+
+    Bob1Bob2
+
+<br>
+Powered by Octopress.
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

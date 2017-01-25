@@ -1,0 +1,338 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script data-cfasync="false" type="text/javascript" src="//use.typekit.net/axj3cfp.js"></script>
+	<script data-cfasync="false" type="text/javascript">try{Typekit.load();}catch(e){}</script>
+	<meta charset="utf-8">
+	<title>the wall  | Bob1Bob2</title>
+
+<meta name="author" content="Bob1Bob2"> 
+
+<meta name="description" content="Tools: netdiscover
+Nmap
+Wireshark
+Netcat
+Wfuzz
+Nikto
+Hash-identifier
+Hashcat
+Steghide Vulnerabilities: Use netdiscover to detect target IP address &hellip;"> <meta name="keywords" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Bob1Bob2" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="/javascripts/jquery.fancybox.pack.js"></script>
+
+<script language="Javascript" type="text/javascript">
+$(document).ready(
+  function() {
+    (function($) {
+      $(".fancybox[data-content-id]").each(function() {
+        this.href = $(this).data('content-id');
+      });
+      $(".fancybox").fancybox({
+        beforeLoad: function() {
+          var el, 
+              id = $(this.element).data('title-id');
+
+          if (id) {
+            el = $('#' + id);
+
+            if (el.length) {
+              this.title = el.html();
+            }
+          }
+          if ($(this).data('content')) {
+            this.content = $(this).data('content');
+          }
+        },
+        helpers: {
+          title: {
+            type: 'inside'
+          }
+        }
+      });
+    })(jQuery);
+  }
+);
+</script>
+
+	
+</head>
+
+
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Bob1Bob2</a></h1>
+<h4>Pen Test Notes</h4>
+<nav id="main-nav"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="https://www.google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:wg135.github.io">
+			</form>
+		</div>
+	</div>
+</nav>
+
+
+</header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">The Wall</h2>
+	<div class="entry-content"><h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wireshark</li>
+<li>Netcat</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>Hash-identifier</li>
+<li>Hashcat</li>
+<li>Steghide</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.162 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.162 -p-</code></p>
+
+<p>However, no port is opening.</p>
+
+<p>use wireshark to check the traffic</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find the target send packet to TCP port 1337 in my Kali.</p>
+
+<p><code>nc -nlvp 1337</code></p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>nothing cool shows.</p>
+
+<p>rerun nmap, find port 80 is opening now</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>I use wfuzz and nikto and find nothing.</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>The webpage just show a image. check the source code:</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find an interesting string. <code>737465673d3333313135373330646262623337306663626539373230666536333265633035</code></p>
+
+<p>use Hash-identifier cannot figure out what&rsquo;s encode type. Finally, I find it is hex encode in hackbar. Hex decode to character, get</p>
+
+<p><code>steg=33115730dbbb370fcbe9720fe632ec05</code></p>
+
+<p>use Hash-identifier to find out <code>33115730dbbb370fcbe9720fe632ec05</code> is a MD5</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use hashcat to crack it.</p>
+
+<p><code>hashcat hash.txt /usr/share/wordlists/rockyou.txt</code></p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get password is <code>divisionbell</code></p>
+
+<p>Now I want to check the image to see if there is any hiden information</p>
+
+<p><code>steghide extract -p divisionbell -sf pink_floyd.jpg</code></p>
+
+<p>get the result:</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>U3lkQmFycmV0dA==|f831605ae34c2399d1e5bb3a4ab245d0</code> is very interesting. <code>|</code> separates the string into two parts.</p>
+
+<p><code>U3lkQmFycmV0dA==</code> is base64 encoded, decode it, <code>SydBarrett</code></p>
+
+<p><code>f831605ae34c2399d1e5bb3a4ab245d0</code> is MD5. crack it.</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>its <code>pinkfloydrocks</code></p>
+
+<p>now what, remember enumerate, enumerate and enumerate.</p>
+
+<p>rerun nmap again,</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 1965 is opening and running ssh</p>
+
+<p>login using SydBarrett/pinkfloydrocks.</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>shows This service allows sftp connections only</p>
+
+<p>use sftp to login</p>
+
+<p><code>sftp -P 1965 SydBarrett@192.168.41.162</code></p>
+
+<p>check the files</p>
+
+<p><code>sftp&gt; ls -ahl</code></p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check the file eclipsed_by_the_moon</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>tar zxvf eclipsed_by_the_moon</code></p>
+
+<p><code>foremost -v -i eclipsed_by_the_moon.lsd</code></p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>got a jpg file. <code>Roger Waters</code></p>
+
+<p>open it</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>and his password is <code>hello_is_there_anybody_in_there</code></p>
+
+<p>based on previous username <code>SydBarrett</code>, Roger Waters user name should be <code>RogerWaters</code></p>
+
+<p><code>ssh RogerWaters@192.168.41.162 -p 1965</code></p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check sticky bit set</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>find / -perm -u=s -type f -user DavidGilmour 2&gt;/dev/null
+</span><span class='line'>find / -perm -u=s -type f -user NickMason 2&gt;/dev/null
+</span><span class='line'>ls -al /usr/local/bin/shineon 
+</span><span class='line'>ls -al /usr/local/bin/brick</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="/images/blog/vulhub/wall/Selection_021.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>/usr/local/bin/brick</code> has sticky bit set.</p>
+
+<p>run it</p>
+
+<p><code>/usr/local/bin/brick</code></p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_022.png" title="[title manually exploit [alt text]]" ></p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-08-18T14:23:31-05:00" pubdate data-updated="true">2016-08-18 14:23:31 -0500</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/sftp/'>sftp</a>, <a class='category' href='/blog/categories/vulhub/'>vulhub</a>
+
+</div>
+
+
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+<!---	<a class="addthis_counter addthis_pill_style"></a> --->
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2017
+
+    Bob1Bob2
+
+<br>
+Powered by Octopress.
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

