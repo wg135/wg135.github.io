@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2017-06-13T15:48:36-05:00</updated>
+  <updated>2017-06-13T15:51:26-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -59,6 +59,8 @@
 <p><code>sudo docker commit 6d6853205f78 msf</code></p>
 
 <p>now map vps tcp port 8888 to container&rsquo;s tcp port 8888 for reverse tcp shell</p>
+
+<p><code>docker run -t -p 8888:8888 -i msf /bin/bash</code></p>
 
 <h3>test reverse shell:</h3>
 
