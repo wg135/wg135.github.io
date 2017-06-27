@@ -4,7 +4,7 @@
   <title><![CDATA[Category: beef, | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/beef/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2017-06-27T14:10:14-05:00</updated>
+  <updated>2017-06-27T14:12:02-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -20,7 +20,7 @@
     <id>http://wg135.github.io/blog/2017/06/26/beef-and-metasploit</id>
     <content type="html"><![CDATA[<p>Today I will take a note about how to use beef with metasploit</p>
 
-<h2>install beef</h2>
+<h3>install beef</h3>
 
 <p>Although kali includes beef, it still have some issues when I use.</p>
 
@@ -47,7 +47,7 @@
 
 <p><img src="/images/blog/misc/beef/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
 
-<p>in <a href="http://127.0.0.1/ui/authentication">http://127.0.0.1/ui/authentication</a></p>
+<p>in <a href="http://127.0.0.1:3000/ui/authentication">http://127.0.0.1:3000/ui/authentication</a></p>
 
 <p><img src="/images/blog/misc/beef/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
 
