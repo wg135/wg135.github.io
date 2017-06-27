@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://wg135.github.io/blog/2017/06/26/beef-and-metasploit/</loc>
+<lastmod>2017-06-26T16:09:40-05:00</lastmod>
+</url>
+<url>
 <loc>http://wg135.github.io/blog/2017/06/13/install-kali-and-metasploit-in-vps-using-docker/</loc>
 <lastmod>2017-06-13T15:06:01-05:00</lastmod>
 </url>
@@ -365,5 +369,8 @@
 </url>
 <url>
 <loc>http://wg135.github.io/blog/categories/oscp/</loc>
+</url>
+<url>
+<loc>http://wg135.github.io/blog/categories/beef/</loc>
 </url>
 </urlset>
