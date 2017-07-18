@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2017-07-18T13:07:01-05:00</updated>
+  <updated>2017-07-18T13:14:06-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -67,7 +67,7 @@
 
 <p><img src="http://wg135.github.io/images/blog/vulnerability/cve_2017_7659/Capture4.PNG" title="[title manually exploit [alt text]]" ></p>
 
-<p>function h2_stream_set_request_rec calls h2_request_rcreat to create http 2.0 request. req will be null when h2_request_rcreat fails.
+<p>function h2_stream_set_request_rec calls h2_request_rcreat is used to create http 2.0 request. req will be null when h2_request_rcreat fails.
 In this situation, log function ap_log_rerror will use req which leads process crash.</p>
 
 <p>next, exam function h2_request_rcreate (in httpd-2.4.25/modules/http2/h2_request.c).</p>
@@ -102,6 +102,10 @@ In this situation, log function ap_log_rerror will use req which leads process c
 <p>continue, it will hit break point at h2_stream_set_request_rec</p>
 
 <p><img src="http://wg135.github.io/images/blog/vulnerability/cve_2017_7659/Capture8.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>as we can see, it is in mod_http2.so.</p>
+
+<p>(not finish)</p>
 ]]></content>
   </entry>
   
