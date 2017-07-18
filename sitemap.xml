@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://wg135.github.io/blog/2017/07/18/cve-2017-7659-apache-vulnerability-reproduce/</loc>
+<lastmod>2017-07-18T10:41:52-05:00</lastmod>
+</url>
+<url>
 <loc>http://wg135.github.io/blog/2017/06/26/beef-and-metasploit/</loc>
 <lastmod>2017-06-26T16:09:40-05:00</lastmod>
 </url>
@@ -372,5 +376,11 @@
 </url>
 <url>
 <loc>http://wg135.github.io/blog/categories/beef/</loc>
+</url>
+<url>
+<loc>http://wg135.github.io/blog/categories/vulnerability/</loc>
+</url>
+<url>
+<loc>http://wg135.github.io/blog/categories/analysis/</loc>
 </url>
 </urlset>
