@@ -4,7 +4,7 @@
   <title><![CDATA[Category: metasploit | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/metasploit/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2017-06-27T14:12:02-05:00</updated>
+  <updated>2017-07-18T10:37:28-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -30,6 +30,9 @@
 
 <p><code>cd beef</code>
 <code>bundle install</code></p>
+
+<!--more-->
+
 
 <p>in beef/, change configure file config.yaml</p>
 
