@@ -4,7 +4,7 @@
   <title><![CDATA[Category: analysis | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/analysis/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2017-07-18T11:46:16-05:00</updated>
+  <updated>2017-07-18T13:07:01-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -82,6 +82,20 @@ In this situation, log function ap_log_rerror will use req which leads process c
 <p><img src="/images/blog/vulnerability/cve_2017_7659/Capture6.PNG" title="[title manually exploit [alt text]]" ></p>
 
 <p>if r->hostname is empty and http request version is great than 1.1 or http version == 0 without host will return http400. But it doesn&rsquo;t check one situation: when http version is 1.0 and without hostname value. That is the problem.</p>
+
+<h2>Debug</h2>
+
+<p>See reference how to debug apache: <a href="https://httpd.apache.org/dev/debugging.html">https://httpd.apache.org/dev/debugging.html</a></p>
+
+<p>set break point in function ap_read_request,</p>
+
+<p>run the poc. it will hit break point at ap_read_request, h2_stream_set_request_rec</p>
+
+<p><img src="/images/blog/vulnerability/cve_2017_7659/Capture7.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>continue, it will hit break point at h2_stream_set_request_rec</p>
+
+<p><img src="/images/blog/vulnerability/cve_2017_7659/Capture8.PNG" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
