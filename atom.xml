@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2018-05-15T15:15:31-05:00</updated>
+  <updated>2018-05-15T15:17:34-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -18,7 +18,7 @@
     <link href="http://wg135.github.io/blog/2018/05/15/cve-2016-0199/"/>
     <updated>2018-05-15T15:02:16-05:00</updated>
     <id>http://wg135.github.io/blog/2018/05/15/cve-2016-0199</id>
-    <content type="html"><![CDATA[<h3>Enviroment:</h3>
+    <content type="html"><![CDATA[<h3>0x0 Enviroment:</h3>
 
 <ul>
 <li>Windows 7 SP1 32-bit</li>
@@ -30,7 +30,7 @@
 <!--more-->
 
 
-<p>POC:</p>
+<h3>0x1 POC:</h3>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -54,6 +54,10 @@
 </span><span class='line'><span class="nt">&lt;/script&gt;</span>
 </span></code></pre></td></tr></table></div></figure>
 
+
+<h3>0x2 Vulnerability Reproduce</h3>
+
+<p>run</p>
 ]]></content>
   </entry>
   
