@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2018-05-18T10:29:00-05:00</updated>
+  <updated>2018-05-18T12:16:50-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -233,6 +233,24 @@
 <p>HeapAlloc creates a buffer, size is 0x5c and the address is in eax, 0x0d524fa0.</p>
 
 <p><img src="http://wg135.github.io/images/blog/vulnerability/cve_2016_0199/17.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>Address 0x0d524fa0 will be IMG object&rsquo;s address. But why?</p>
+
+<p>Keep going on</p>
+
+<p>a few <code>p</code>s</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulnerability/cve_2016_0199/18.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>since before calling MSHTML!CImgElement::CImgElement, ecx contains eax value 0d524fa0</p>
+
+<p>Use <code>dps</code> command (display pointers and symbols):</p>
+
+<p><code>dps 0d524fa0</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/vulnerability/cve_2016_0199/19.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>This is vtable address.</p>
 ]]></content>
   </entry>
   
