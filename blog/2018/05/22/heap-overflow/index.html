@@ -5,11 +5,34 @@
 	<script data-cfasync="false" type="text/javascript" src="//use.typekit.net/axj3cfp.js"></script>
 	<script data-cfasync="false" type="text/javascript">try{Typekit.load();}catch(e){}</script>
 	<meta charset="utf-8">
-	<title>Category: vulnerability  | Bob1Bob2</title>
+	<title>Heap Overflow  | Bob1Bob2</title>
 
 <meta name="author" content="Bob1Bob2"> 
 
-<meta name="description" content="Category: vulnerability"> <meta name="keywords" content="">
+<meta name="description" content="0x0 Enviroment: Windows 7 SP1 32-bit
+Windbg 0x1 POC: 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+#include &lt;windows.h&gt;
+#include &lt; &hellip;"> <meta name="keywords" content="">
 
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -96,19 +119,83 @@ $(document).ready(
 
 </header>
 
-	<div id="content" class="inner">
-	
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Heap Overflow</h2>
+	<div class="entry-content"><h3>0x0 Enviroment:</h3>
+
+<ul>
+<li>Windows 7 SP1 32-bit</li>
+<li>Windbg</li>
+</ul>
 
 
-	
-	
-	<section class="archives"><h1 class="year">2018</h1>
+<!--more-->
 
-<article>
-	<h2 class="title"><a href="/blog/2018/05/22/heap-overflow/">Heap Overflow</a></h2>
-	<div class="meta">
-		<div class="date">May 22</div>
-		
+
+<h3>0x1 POC:</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#include &lt;windows.h&gt;
+</span><span class='line'>#include &lt;stdio.h&gt;
+</span><span class='line'>
+</span><span class='line'>int main ( )
+</span><span class='line'>{
+</span><span class='line'>  HANDLE hHeap;
+</span><span class='line'>  char *heap;
+</span><span class='line'>  char str[] = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+</span><span class='line'>
+</span><span class='line'>  hHeap = HeapCreate(HEAP_GENERATE_EXCEPTIONS, 0x1000, 0xffff);
+</span><span class='line'>  getchar();  // halt, attach to process
+</span><span class='line'>
+</span><span class='line'>  heap = HeapAlloc(hHeap, 0, 0x10);
+</span><span class='line'>  printf("heap addr:0x%08x\n",heap);
+</span><span class='line'>
+</span><span class='line'>  strcpy(heap,str);   //  heap overflow
+</span><span class='line'>  HeapFree(hHeap, 0, heap);   // crash
+</span><span class='line'>
+</span><span class='line'>  HeapDestroy(hHeap);
+</span><span class='line'>  return 0;
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2018-05-22T15:11:44-05:00" pubdate data-updated="true">2018-05-22 15:11:44 -0500</time></div>
+	
 
 <div class="tags">
 
@@ -117,55 +204,21 @@ $(document).ready(
 </div>
 
 
-	    
-	</div>
-</article>
-
 	
+</div></article>
 
-
-<article>
-	<h2 class="title"><a href="/blog/2018/05/15/cve-2016-0199/">CVE-2016-0199</a></h2>
-	<div class="meta">
-		<div class="date">May 15</div>
-		
-
-<div class="tags">
-
-	<a class='category' href='/blog/categories/vulnerability/'>vulnerability</a>
-
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+<!---	<a class="addthis_counter addthis_pill_style"></a> --->
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
 </div>
 
-
-	    
-	</div>
-</article>
-
-	
-
-
-	
-	
-		</section>
-	
-	<section class="archives"><h1 class="year">2017</h1>
-
-<article>
-	<h2 class="title"><a href="/blog/2017/07/18/cve-2017-7659-apache-vulnerability-reproduce/">CVE-2017-7659 Apache Vulnerability Reproduce</a></h2>
-	<div class="meta">
-		<div class="date">Jul 18</div>
-		
-
-<div class="tags">
-
-	<a class='category' href='/blog/categories/analysis/'>analysis</a>, <a class='category' href='/blog/categories/vulnerability/'>vulnerability</a>
-
-</div>
-
-
-	    
-	</div>
-</article>
 
 </div>
 	<footer id="footer" class="inner">Copyright &copy; 2018
