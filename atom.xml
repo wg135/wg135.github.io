@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2018-05-22T13:30:32-05:00</updated>
+  <updated>2018-05-22T15:09:50-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -309,6 +309,10 @@
 
 <p><img src="http://wg135.github.io/images/blog/vulnerability/cve_2016_0199/27.PNG" title="[title manually exploit [alt text]]" ></p>
 
+<p>use command <code>t</code> to trace down</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulnerability/cve_2016_0199/37.PNG" title="[title manually exploit [alt text]]" ></p>
+
 <p>do <code>dps 0d5a2fa0</code></p>
 
 <p><img src="http://wg135.github.io/images/blog/vulnerability/cve_2016_0199/28.PNG" title="[title manually exploit [alt text]]" ></p>
@@ -375,6 +379,10 @@
 
 <p>set bp:
 <code>bp mshtml!CElement::setAttributeNode</code></p>
+
+<p>and finally got:</p>
+
+<p><img src="http://wg135.github.io/images/blog/vulnerability/cve_2016_0199/36.PNG" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
