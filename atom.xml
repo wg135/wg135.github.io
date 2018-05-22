@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2018-05-22T15:23:23-05:00</updated>
+  <updated>2018-05-22T15:26:33-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -31,7 +31,7 @@
 
 <h3>0x1 POC:</h3>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -52,27 +52,27 @@
 <span class='line-number'>19</span>
 <span class='line-number'>20</span>
 <span class='line-number'>21</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>#include &lt;windows.h&gt;
-</span><span class='line'>#include &lt;stdio.h&gt;
+</pre></td><td class='code'><pre><code class='C'><span class='line'><span class="cp">#include &lt;windows.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
 </span><span class='line'>
-</span><span class='line'>int main ( )
-</span><span class='line'>{
-</span><span class='line'>  HANDLE hHeap;
-</span><span class='line'>  char *heap;
-</span><span class='line'>  char str[] = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+</span><span class='line'><span class="kt">int</span> <span class="nf">main</span> <span class="p">(</span> <span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">HANDLE</span> <span class="n">hHeap</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">char</span> <span class="o">*</span><span class="n">heap</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">char</span> <span class="n">str</span><span class="p">[]</span> <span class="o">=</span> <span class="s">&quot;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;</span><span class="p">;</span>
 </span><span class='line'>
-</span><span class='line'>  hHeap = HeapCreate(HEAP_GENERATE_EXCEPTIONS, 0x1000, 0xffff);
-</span><span class='line'>  getchar();  // halt, attach to process
+</span><span class='line'>  <span class="n">hHeap</span> <span class="o">=</span> <span class="n">HeapCreate</span><span class="p">(</span><span class="n">HEAP_GENERATE_EXCEPTIONS</span><span class="p">,</span> <span class="mh">0x1000</span><span class="p">,</span> <span class="mh">0xffff</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">getchar</span><span class="p">();</span>    <span class="c1">// halt, attach to process</span>
 </span><span class='line'>
-</span><span class='line'>  heap = HeapAlloc(hHeap, 0, 0x10);
-</span><span class='line'>  printf("heap addr:0x%08x\n",heap);
+</span><span class='line'>  <span class="n">heap</span> <span class="o">=</span> <span class="n">HeapAlloc</span><span class="p">(</span><span class="n">hHeap</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mh">0x10</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;heap addr:0x%08x</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">heap</span><span class="p">);</span>
 </span><span class='line'>
-</span><span class='line'>  strcpy(heap,str);   //  heap overflow
-</span><span class='line'>  HeapFree(hHeap, 0, heap);   // crash
+</span><span class='line'>  <span class="n">strcpy</span><span class="p">(</span><span class="n">heap</span><span class="p">,</span><span class="n">str</span><span class="p">);</span> <span class="c1">//  heap overflow</span>
+</span><span class='line'>  <span class="n">HeapFree</span><span class="p">(</span><span class="n">hHeap</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">heap</span><span class="p">);</span>  <span class="c1">// crash</span>
 </span><span class='line'>
-</span><span class='line'>  HeapDestroy(hHeap);
-</span><span class='line'>  return 0;
-</span><span class='line'>}
+</span><span class='line'>  <span class="n">HeapDestroy</span><span class="p">(</span><span class="n">hHeap</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 ]]></content>
