@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2018-05-24T11:02:48-05:00</updated>
+  <updated>2018-05-24T11:04:43-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -21,6 +21,10 @@
     <content type="html"><![CDATA[<p>A simple code:</p>
 
 <p><img src="http://wg135.github.io/images/blog/note/c2assembly/1.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>compile it and check its assembly:</p>
+
+<p><img src="http://wg135.github.io/images/blog/note/c2assembly/2.PNG" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
