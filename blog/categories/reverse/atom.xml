@@ -4,7 +4,7 @@
   <title><![CDATA[Category: reverse | Bob1Bob2]]></title>
   <link href="http://wg135.github.io/blog/categories/reverse/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2018-05-24T11:04:43-05:00</updated>
+  <updated>2018-05-24T11:13:12-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -18,13 +18,50 @@
     <link href="http://wg135.github.io/blog/2018/05/23/c-plus-plus-to-assembly/"/>
     <updated>2018-05-23T10:47:11-05:00</updated>
     <id>http://wg135.github.io/blog/2018/05/23/c-plus-plus-to-assembly</id>
-    <content type="html"><![CDATA[<p>A simple code:</p>
+    <content type="html"><![CDATA[<h3>0x0 start</h3>
+
+<p>A simple code:</p>
 
 <p><img src="/images/blog/note/c2assembly/1.PNG" title="[title manually exploit [alt text]]" ></p>
 
 <p>compile it and check its assembly:</p>
 
 <p><img src="/images/blog/note/c2assembly/2.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>two instructions:</p>
+
+<pre><code>.text:004116D0                 push    ebp
+.text:004116D1                 mov     ebp, esp
+</code></pre>
+
+<p>ebp saves current function (main function in this code) stack base address. When call another function, the process needs to use that function&rsquo;s stack space. So it will save current stack base address and assign esp to ebp. use [ebp +??] to access function&rsquo;s aguments and use [ebp - ??] to access function&rsquo;s variable.</p>
+
+<pre><code>.text:004116D3                 sub     esp, 0C0h
+.text:004116D9                 push    ebx
+.text:004116DA                 push    esi
+.text:004116DB                 push    edi
+.text:004116DC                 lea     edi, [ebp+var_C0]
+.text:004116E2                 mov     ecx, 30h
+.text:004116E7                 mov     eax, 0CCCCCCCCh
+.text:004116EC                 rep stosd
+</code></pre>
+
+<p><code>sub     esp, 0C0h</code> will allocate a stack space,</p>
+
+<pre><code>.text:004116D9                 push    ebx
+.text:004116DA                 push    esi
+.text:004116DB                 push    edi
+</code></pre>
+
+<p>save these values.</p>
+
+<pre><code>.text:004116DC                 lea     edi, [ebp+var_C0]
+.text:004116E2                 mov     ecx, 30h
+.text:004116E7                 mov     eax, 0CCCCCCCCh
+.text:004116EC                 rep stosd
+</code></pre>
+
+<p>rep is repeat these instructions. ECX is the time of these actions and assign these value as ccccc&hellip;, since this is debug version.</p>
 ]]></content>
   </entry>
   
