@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2018-05-25T12:52:28-05:00</updated>
+  <updated>2018-05-25T13:39:23-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -170,6 +170,28 @@
 <p>compiler will replace NUMBER_ONE to number 10:</p>
 
 <p><img src="http://wg135.github.io/images/blog/note/c2assembly/18.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<h2>0x2 Operation</h2>
+
+<h3>Add</h3>
+
+<p>code:</p>
+
+<p><img src="http://wg135.github.io/images/blog/note/c2assembly/20.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>assembly code:</p>
+
+<p><img src="http://wg135.github.io/images/blog/note/c2assembly/21.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>Looks like compiler did some work.</p>
+
+<p>If we change the compiler options:</p>
+
+<p><img src="http://wg135.github.io/images/blog/note/c2assembly/22.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>The final result will be much clear:</p>
+
+<p><img src="http://wg135.github.io/images/blog/note/c2assembly/23PNG" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
