@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2018-05-25T09:54:20-05:00</updated>
+  <updated>2018-05-25T10:34:02-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -144,6 +144,22 @@
 <p>different types of pointer add 1 depends on its type:</p>
 
 <p><img src="http://wg135.github.io/images/blog/note/c2assembly/14.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<h3>Reference</h3>
+
+<p>Code:</p>
+
+<p><img src="http://wg135.github.io/images/blog/note/c2assembly/15.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>Here NVarType saves nVar&rsquo;s address</p>
+
+<p><img src="http://wg135.github.io/images/blog/note/c2assembly/16.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>check Add function:</p>
+
+<p><img src="http://wg135.github.io/images/blog/note/c2assembly/17.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>eax saves nVar&rsquo;s address</p>
 ]]></content>
   </entry>
   
