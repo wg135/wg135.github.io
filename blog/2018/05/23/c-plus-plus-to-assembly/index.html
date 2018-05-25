@@ -289,6 +289,18 @@ $(document).ready(
 <p>If there is a mixture of add and mul, compiler will use LEA instruction:</p>
 
 <p><img src="/images/blog/note/c2assembly/26.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<h3>Div</h3>
+
+<p>code:</p>
+
+<p><img src="/images/blog/note/c2assembly/27.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>assembly:</p>
+
+<p><img src="/images/blog/note/c2assembly/28.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p><code>cdq</code> copies the sign (bit 31) of the value in the EAX register into every bit position in the EDX register.</p>
 </div>
 
 
