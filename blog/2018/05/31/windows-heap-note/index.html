@@ -311,6 +311,45 @@ Load the relase version into windbg</p>
 <p><img src="/images/blog/note/heap/14.PNG" title="[title manually exploit [alt text]]" ></p>
 
 <p>As we can see before allocation. address 0x00880588 is one whole heap. After the allocation, it gives 0x10 heap, which contains 8 byte heap header information, 3 bytes user data and 5 bytes fills.</p>
+
+<p>Lets check 0x00880588 heap header.</p>
+
+<p><code>dt _HEAP_ENTRY 00880588</code></p>
+
+<p><img src="/images/blog/note/heap/15.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>Clearly, the value is wrong. The reason is when the heapalloc funciton returns, that heap header values is done with xor operation.</p>
+
+<p>Let&rsquo;s find out</p>
+
+<p><code>dt _HEAP 00880000</code></p>
+
+<p><img src="/images/blog/note/heap/16.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>Encoding value is in offset 0x50</p>
+
+<p><code>dd 0x00880000 + 0x50</code></p>
+
+<p><img src="/images/blog/note/heap/17.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>found the encoding value is 0x64717779</p>
+
+<p>Revisit the first 4 bytes of heap entry value:</p>
+
+<p><img src="/images/blog/note/heap/18.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>it is 0x6770777b</p>
+
+<p><code>? 64717779^6770777b</code></p>
+
+<p><img src="/images/blog/note/heap/19.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>got value is 0x03010002.</p>
+
+<p>0x0002 means this heap is 2 blocks;
+0x01 means this heap is busy；
+0x03 means SmallTagIndex；
+Notice: 32 bits system one block is 8 bytes, while 64 bits system one block is 16 bytes.</p>
 </div>
 
 
