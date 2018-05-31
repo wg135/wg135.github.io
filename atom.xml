@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2018-05-31T14:01:22-05:00</updated>
+  <updated>2018-05-31T14:04:06-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -177,10 +177,13 @@ Load the relase version into windbg</p>
 </span><span class='line'>        00880000: 00000 . 00588 [101] - busy (587)
 </span><span class='line'>        00880588: 00588 . 00a58 [100]
 </span><span class='line'>        00880fe0: 00a58 . 00020 [111] - busy (1d)
-</span><span class='line'>        00881000:      0000f000      - uncommitted bytes.</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>        00881000:      0000f000      - uncommitted bytes.
+</span></code></pre></td></tr></table></div></figure>
 
 
+<p>In the result, there is a FreeList which is a linked list data structure. It stores addresses of free blocks. Right now it is in address 008800c4.</p>
 
+<p><img src="http://wg135.github.io/images/blog/note/heap/4.PNG" title="[title manually exploit [alt text]]" ></p>
 ]]></content>
   </entry>
   
