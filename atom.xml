@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2018-05-31T15:36:13-05:00</updated>
+  <updated>2018-05-31T15:56:59-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -273,13 +273,27 @@ Notice: 32 bits system one block is 8 bytes, while 64 bits system one block is 1
 
 <p>After h3 = HeapAlloc(hp, HEAP_ZERO_MEMORY, 6); check heap <code>!heap -a 0x00880000</code></p>
 
-<p>FreeList table at 008800c4 and points to block 008805c0. and this block&rsquo;s pre and next pointers point to FreeList table.</p>
+<p>FreeList at 008800c4 and points to block 008805c0. and this block&rsquo;s pre and next pointers point to FreeList .</p>
 
 <p><img src="http://wg135.github.io/images/blog/note/heap/20.PNG" title="[title manually exploit [alt text]]" ></p>
 
-<p>Notice, these pointers are stored after8 bytes heap header information.</p>
+<p>Notice, these pointers are stored after 8 bytes heap header information.</p>
 
 <p><img src="http://wg135.github.io/images/blog/note/heap/21.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>After a few heap free operations.</p>
+
+<p>Freelist has 3 blocks:</p>
+
+<p><img src="http://wg135.github.io/images/blog/note/heap/22.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>These blocks are in order. When new heap alloc request comes in, function will go throught this free list and find the same size block, or find one to split it.</p>
+
+<p><img src="http://wg135.github.io/images/blog/note/heap/23.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>For example, code requests 0xc size, it will get 0x18 (0x08 + 0x0c) block.</p>
+
+<p>When heap free the block, it may combine with its neighbor. In this case, we fre h1, h3, h5. since their neighbors are in busy status, they will not combine to one block.</p>
 ]]></content>
   </entry>
   
