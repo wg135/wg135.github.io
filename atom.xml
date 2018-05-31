@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2018-05-31T14:37:52-05:00</updated>
+  <updated>2018-05-31T15:04:50-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -196,6 +196,39 @@ Load the relase version into windbg</p>
 <p>Freelist table will point to the address (0x00880590) after heap header (0x00880588). When the block is free, there are 8 bytes right after heap header infomation which stores pre and next pointers (here both are 0x008800c4).</p>
 
 <p><img src="http://wg135.github.io/images/blog/note/heap/7.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>Next we want to analze the heap malloc and free process. Open the exe using IDA Pro</p>
+
+<p><img src="http://wg135.github.io/images/blog/note/heap/8.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>The base is 0x400000.</p>
+
+<p><img src="http://wg135.github.io/images/blog/note/heap/9.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>and we want to set breakpoint at the first heapalloc function, which is 0x00401026.</p>
+
+<p>Check application&rsquo;s start address in windbg:
+<code>lmf m ConsoleApplication1</code></p>
+
+<p><img src="http://wg135.github.io/images/blog/note/heap/10.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>so the address we can set breakpoint is :</p>
+
+<p><img src="http://wg135.github.io/images/blog/note/heap/11.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>set the breakppoint and run.</p>
+
+<p><img src="http://wg135.github.io/images/blog/note/heap/12.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>before first allocation:</p>
+
+<p><img src="http://wg135.github.io/images/blog/note/heap/13.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>After first allocation:</p>
+
+<p><img src="http://wg135.github.io/images/blog/note/heap/14.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>As we can see before allocation. address 0x00880588 is one whole heap. After the allocation, it gives 0x10 heap, which contains 8 byte heap header information, 3 bytes user data and 5 bytes fills.</p>
 ]]></content>
   </entry>
   
