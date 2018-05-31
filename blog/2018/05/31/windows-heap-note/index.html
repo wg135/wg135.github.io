@@ -275,6 +275,8 @@ Load the relase version into windbg</p>
 
 <p><img src="/images/blog/note/heap/6.PNG" title="[title manually exploit [alt text]]" ></p>
 
+<p>Freelist table will point to the address (0x00880590) after heap header (0x00880588). When the block is free, there are 8 bytes right after heap header infomation which stores pre and next pointers (here both are 0x008800c4).</p>
+
 <p><img src="/images/blog/note/heap/7.PNG" title="[title manually exploit [alt text]]" ></p>
 </div>
 
