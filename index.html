@@ -9,10 +9,7 @@
 
 <meta name="author" content="Bob1Bob2"> 
 
-<meta name="description" content="0x0 start A simple code: compile it and check its assembly: two instructions: 1
-2
-.text:004116D0 push ebp
-.text:004116D1 mov ebp, esp ebp saves &hellip;"> <meta name="keywords" content="">
+<meta name="description" content=" 0x0 start A simple code: Read more 2018-05-31 13:38:19 -0500 "> <meta name="keywords" content="">
 
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -105,6 +102,47 @@ $(document).ready(
     <article class="post">
 	<h2 class="title">
 		
+		<a href="/blog/2018/05/31/windows-heap-note/">
+		
+			Windows Heap Note</a>
+	</h2>
+	<div class="entry-content">
+		<h2>0x0 start</h2>
+
+<p>A simple code:</p>
+
+<p><img src="/images/blog/note/heap/1.PNG" title="[title manually exploit [alt text]]" ></p>
+
+
+		
+		<a href="/blog/2018/05/31/windows-heap-note/" class="more-link">Read more</a>
+	</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2018-05-31T13:38:19-05:00" pubdate data-updated="true">2018-05-31 13:38:19 -0500</time></div>
+	
+
+
+	
+</div></article>
+
+
+    <article class="post">
+	<h2 class="title">
+		
 		<a href="/blog/2018/05/23/c-plus-plus-to-assembly/">
 		
 			C++ to Assembly</a>
@@ -116,203 +154,9 @@ $(document).ready(
 
 <p><img src="/images/blog/note/c2assembly/1.PNG" title="[title manually exploit [alt text]]" ></p>
 
-<p>compile it and check its assembly:</p>
-
-<p><img src="/images/blog/note/c2assembly/2.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p>two instructions:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>.text:004116D0                 push    ebp
-</span><span class='line'>.text:004116D1                 mov     ebp, esp
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>ebp saves current function (main function in this code) stack base address. When call another function, the process needs to use that function&rsquo;s stack space. So it will save current stack base address and assign esp to ebp. use [ebp +??] to access function&rsquo;s aguments and use [ebp - ??] to access function&rsquo;s variable.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>.text:004116D3                 sub     esp, 0C0h
-</span><span class='line'>.text:004116D9                 push    ebx
-</span><span class='line'>.text:004116DA                 push    esi
-</span><span class='line'>.text:004116DB                 push    edi
-</span><span class='line'>.text:004116DC                 lea     edi, [ebp+var_C0]
-</span><span class='line'>.text:004116E2                 mov     ecx, 30h
-</span><span class='line'>.text:004116E7                 mov     eax, 0CCCCCCCCh
-</span><span class='line'>.text:004116EC                 rep stosd</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>sub     esp, 0C0h</code> will allocate a stack space,</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>.text:004116D9                 push    ebx
-</span><span class='line'>.text:004116DA                 push    esi
-</span><span class='line'>.text:004116DB                 push    edi</span></code></pre></td></tr></table></div></figure>
-
-
-<p>save these values.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>.text:004116DC                 lea     edi, [ebp+var_C0]
-</span><span class='line'>.text:004116E2                 mov     ecx, 30h
-</span><span class='line'>.text:004116E7                 mov     eax, 0CCCCCCCCh
-</span><span class='line'>.text:004116EC                 rep stosd</span></code></pre></td></tr></table></div></figure>
-
-
-<p>rep is repeat these instructions. ECX is the time of these actions and assign these value as ccccc&hellip;, since this is debug version.</p>
-
-<h2>0x1 Data Type</h2>
-
-<h3>Float</h3>
-
-<p>code:</p>
-
-<p><img src="/images/blog/note/c2assembly/3.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p>Visual Studio 2015 assembly code:</p>
-
-<p><img src="/images/blog/note/c2assembly/4.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p><a href="https://c9x.me/x86/html/file_module_x86_id_205.html"><code>movss</code></a>: , Move Scalar Single-Precision Floating-Point Values.</p>
-
-<p><a href="http://qcd.phys.cmu.edu/QCDcluster/intel/vtune/reference/vc60.htm"><code>cvtsi2ss</code></a>: Convert one signed doubleword integer from r/m32 to one single-precision floating-point number in xmm.</p>
-
-<p><a href="https://x86.puri.sm/html/file_module_x86_id_60.html"><code>cvtss2sd</code></a>: Convert Scalar Single-Precision Floating-Point Value to Scalar Double-Precision Floating-Point Value</p>
-
-<p><img src="/images/blog/note/c2assembly/5.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p><a href="https://docs.oracle.com/cd/E19120-01/open.solaris/817-5477/epmpi/index.html"><code>cvttss2si</code></a>: Convert with Truncation Scalar Single-Precision Floating-Point Value to Integer</p>
-
-<h3>String</h3>
-
-<p>code:</p>
-
-<p><img src="/images/blog/note/c2assembly/6.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p>VS 2015 assembly:</p>
-
-<p><img src="/images/blog/note/c2assembly/7.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p>wchar_t is intended for representing text in fixed-width, multi-byte encodings; since wchar_t is usually 2 bytes in size it can be used to represent text in any 2-byte encoding. It can also be used for representing text in variable-width multi-byte encodings of which the most common is UTF-16.</p>
-
-<p>search memory window</p>
-
-<p><img src="/images/blog/note/c2assembly/8.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p><img src="/images/blog/note/c2assembly/9.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<h3>Pointer</h3>
-
-<p>code:</p>
-
-<p><img src="/images/blog/note/c2assembly/10.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p>VS 2015 assembly:</p>
-
-<p><img src="/images/blog/note/c2assembly/11.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p>Pointer is 32-bits, thats why its type is dword ptr.  But in the above, since data type is different, it uses dword ptr, byte ptr and word ptr.</p>
-
-<p><img src="/images/blog/note/c2assembly/12.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p>In C++, pointer can only use add and sub. (because it stands for address).</p>
-
-<p>code:</p>
-
-<p><img src="/images/blog/note/c2assembly/13.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p>different types of pointer add 1 depends on its type:</p>
-
-<p><img src="/images/blog/note/c2assembly/14.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<h3>Reference</h3>
-
-<p>Code:</p>
-
-<p><img src="/images/blog/note/c2assembly/15.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p>Here nVarType saves nVar&rsquo;s address</p>
-
-<p><img src="/images/blog/note/c2assembly/16.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p>check Add function:</p>
-
-<p><img src="/images/blog/note/c2assembly/17.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p>eax saves nVar&rsquo;s address.</p>
-
-<h3>Constant</h3>
-
-<p>Code:</p>
-
-<p><img src="/images/blog/note/c2assembly/19.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p>compiler will replace NUMBER_ONE to number 10:</p>
-
-<p><img src="/images/blog/note/c2assembly/18.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<h2>0x2 Operation</h2>
-
-<h3>Add</h3>
-
-<p>code:</p>
-
-<p><img src="/images/blog/note/c2assembly/20.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p>assembly code:</p>
-
-<p><img src="/images/blog/note/c2assembly/21.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p>Looks like compiler did some work.</p>
-
-<p>If we change the compiler options:</p>
-
-<p><img src="/images/blog/note/c2assembly/22.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p>The final result will be much clear:</p>
-
-<p><img src="/images/blog/note/c2assembly/23.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<h3>Multiplication</h3>
-
-<p>code:</p>
-
-<p><img src="/images/blog/note/c2assembly/24.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p>compiler will try to use shift instruction if the argument is 2 4 8 etc. Otherwise it will use mul or imul</p>
-
-<p><img src="/images/blog/note/c2assembly/25.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p>If there is a mixture of add and mul, compiler will use LEA instruction:</p>
-
-<p><img src="/images/blog/note/c2assembly/26.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<h3>Div</h3>
-
-<p>code:</p>
-
-<p><img src="/images/blog/note/c2assembly/27.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p>assembly:</p>
-
-<p><img src="/images/blog/note/c2assembly/28.PNG" title="[title manually exploit [alt text]]" ></p>
-
-<p><code>cdq</code> copies the sign (bit 31) of the value in the EAX register into every bit position in the EDX register.</p>
 
 		
-		
+		<a href="/blog/2018/05/23/c-plus-plus-to-assembly/" class="more-link">Read more</a>
 	</div>
 
 
@@ -709,54 +553,6 @@ $(document).ready(
 	<a class='category' href='/blog/categories/lfi/'>lfi</a>
 
 </div>
-
-
-	
-</div></article>
-
-
-    <article class="post">
-	<h2 class="title">
-		
-		<a href="/blog/2016/09/11/acid-reload/">
-		
-			Acid_reload</a>
-	</h2>
-	<div class="entry-content">
-		<h2>Tools:</h2>
-
-<ul>
-<li>netdiscover</li>
-<li>Nmap</li>
-<li>Wfuzz</li>
-<li>DirBuster</li>
-<li>Burp</li>
-</ul>
-
-
-<h3>Vulnerabilities:</h3>
-
-
-		
-		<a href="/blog/2016/09/11/acid-reload/" class="more-link">Read more</a>
-	</div>
-
-
-<div class="meta">
-	<div class="date">
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2016-09-11T08:58:02-05:00" pubdate data-updated="true">2016-09-11 08:58:02 -0500</time></div>
-	
 
 
 	
