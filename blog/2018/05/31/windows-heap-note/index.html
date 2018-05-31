@@ -121,6 +121,14 @@ $(document).ready(
 Load the relase version into windbg</p>
 
 <p><img src="/images/blog/note/heap/2.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>Check heap status: <code>!heap -stat</code></p>
+
+<p><img src="/images/blog/note/heap/3.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>Address 00880000 points to the heap that we created. Other one is process default heap.</p>
+
+<p>we can see that Reserved  bytes size is 0x10000 and Committed bytes 0x1000, which specified in <code>hp = HeapCreate(0, 0x1000, 0x10000);</code>.</p>
 </div>
 
 
