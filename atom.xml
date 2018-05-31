@@ -4,7 +4,7 @@
   <title><![CDATA[Bob1Bob2]]></title>
   <link href="http://wg135.github.io/atom.xml" rel="self"/>
   <link href="http://wg135.github.io/"/>
-  <updated>2018-05-31T15:58:08-05:00</updated>
+  <updated>2018-05-31T16:00:16-05:00</updated>
   <id>http://wg135.github.io/</id>
   <author>
     <name><![CDATA[Bob1Bob2]]></name>
@@ -294,6 +294,16 @@ Notice: 32 bits system one block is 8 bytes, while 64 bits system one block is 1
 <p>For example, code requests 0xc size, it will get 0x18 (0x08 + 0x0c) block.</p>
 
 <p>When heap free the block, it may combine with its neighbor. In this case, we fre h1, h3, h5. since their neighbors are in busy status, they will not combine to one block.</p>
+
+<p><img src="http://wg135.github.io/images/blog/note/heap/24.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>But after h2 is freed, block will combine:</p>
+
+<p><img src="http://wg135.github.io/images/blog/note/heap/25.PNG" title="[title manually exploit [alt text]]" ></p>
+
+<p>Note:</p>
+
+<p>When debugging a heap code, you need to run the program first and then attach the windbg.</p>
 ]]></content>
   </entry>
   
