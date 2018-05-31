@@ -129,6 +129,140 @@ Load the relase version into windbg</p>
 <p>Address 00880000 points to the heap that we created. Other one is process default heap.</p>
 
 <p>we can see that Reserved  bytes size is 0x10000 and Committed bytes 0x1000, which specified in <code>hp = HeapCreate(0, 0x1000, 0x10000);</code>.</p>
+
+<p>Then <code>!heap -a 00880000</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>0:001&gt; !heap -stat
+</span><span class='line'>_HEAP 005b0000
+</span><span class='line'>     Segments            00000001
+</span><span class='line'>         Reserved  bytes 00100000
+</span><span class='line'>         Committed bytes 00017000
+</span><span class='line'>     VirtAllocBlocks     00000000
+</span><span class='line'>         VirtAlloc bytes 00000000
+</span><span class='line'>_HEAP 00020000
+</span><span class='line'>     Segments            00000001
+</span><span class='line'>         Reserved  bytes 00010000
+</span><span class='line'>         Committed bytes 00010000
+</span><span class='line'>     VirtAllocBlocks     00000000
+</span><span class='line'>         VirtAlloc bytes 00000000
+</span><span class='line'>_HEAP 00880000
+</span><span class='line'>     Segments            00000001
+</span><span class='line'>         Reserved  bytes 00010000
+</span><span class='line'>         Committed bytes 00001000
+</span><span class='line'>     VirtAllocBlocks     00000000
+</span><span class='line'>         VirtAlloc bytes 00000000
+</span><span class='line'>_HEAP 00010000
+</span><span class='line'>     Segments            00000001
+</span><span class='line'>         Reserved  bytes 00010000
+</span><span class='line'>         Committed bytes 00001000
+</span><span class='line'>     VirtAllocBlocks     00000000
+</span><span class='line'>         VirtAlloc bytes 00000000
+</span><span class='line'>0:001&gt; !heap -a 00880000
+</span><span class='line'>Index   Address  Name      Debugging options enabled
+</span><span class='line'>  4:   00880000 
+</span><span class='line'>    Segment at 00880000 to 00890000 (00001000 bytes committed)
+</span><span class='line'>    Flags:                00001000
+</span><span class='line'>    ForceFlags:           00000000
+</span><span class='line'>    Granularity:          8 bytes
+</span><span class='line'>    Segment Reserve:      00100000
+</span><span class='line'>    Segment Commit:       00002000
+</span><span class='line'>    DeCommit Block Thres: 00000200
+</span><span class='line'>    DeCommit Total Thres: 00002000
+</span><span class='line'>    Total Free Size:      0000014b
+</span><span class='line'>    Max. Allocation Size: 7ffdefff
+</span><span class='line'>    Lock Variable at:     00880138
+</span><span class='line'>    Next TagIndex:        0000
+</span><span class='line'>    Maximum TagIndex:     0000
+</span><span class='line'>    Tag Entries:          00000000
+</span><span class='line'>    PsuedoTag Entries:    00000000
+</span><span class='line'>    Virtual Alloc List:   008800a0
+</span><span class='line'>    Uncommitted ranges:   00880090
+</span><span class='line'>            00881000: 0000f000  (61440 bytes)
+</span><span class='line'>    FreeList[ 00 ] at 008800c4: 00880590 . 00880590  
+</span><span class='line'>        00880588: 00588 . 00a58 [100] - free
+</span><span class='line'>
+</span><span class='line'>    Segment00 at 00880000:
+</span><span class='line'>        Flags:           00000000
+</span><span class='line'>        Base:            00880000
+</span><span class='line'>        First Entry:     00880588
+</span><span class='line'>        Last Entry:      00890000
+</span><span class='line'>        Total Pages:     00000010
+</span><span class='line'>        Total UnCommit:  0000000f
+</span><span class='line'>        Largest UnCommit:00000000
+</span><span class='line'>        UnCommitted Ranges: (1)
+</span><span class='line'>
+</span><span class='line'>    Heap entries for Segment00 in Heap 00880000
+</span><span class='line'>        00880000: 00000 . 00588 [101] - busy (587)
+</span><span class='line'>        00880588: 00588 . 00a58 [100]
+</span><span class='line'>        00880fe0: 00a58 . 00020 [111] - busy (1d)
+</span><span class='line'>        00881000:      0000f000      - uncommitted bytes.</span></code></pre></td></tr></table></div></figure>
+
+
+
 </div>
 
 
